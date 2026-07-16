@@ -1,0 +1,30 @@
+[project]
+name = "ariadne-docs-mcp-server"
+version = "0.1.0"
+description = "Open documentation server for Project Ariadne — MCP transport for coding agents + web-chat head (Clotho-lite), over the public protocol corpus. Built on the ariadne-docs core."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    # The retrieval engine + shared tool logic. [embeddings] pulls numpy for
+    # vector search, which this server always uses.
+    "ariadne-docs[embeddings]",
+    "mcp>=1.0.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.optional-dependencies]
+# The web-chat head. anthropic powers the default Claude generator; the endpoint
+# also runs keyless via the extractive fallback.
+web = ["fastapi>=0.110", "uvicorn>=0.27", "anthropic>=0.40"]
+dev = ["pytest>=7.0.0", "httpx>=0.27"]
+
+[project.scripts]
+ariadne-docs-open = "ariadne_docs_server.mcp_server:run"
+ariadne-docs-web = "ariadne_docs_server.web.app:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ariadne_docs_server"]
