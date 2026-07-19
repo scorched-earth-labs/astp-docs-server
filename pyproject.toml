@@ -1,22 +1,24 @@
 [project]
 name = "astp-docs-server"
 version = "0.1.0"
-description = "Open documentation server for Project Ariadne — MCP transport for coding agents + web-chat head (Clotho-lite), over the public protocol corpus. Built on the astp-docs core."
+description = "Open documentation server for ASTP (Ariadne State Tree Protocol) — MCP transport for coding agents + web-chat head (Clotho-lite), over the public protocol corpus. Built on the astp-docs core."
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     # The retrieval engine + shared tool logic. [embeddings] pulls numpy for
-    # vector search, which this server always uses.
+    # vector search, which every transport uses.
     "astp-docs[embeddings]",
-    "mcp>=1.0.0",
     "python-dotenv>=1.0.0",
 ]
 
 [project.optional-dependencies]
+# The MCP transport (FastMCP), for adopters' coding agents. Kept out of the base
+# deps so the web head can deploy without the MCP SDK.
+mcp = ["mcp>=1.0.0"]
 # The web-chat head. anthropic powers the default Claude generator; the endpoint
 # also runs keyless via the extractive fallback.
 web = ["fastapi>=0.110", "uvicorn>=0.27", "anthropic>=0.40"]
-dev = ["pytest>=7.0.0", "httpx>=0.27"]
+dev = ["pytest>=7.0.0", "httpx>=0.27", "mcp>=1.0.0"]
 
 [project.scripts]
 astp-docs-open = "astp_docs_server.mcp_server:run"
@@ -27,4 +29,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
+# The vendored open-docs snapshot (src/astp_docs_server/corpus/**) ships
+# automatically as package data — it lives inside the package dir. Populate it
+# with `python scripts/vendor_corpus.py` before building the wheel/Docker image.
 packages = ["src/astp_docs_server"]

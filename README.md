@@ -24,25 +24,46 @@ src/astp_docs_server/
 
 The retrieval engine, chunker, index, vector search, and the shared tool logic
 (`astp_docs.toolkit`) live in the core library — this repo is a thin transport
-layer on top.
+layer on top. `mcp` (MCP transport) and `fastapi`/`uvicorn`/`anthropic` (web head)
+are **separate extras**, so the web head deploys without the MCP SDK and vice-versa.
 
-## Run
+## The corpus is vendored
+
+The open docs are copied into the package (`src/astp_docs_server/corpus/open/`) by
+`scripts/vendor_corpus.py`, and ship in the wheel/image — so a built server is
+**self-contained** (no sibling `ariadne-protocol` checkout at runtime). Corpus
+resolution precedence: explicit arg → `ARIADNE_PROTOCOL_DIR` (dev override) →
+vendored package corpus → `~/projects/ariadne-protocol` (dev fallback).
+
+Refresh the snapshot when the protocol docs change:
+```bash
+python scripts/vendor_corpus.py /path/to/ariadne-protocol
+```
+
+## Run (dev)
 
 ```bash
-pip install -e ../astp-docs        # the core library (editable, dev)
-pip install -e '.[web]'               # this server + web extra
+pip install -e ../astp-docs-core          # the core library (editable)
+pip install -e '.[mcp,web,dev]'           # this server + both transports
 
-export ARIADNE_PROTOCOL_DIR=~/projects/ariadne-protocol   # the open docs source
-
-python -m astp_docs_server                      # MCP server (stdio)
-python -m astp_docs_server.web                  # web-chat head (http://127.0.0.1:8080)
+python -m astp_docs_server                # MCP server (stdio)  [needs .[mcp]]
+python -m astp_docs_server.web            # web-chat head (http://127.0.0.1:8080)  [needs .[web]]
 ARIADNE_CHAT_MODE=extractive python -m astp_docs_server.web   # keyless (no LLM)
-
-PYTHONPATH=src python scripts/build_open_index.py  # build + sample lookups
-python -m pytest tests/ -q                         # tests (skip if the corpus is absent)
+python -m pytest tests/ -q                # self-contained (runs off the vendored corpus)
 ```
 
 The web head answers with Claude by default (`ANTHROPIC_API_KEY` or an
 `ant auth login` profile; model via `ARIADNE_CHAT_MODEL`, default `claude-opus-4-8`);
-`ARIADNE_CHAT_MODE=extractive` runs without an LLM. `llms.txt` and `AGENTS.md`
-(repo root) point coding agents at the corpus and these tools.
+`ARIADNE_CHAT_MODE=extractive` runs without an LLM.
+
+## Deploy
+
+The web head containerizes — see **[DEPLOY.md](DEPLOY.md)**. Short version:
+```bash
+python scripts/vendor_corpus.py /path/to/ariadne-protocol
+docker build --build-context core=../astp-docs-core -t astp-docs-server .
+docker run -p 8080:8080 astp-docs-server
+```
+Stateless (index rebuilds from the vendored corpus at startup) → host-agnostic,
+scales by replicas. `llms.txt` and `AGENTS.md` (repo root) point coding agents at
+the corpus and these tools.

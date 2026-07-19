@@ -1,0 +1,15 @@
+.git
+.gitignore
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+tests/
+dist/
+build/
+*.egg-info/
+.venv/
+venv/
+Dockerfile
+.dockerignore
+# NOTE: do not exclude *.md — the vendored corpus (src/astp_docs_server/corpus/**)
+# is markdown and must ship in the image.
