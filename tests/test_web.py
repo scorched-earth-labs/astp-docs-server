@@ -6,8 +6,8 @@ key) and skip if fastapi/httpx or the corpus is unavailable.
 """
 import pytest
 
-from ariadne_docs.core import Document, DocIndex, Retriever, chunk_corpus
-from ariadne_docs_server.web.answerer import (
+from astp_docs.core import Document, DocIndex, Retriever, chunk_corpus
+from astp_docs_server.web.answerer import (
     ClaudeAnswerer,
     ExtractiveAnswerer,
     build_context,
@@ -105,7 +105,7 @@ pytest.importorskip("httpx")
 from fastapi.testclient import TestClient  # noqa: E402
 
 try:
-    from ariadne_docs_server.open_corpus import build_open_corpus_spec
+    from astp_docs_server.open_corpus import build_open_corpus_spec
 
     _spec = build_open_corpus_spec()
 except FileNotFoundError:
@@ -114,7 +114,7 @@ except FileNotFoundError:
 
 @pytest.fixture(scope="module")
 def client():
-    from ariadne_docs_server.web.app import create_app
+    from astp_docs_server.web.app import create_app
 
     retriever = Retriever.from_spec(_spec) if _spec else Retriever(DocIndex(chunk_corpus([MINI])))
     app = create_app(retriever=retriever, answerer=ExtractiveAnswerer())

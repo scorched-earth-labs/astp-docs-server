@@ -14,13 +14,13 @@ import os
 
 from mcp.server.fastmcp import FastMCP
 
-from ariadne_docs.core import Retriever
+from astp_docs.core import Retriever
 from .open_corpus import build_open_corpus_spec
-from ariadne_docs import toolkit as tools
+from astp_docs import toolkit as tools
 
 logger = logging.getLogger(__name__)
 
-mcp = FastMCP("ariadne-docs-open")
+mcp = FastMCP("astp-docs-open")
 
 _retriever: Retriever | None = None
 

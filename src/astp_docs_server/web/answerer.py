@@ -14,7 +14,7 @@ from __future__ import annotations
 import os
 from abc import ABC, abstractmethod
 
-from ariadne_docs.core.models import Result
+from astp_docs.core.models import Result
 
 # Default generation model. Per Anthropic guidance the default is Opus 4.8;
 # override with ARIADNE_CHAT_MODEL (e.g. a cheaper tier) — that's a deployment

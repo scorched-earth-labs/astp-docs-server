@@ -3,8 +3,8 @@
 Registers the server's read-only capabilities with Atlas so agents can discover
 it. All tools are ``read`` (a docs server writes nothing). No API keys.
 
-    from ariadne_docs_server.atlas_manifest import get_ariadne_docs_open_manifest
-    await atlas.register_service(get_ariadne_docs_open_manifest())
+    from astp_docs_server.atlas_manifest import get_astp_docs_open_manifest
+    await atlas.register_service(get_astp_docs_open_manifest())
 """
 from __future__ import annotations
 
@@ -19,13 +19,13 @@ def _read_cap(cap_id: str, tool_name: str, name: str, desc: str, schema: dict) -
         "capability_type": "read",
         "description": desc,
         "schema": schema,
-        "required_permissions": ["ariadne.docs.read"],
+        "required_permissions": ["astp.docs.read"],
     }
 
 
-def get_ariadne_docs_open_manifest() -> dict[str, Any]:
+def get_astp_docs_open_manifest() -> dict[str, Any]:
     return {
-        "service_id": "ariadne-docs-open",
+        "service_id": "astp-docs-open",
         "name": "Ariadne Open Docs MCP Server",
         "version": "0.1.0",
         "description": (
@@ -34,9 +34,9 @@ def get_ariadne_docs_open_manifest() -> dict[str, Any]:
             "exact lookup of governance rules, conformance vectors, and sections "
             "plus lexical search. Read-only; no proprietary content."
         ),
-        "mcp_endpoint": "stdio://ariadne-docs-open",
+        "mcp_endpoint": "stdio://astp-docs-open",
         "health_endpoint": None,
-        "docs_url": "https://github.com/scorched-earth-labs/ariadne-docs",
+        "docs_url": "https://github.com/scorched-earth-labs/astp-docs",
         "contact": {"team": "Ariadne Protocol", "email": "protocol@scorchedearthlabs.com"},
         "metadata": {
             "category": "documentation",
@@ -46,7 +46,7 @@ def get_ariadne_docs_open_manifest() -> dict[str, Any]:
         },
         "capabilities": [
             _read_cap(
-                "ariadne.docs.search_spec", "search_spec", "Search Spec",
+                "astp.docs.search_spec", "search_spec", "Search Spec",
                 "Search the protocol corpus for relevant passages (lexical; semantic in a later release).",
                 {
                     "type": "object",
@@ -58,7 +58,7 @@ def get_ariadne_docs_open_manifest() -> dict[str, Any]:
                 },
             ),
             _read_cap(
-                "ariadne.docs.get_governance_rule", "get_governance_rule", "Get Governance Rule",
+                "astp.docs.get_governance_rule", "get_governance_rule", "Get Governance Rule",
                 "Fetch a governance rule G-1..G-36 verbatim with citation.",
                 {
                     "type": "object",
@@ -67,7 +67,7 @@ def get_ariadne_docs_open_manifest() -> dict[str, Any]:
                 },
             ),
             _read_cap(
-                "ariadne.docs.get_conformance_vectors", "get_conformance_vectors", "Get Conformance Vectors",
+                "astp.docs.get_conformance_vectors", "get_conformance_vectors", "Get Conformance Vectors",
                 "Fetch a conformance vector by id (WF-004) or a family by prefix (WF).",
                 {
                     "type": "object",
@@ -76,7 +76,7 @@ def get_ariadne_docs_open_manifest() -> dict[str, Any]:
                 },
             ),
             _read_cap(
-                "ariadne.docs.get_section", "get_section", "Get Section",
+                "astp.docs.get_section", "get_section", "Get Section",
                 "Fetch a numbered spec section verbatim.",
                 {
                     "type": "object",
@@ -88,7 +88,7 @@ def get_ariadne_docs_open_manifest() -> dict[str, Any]:
                 },
             ),
             _read_cap(
-                "ariadne.docs.get_hash_preimage", "get_hash_preimage", "Get Hash Preimage",
+                "astp.docs.get_hash_preimage", "get_hash_preimage", "Get Hash Preimage",
                 "Find how a type's content hash is built (fields + order).",
                 {
                     "type": "object",
@@ -100,7 +100,7 @@ def get_ariadne_docs_open_manifest() -> dict[str, Any]:
                 },
             ),
             _read_cap(
-                "ariadne.docs.corpus_info", "corpus_info", "Corpus Info",
+                "astp.docs.corpus_info", "corpus_info", "Corpus Info",
                 "Report served doc count, governance rules, and conformance families.",
                 {"type": "object", "properties": {}},
             ),

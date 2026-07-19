@@ -18,7 +18,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 
-from ariadne_docs.core import Retriever
+from astp_docs.core import Retriever
 from ..open_corpus import build_open_corpus_spec
 from .answerer import Answerer, default_answerer
 

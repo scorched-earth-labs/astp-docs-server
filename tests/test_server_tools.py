@@ -4,11 +4,11 @@ Run against the real open corpus; skipped if it isn't resolvable.
 """
 import pytest
 
-from ariadne_docs.core import Retriever
-from ariadne_docs import toolkit as tools
+from astp_docs.core import Retriever
+from astp_docs import toolkit as tools
 
 try:
-    from ariadne_docs_server.open_corpus import build_open_corpus_spec
+    from astp_docs_server.open_corpus import build_open_corpus_spec
 
     _spec = build_open_corpus_spec()
 except FileNotFoundError:

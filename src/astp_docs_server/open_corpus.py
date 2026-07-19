@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import os
 
-from ariadne_docs.core.corpus import CorpusSpec, Visibility, docrefs_from_dir
+from astp_docs.core.corpus import CorpusSpec, Visibility, docrefs_from_dir
 
 # The public protocol repo. Configurable so the server does not hard-code a
 # developer's checkout; at package/publish time the docs are vendored instead.

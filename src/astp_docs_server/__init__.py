@@ -2,7 +2,7 @@
 
 Two transports on one substrate: the FastMCP server (`mcp_server`) for adopters'
 coding agents, and the web-chat head (`web/`) for the docs site. Both consume the
-shared `ariadne_docs` core + `ariadne_docs.toolkit` and cite identical chunks, so
+shared `astp_docs` core + `astp_docs.toolkit` and cite identical chunks, so
 they cannot drift. Serves ONLY the open protocol corpus.
 """
 from .mcp_server import mcp, run

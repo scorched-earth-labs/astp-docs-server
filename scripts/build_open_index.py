@@ -12,8 +12,8 @@ from __future__ import annotations
 import sys
 import textwrap
 
-from ariadne_docs.core import Retriever
-from ariadne_docs_server.open_corpus import build_open_corpus_spec
+from astp_docs.core import Retriever
+from astp_docs_server.open_corpus import build_open_corpus_spec
 
 
 def _show(title: str, results):
