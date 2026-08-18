@@ -1,4 +1,4 @@
-# Ariadne State Tree Protocol Specification
+# ASTP — AI State Tree Protocol Specification
 
 **Version:** 3.3.0
 **Status:** Stable. The full normative protocol is defined in this document's body. (v3.3.0 adds the departure-fork **orphan-recovery** surface at §19.3.7 — the `ForkOrphanMarker` node, per-class recovery field mutations, and the one permitted retroactive spine write — additively; no existing canonical form changes, so every v3.2.x-conformant implementation remains conformant. Detection cadence is non-normative.) The Phase D departure-fork lifecycle (v3.2.0) is at §19.3.5–19.3.7; cross-episode linking + grouping (v3.0.0) at §20; the Layer 3 Workflow & Execution DAG (v3.1.0) at §21. The v3.2.1 integration pass folded the former standalone amendments into the SPEC body — editorial only, no normative change. The historical amendment documents ([`AMENDMENT-v2.0-CROSS-EPISODE-LINKING.md`](./AMENDMENT-v2.0-CROSS-EPISODE-LINKING.md) → §20, [`AMENDMENT-v3.0-WORKFLOW-EXECUTION-DAG.md`](./AMENDMENT-v3.0-WORKFLOW-EXECUTION-DAG.md) → §21) are retained for provenance only. Amendment filenames retain their authoring numerals; under the canonical SPEC versioning policy ([`VERSIONING.md`](./VERSIONING.md)) they correspond to SPEC v3.0.0 and v3.1.0 respectively.
@@ -8,9 +8,9 @@
 
 ## 1. Abstract
 
-Ariadne is a cognitive persistence protocol for multi-agent AI systems. It provides a standardized, verifiable record of agent state transitions — what agents did, what state resulted, and cryptographic proof that the record hasn't been tampered with.
+ASTP (the AI State Tree Protocol) is a cognitive persistence protocol for multi-agent AI systems. It provides a standardized, verifiable record of agent state transitions — what agents did, what state resulted, and cryptographic proof that the record hasn't been tampered with. ASTP is developed internally as Project Ariadne; that name persists in the reference implementation's code and identifiers.
 
-The protocol is agnostic to both cognitive architecture and node type. A system using BDI, ReAct, chain-of-thought, SOAR, or any other reasoning model can implement Ariadne without inheriting assumptions about how agents think. Ariadne records *that* agents reasoned and *what* resulted — not *how* they reasoned.
+The protocol is agnostic to both cognitive architecture and node type. A system using BDI, ReAct, chain-of-thought, SOAR, or any other reasoning model can implement ASTP without inheriting assumptions about how agents think. ASTP records *that* agents reasoned and *what* resulted — not *how* they reasoned.
 
 **v2 core change:** The protocol primitive is `CognitiveNode`, not `Episode`. Episodes are the first *parameterization* of the protocol, not a precondition of it. Future node types (signals, agents, artifacts) slot into the same framework with zero protocol-layer changes.
 
@@ -39,11 +39,11 @@ The protocol is agnostic to both cognitive architecture and node type. A system 
 
 ### 2.5 Protocol vs. Implementation Boundary
 
-Ariadne is a **protocol**, not an implementation. This distinction is load-bearing.
+ASTP is a **protocol**, not an implementation. This distinction is load-bearing.
 
 #### 2.5.1 The Differential Principle
 
-A conforming Ariadne implementation may make architectural choices — about agent reasoning models, storage backends, key management infrastructure, payload schemas, and operational policies — that differ from other conforming implementations. These are **implementation differentials**: legitimate variation that the protocol explicitly accommodates.
+A conforming ASTP implementation may make architectural choices — about agent reasoning models, storage backends, key management infrastructure, payload schemas, and operational policies — that differ from other conforming implementations. These are **implementation differentials**: legitimate variation that the protocol explicitly accommodates.
 
 The protocol surface is the set of primitives, invariants, and interfaces where no differential is permitted. Deviation from the protocol surface produces a non-conforming implementation that cannot interoperate with or be verified by other conforming implementations.
 
@@ -1648,7 +1648,7 @@ Implementations referencing phases in documentation or tooling MUST use scoped l
 
 ##### 11.1.1 Consistency Model
 
-The Ariadne storage layer is a four-tier distributed system. The consistency hierarchy is:
+The ASTP storage layer is a four-tier distributed system. The consistency hierarchy is:
 
 ```
 PRIMARY TRUTH:   Neo4j       (structural ground truth — synchronous writes)
@@ -2063,7 +2063,7 @@ This section defines **Layer 3** — the Workflow & Execution DAG, the provenanc
 
 #### §1 Three-Layer Cognitive Model
 
-The Ariadne protocol now defines **three layers** of cryptographic persistence, each owned by a distinct authority and each isolated from the others' hash integrity:
+The ASTP protocol now defines **three layers** of cryptographic persistence, each owned by a distinct authority and each isolated from the others' hash integrity:
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
@@ -2105,7 +2105,7 @@ The defining invariant of Layer 3 is **isolation from Spine hash computation**:
 This invariant has three consequences that conforming implementations MUST guarantee:
 
 1. **No write to Layer 3, under any circumstance, can invalidate any Spine hash.** The kernel may freeze, the Spine may seal, the Spine fingerprint may be witness-signed — none of these states are altered by Layer 3 activity.
-2. **A workspace whose Layer 3 is entirely absent or entirely corrupt remains a valid Ariadne workspace** at Layers 1 and 2. Layer 3 is a strict augmentation, never a dependency.
+2. **A workspace whose Layer 3 is entirely absent or entirely corrupt remains a valid ASTP workspace** at Layers 1 and 2. Layer 3 is a strict augmentation, never a dependency.
 3. **Layer 3 verification is performed against its own audit chain** (§11), not by walking the Spine. Verification at Layer 3 confirms execution-record integrity; verification at Layer 1 confirms cognitive integrity. The two verifications are independent.
 
 The protocol layer makes no claim about whether Layer 3 storage and Layer 1/2 storage share infrastructure. They MAY share a database, a blob store, an index. Adapter choices are unconstrained. What is constrained is the **hash preimage** — never crosses the layer boundary.
@@ -2545,4 +2545,4 @@ Internal Scorched Earth Labs design documents that informed the protocol:
 
 ---
 
-*Ariadne Protocol is developed by Scorched Earth Labs.*
+*ASTP (AI State Tree Protocol) is developed by Scorched Earth Labs.*

@@ -1,9 +1,9 @@
-# Ariadne — Branch/Fork/Merge Implementation Guide
+# ASTP — Branch/Fork/Merge Implementation Guide
 
 **Version:** 1.2.0
 **Date:** 2026-07-04
 **Scope:** All four phases of the Branch/Fork/Merge taxonomy (SPEC §19), plus the **Phase D departure-fork lifecycle** (SPEC §19.3.5–19.3.7, added §5 — incl. orphan recovery §5.8)
-**Target audience:** Implementers extending a conforming Ariadne instance with the BFM taxonomy.
+**Target audience:** Implementers extending a conforming ASTP instance with the BFM taxonomy.
 
 ---
 

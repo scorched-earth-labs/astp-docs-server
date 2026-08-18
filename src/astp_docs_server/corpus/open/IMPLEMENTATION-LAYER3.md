@@ -1,4 +1,4 @@
-# Ariadne — Layer 3 (Workflow & Execution DAG) Implementation Guide
+# ASTP — Layer 3 (Workflow & Execution DAG) Implementation Guide
 
 **Version:** 1.0.0
 **Status:** Stable
@@ -41,7 +41,7 @@ tests/unit/protocol/
 └── test_workflow_execution.py  # all Layer 3 schema, hash, governance, and delta-payload vectors
 ```
 
-**Note on adapter locality.** In `ariadne-protocol`, Layer 3 is a **protocol-type surface only** — `workflow_execution.py` defines the schemas, the three hash functions, the two governance guards, and the four audit-delta payloads. The reference **storage adapter** (the Neo4j writer + the four `ignis_*` MCP write tools that constitute the CIA) lives in the Ignis OS implementation, not in the protocol package. This is deliberate: the protocol layer commits to *what* is written and *how it is hashed*; *where and by whom* it is stored is the CIA's concern (SPEC §21 §3, §12). The Neo4j reference layout is reproduced from SPEC §21 Appendix A in §6 below.
+**Note on adapter locality.** In `astp`, Layer 3 is a **protocol-type surface only** — `workflow_execution.py` defines the schemas, the three hash functions, the two governance guards, and the four audit-delta payloads. The reference **storage adapter** (the Neo4j writer + the four `ignis_*` MCP write tools that constitute the CIA) lives in the Ignis OS implementation, not in the protocol package. This is deliberate: the protocol layer commits to *what* is written and *how it is hashed*; *where and by whom* it is stored is the CIA's concern (SPEC §21 §3, §12). The Neo4j reference layout is reproduced from SPEC §21 Appendix A in §6 below.
 
 ---
 
