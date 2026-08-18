@@ -1,6 +1,6 @@
 # Versioning
 
-Ariadne uses [Semantic Versioning](https://semver.org/) — three-segment `MAJOR.MINOR.PATCH`. No fourth segment.
+ASTP uses [Semantic Versioning](https://semver.org/) — three-segment `MAJOR.MINOR.PATCH`. No fourth segment.
 
 ## The rule
 
@@ -15,11 +15,21 @@ That's the policy. Everything else (compatibility expectations, deprecation, wha
 `SPEC.md` is the canonical version source. The `**Version:**` field at the top of that file IS the protocol version.
 
 - `SPEC-v{MAJOR}.md` retains prior major-version specs for historical reference (e.g., `SPEC-v1.md` is the original `0.1.0-draft`, superseded by the v2.x line in `SPEC.md`).
-- Implementation Guides (`IMPLEMENTATION-*.md`), Conformance documents (`CONFORMANCE*.md`), and any other artifacts are versioned-against, not versioned-independently. They describe behavior at a specific protocol version (e.g. "this guide applies to Ariadne v2.5.0"); they do not carry their own independent version numbers.
+- Implementation Guides (`IMPLEMENTATION-*.md`), Conformance documents (`CONFORMANCE*.md`), and any other artifacts are versioned-against, not versioned-independently. They describe behavior at a specific protocol version (e.g. "this guide applies to ASTP v3.4.0"); they do not carry their own independent version numbers.
 
 ## Current version
 
-**2.5.0-draft** — see `SPEC.md`. Once finalized (the `-draft` suffix is stripped), the version line becomes errata-only — no new amendments, no feature additions. Subsequent feature work goes to the next MAJOR or MINOR.
+Read it from `SPEC.md` — the `**Version:**` field at the top of that file. This
+document deliberately does not restate it.
+
+A version repeated in a second place is a second thing to forget. This section
+previously read `2.5.0-draft` long after `SPEC.md` had moved to the 3.x line,
+and nothing in the repository could notice the disagreement. "`SPEC.md` is the
+canonical version source" is only true if nothing else claims to be.
+
+Once a version ships, its line is errata-only: no new amendments, no feature
+additions to a released version. Subsequent feature work goes to the next
+MAJOR or MINOR.
 
 ## History
 
@@ -27,7 +37,7 @@ Tracked in [`CHANGELOG.md`](./CHANGELOG.md). Each version's entry describes the 
 
 ## What counts as breaking
 
-For Ariadne specifically, MAJOR bumps require an **Episode of Record** — a ratifying Ariadne Episode that anchors the change cryptographically. The Episode is the authoritative cognitive artifact; the spec document is the human-readable description.
+For ASTP specifically, MAJOR bumps require an **Episode of Record** — a ratifying Episode that anchors the change cryptographically. The Episode is the authoritative cognitive artifact; the spec document is the human-readable description.
 
 Specific change categories that **always** require a MAJOR bump:
 

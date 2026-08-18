@@ -14,6 +14,7 @@ from __future__ import annotations
 import glob
 import os
 import shutil
+import subprocess
 import sys
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
@@ -23,6 +24,13 @@ from astp_docs_server.open_corpus import (  # noqa: E402
     DEFAULT_PROTOCOL_DIR,
     OPEN_DOC_EXCLUDE,
     OPEN_DOC_PATTERNS,
+)
+
+from astp_docs_server.vendor_manifest import (  # noqa: E402
+    MANIFEST_NAME,
+    file_digest,
+    parse_spec_version,
+    write_manifest,
 )
 
 DEST = os.path.join(_HERE, "..", "src", "astp_docs_server", "corpus", "open")
@@ -60,10 +68,38 @@ def main() -> int:
         print(f"ERROR: no docs matched under {src!r}", file=sys.stderr)
         return 1
 
+    # Record provenance alongside the snapshot. Without it a stale vendored
+    # corpus is indistinguishable from a current one, and the server would
+    # serve superseded normative text with nothing to notice — see
+    # tests/test_vendor_freshness.py.
+    spec_path = os.path.join(DEST, "SPEC.md")
+    manifest = {
+        "spec_version": parse_spec_version(spec_path) if os.path.isfile(spec_path) else None,
+        "source_commit": _source_commit(src),
+        "files": {name: file_digest(os.path.join(DEST, name)) for name in sorted(copied)},
+    }
+    write_manifest(DEST, manifest)
+
     print(f"Vendored {len(copied)} open docs\n  from: {src}\n  into: {os.path.relpath(DEST, os.path.join(_HERE, '..'))}")
     for name in copied:
         print("   -", name)
+    print(f"  SPEC version: {manifest['spec_version']}")
+    print(f"  source commit: {manifest['source_commit'] or '(not a git checkout)'}")
+    print(f"  manifest: {MANIFEST_NAME}")
     return 0
+
+
+def _source_commit(src: str) -> str | None:
+    """Best-effort commit id of the source checkout. None if unavailable —
+    provenance is a convenience here; the per-file digests are the real check."""
+    try:
+        out = subprocess.run(
+            ["git", "-C", src, "rev-parse", "HEAD"],
+            capture_output=True, text=True, timeout=10,
+        )
+        return out.stdout.strip() or None if out.returncode == 0 else None
+    except Exception:
+        return None
 
 
 if __name__ == "__main__":

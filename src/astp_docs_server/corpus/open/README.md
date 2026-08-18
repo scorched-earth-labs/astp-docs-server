@@ -1,10 +1,12 @@
-# Ariadne Protocol
+# ASTP — AI State Tree Protocol
 
 **A cognitive persistence protocol for multi-agent AI systems.**
 
-Bring your own cognitive architecture. Ariadne handles the persistence, integrity verification, and coordination of agent state transitions.
+*Developed internally as Project Ariadne.*
 
-📖 **New to Ariadne?** Start with the [Glossary](./GLOSSARY.md) — every term used in the spec and code, defined once with explicit structural relationships (e.g. how `EpisodeNode` relates to `CognitiveNode` + `EpisodePayload`).
+Bring your own cognitive architecture. ASTP handles the persistence, integrity verification, and coordination of agent state transitions.
+
+📖 **New to ASTP?** Start with the [Glossary](./GLOSSARY.md) — every term used in the spec and code, defined once with explicit structural relationships (e.g. how `EpisodeNode` relates to `CognitiveNode` + `EpisodePayload`).
 
 **Current version:** `3.2.2` — see [`SPEC.md`](./SPEC.md). Versioning policy: [`VERSIONING.md`](./VERSIONING.md). Change history: [`CHANGELOG.md`](./CHANGELOG.md).
 
@@ -14,7 +16,7 @@ Bring your own cognitive architecture. Ariadne handles the persistence, integrit
 
 Multi-agent AI systems have a memory problem. Agents reason across long episodes of work — architecture decisions, debugging sessions, collaborative exchanges — but the record of that reasoning is either lost between sessions or stored in ways that can't be verified, audited, or reliably retrieved.
 
-Ariadne is a protocol for solving that problem. It defines:
+ASTP is a protocol for solving that problem. It defines:
 
 - A **hash-chained state tree** that provides cryptographic proof that the cognitive record hasn't been tampered with
 - A **governance rule set** (G-1 through G-9) that any conforming implementation must enforce
@@ -22,13 +24,13 @@ Ariadne is a protocol for solving that problem. It defines:
 - A **Crystallization protocol** that captures point-in-time integrity snapshots as first-class state transitions
 - A **Consultation record** that treats cross-agent exchanges as first-class protocol nodes, not implementation details
 
-The protocol is **agnostic to cognitive architecture**. A system using BDI, ReAct, chain-of-thought, SOAR, or any other reasoning model can implement Ariadne without inheriting assumptions about how agents think. Ariadne records *that* agents reasoned and *what* resulted — not *how* they reasoned.
+The protocol is **agnostic to cognitive architecture**. A system using BDI, ReAct, chain-of-thought, SOAR, or any other reasoning model can implement ASTP without inheriting assumptions about how agents think. ASTP records *that* agents reasoned and *what* resulted — not *how* they reasoned.
 
 ---
 
 ## What It Is Not
 
-Ariadne is not a vector database, a RAG system, or a session memory layer. It is a **verifiable cognitive record protocol** — closer in design philosophy to a distributed ledger than to a retrieval system. The integrity guarantees come from the hash chain and the Merkle tree, not from the storage backend.
+ASTP is not a vector database, a RAG system, or a session memory layer. It is a **verifiable cognitive record protocol** — closer in design philosophy to a distributed ledger than to a retrieval system. The integrity guarantees come from the hash chain and the Merkle tree, not from the storage backend.
 
 ---
 
@@ -90,7 +92,7 @@ A cross-agent exchange recorded as a first-class protocol node, not an applicati
 
 ## Implementing an Adapter
 
-Any database can serve as an Ariadne backend by implementing the `AriadneAdapter` interface:
+Any database can serve as an ASTP backend by implementing the `AriadneAdapter` interface:
 
 ```python
 from ariadne.adapters.base import AriadneAdapter
@@ -129,7 +131,7 @@ A conforming adapter must pass all structural layer checks.
 ## Installation
 
 ```bash
-pip install ariadne-protocol        # once published to PyPI
+pip install astp        # once published to PyPI
 ```
 
 For local development against the reference implementation:
@@ -137,7 +139,7 @@ For local development against the reference implementation:
 ```toml
 # pyproject.toml
 [tool.poetry.dependencies]
-ariadne-protocol = {path = "../ariadne-protocol"}
+astp = {path = "../ariadne-protocol"}
 ```
 
 ---
@@ -184,7 +186,7 @@ Supporting: [`VERSIONING.md`](./VERSIONING.md) (canonical version policy), [`GLO
 
 ## Versioning
 
-Ariadne follows [Semantic Versioning](https://semver.org/) — `MAJOR.MINOR.PATCH`:
+ASTP follows [Semantic Versioning](https://semver.org/) — `MAJOR.MINOR.PATCH`:
 
 - **MAJOR** — changes to canonical form (hash preimages, serialization, required fields). Conformance-breaking.
 - **MINOR** — additive surface (new optional node types, new query surface, new fields with safe defaults). Existing implementations remain conformant.

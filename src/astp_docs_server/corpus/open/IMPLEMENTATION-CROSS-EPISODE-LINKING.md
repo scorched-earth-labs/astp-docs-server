@@ -1,4 +1,4 @@
-# Ariadne — Cross-Episode Linking & Grouping Implementation Guide
+# ASTP — Cross-Episode Linking & Grouping Implementation Guide
 
 **Version:** 1.0.0
 **Status:** Stable

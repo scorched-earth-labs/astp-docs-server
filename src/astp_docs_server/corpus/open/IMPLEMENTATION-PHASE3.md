@@ -1,4 +1,4 @@
-# Ariadne Protocol — Phase 3 Implementation Guide
+# ASTP — Phase 3 Implementation Guide
 
 **Version:** 1.0.0
 **Status:** Working Draft
@@ -11,9 +11,9 @@
 
 ## 1. Purpose and Scope
 
-This guide walks implementors through building a Phase 3 conforming implementation of the Ariadne Protocol. It covers the construction sequence, non-obvious design decisions, and integration points for each Phase 3 pillar.
+This guide walks implementors through building a Phase 3 conforming implementation of ASTP. It covers the construction sequence, non-obvious design decisions, and integration points for each Phase 3 pillar.
 
-**Audience:** Engineers implementing Ariadne on a new AI architecture, or extending an existing Phase 1-2 implementation to Phase 3.
+**Audience:** Engineers implementing ASTP on a new AI architecture, or extending an existing Phase 1-2 implementation to Phase 3.
 
 **What this guide is not:** A tutorial on cryptographic primitives, a language-specific SDK guide, or a storage adapter guide. Those are covered separately.
 
@@ -58,7 +58,7 @@ Phase 3 requires:
 | Signing algorithm | Implementation-defined (§2.5.3) — Ed25519 is RECOMMENDED |
 | Canonical JSON | Keys in lexicographic order, no whitespace, UTF-8 encoding |
 
-> **Note on HKDF instantiation:** RFC 5869 specifies HKDF with a pluggable hash function. Ariadne uses SHA3-256, not SHA-256. Verify your HKDF library supports SHA3-256 as the underlying PRF — some libraries default to SHA-256 and require explicit configuration. This is the most common source of KH-001/KH-006 failures.
+> **Note on HKDF instantiation:** RFC 5869 specifies HKDF with a pluggable hash function. ASTP uses SHA3-256, not SHA-256. Verify your HKDF library supports SHA3-256 as the underlying PRF — some libraries default to SHA-256 and require explicit configuration. This is the most common source of KH-001/KH-006 failures.
 
 ---
 
@@ -83,7 +83,7 @@ Seal Key
 
 ### 3.2 HKDF Parameterization
 
-All HKDF derivations in Ariadne use the following fixed parameters unless the level-specific description overrides them:
+All HKDF derivations in ASTP use the following fixed parameters unless the level-specific description overrides them:
 
 ```
 Hash function:  SHA3-256
@@ -567,7 +567,7 @@ When constructing or verifying a `ProofChain` that spans multiple AI architectur
 
 2. **Incommensurable logical clocks:** Do not compare `logical_clock` values across architecture boundaries. Use `anchor_receipt.log_timestamp` for cross-architecture temporal ordering (CP-008). If a link has no `anchor_receipt`, temporal ordering relative to links from other architectures is undefined.
 
-3. **Self-contained verification:** The chain must be verifiable using only the Ariadne protocol surface — SHA3-256 and the Merkle algorithm from §5. An implementation that requires access to the originating architecture's storage or key material to verify a chain is non-conforming (CP-007).
+3. **Self-contained verification:** The chain must be verifiable using only the ASTP protocol surface — SHA3-256 and the Merkle algorithm from §5. An implementation that requires access to the originating architecture's storage or key material to verify a chain is non-conforming (CP-007).
 
 4. **Serialization for exchange:** When exchanging a `ProofChain` between architectures, use the canonical JSON serialization (Appendix A of the Conformance Test Vectors). Both the chain structure and the `InclusionProof` fields must be serialized canonically to ensure the `chain_root` is reproducible by the receiving implementation.
 
@@ -697,7 +697,7 @@ Conformance declarations are per-version. A declaration against v2.3.0-draft doe
 
 **Added:** v2.4.0-draft (2026-04-16)
 
-Phase 4 adds Human-in-the-Loop (HITL) events as first-class nodes in the Ariadne State Tree. HITL events record human oversight decisions with cryptographic attestation and Merkle spine participation.
+Phase 4 adds Human-in-the-Loop (HITL) events as first-class nodes in the ASTP State Tree. HITL events record human oversight decisions with cryptographic attestation and Merkle spine participation.
 
 ### C.1 Implementation Sequence
 
@@ -720,7 +720,7 @@ Phase 4 builds on Phase 3 infrastructure. Implement in this order:
 ### C.2 Key Design Constraints
 
 - **Two-phase lifecycle:** HITL events are the only node type that permits post-creation mutation (INVOKED → RESOLVED). This exception is narrow and enforced by G-17.
-- **Fail-open recording:** The operational HITL path (approve/reject decisions) MUST NOT be blocked by Ariadne recording failures. All recording hooks are wrapped in fail-open exception handling.
+- **Fail-open recording:** The operational HITL path (approve/reject decisions) MUST NOT be blocked by ASTP recording failures. All recording hooks are wrapped in fail-open exception handling.
 - **Timeout as event:** `TIMED_OUT` is a recorded terminal status with the same structural weight as `REJECTED`. System timeouts are recorded with `resolved_by: "system_timeout"` and no human signature.
 - **Gate type mapping:** Map operational HITL types to protocol gate types: `MUST → APPROVAL_REQUIRED`, `SHOULD/CAN → REVIEW_ADVISORY`, `INFORMED → not recorded`.
 
@@ -743,5 +743,5 @@ A Phase 4 conforming implementation MUST:
 
 ---
 
-*Ariadne Protocol Implementation Guide is maintained by Scorched Earth Labs.*
+*ASTP Implementation Guide is maintained by Scorched Earth Labs.*
 *Guide version: 1.1.0 | Applies to SPEC.md: v2.4.0-draft | Conformance Vectors: v1.0.0*

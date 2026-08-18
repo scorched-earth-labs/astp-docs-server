@@ -8,7 +8,7 @@ This glossary covers the **current published surface** (`SPEC.md` version `2.5.0
 
 ## Reading this glossary
 
-Several Ariadne terms have a **structural relationship** that's easy to miss reading the SPEC linearly. Where present, that relationship is stated explicitly in the definition. The most important one:
+Several ASTP terms have a **structural relationship** that's easy to miss reading the SPEC linearly. Where present, that relationship is stated explicitly in the definition. The most important one:
 
 > **`EpisodeNode`, `SegmentNode`, `SignalNode`, `HITLEventNode`, `ConsultationNode`, `CrystallizationDeltaNode`** are *colloquial names* for `CognitiveNode` instances with type-specific `NodePayload` subclasses. They are not separate classes parallel to `CognitiveNode` — they are parameterizations of it. See `CognitiveNode` and `NodePayload` for the underlying model.
 
@@ -334,7 +334,7 @@ The architectural invariant that `ariadne.protocol.*` modules cannot import from
 
 ### AriadneAdapter
 
-The abstract interface any storage backend must implement to serve as an Ariadne adapter. Provides methods for writing nodes, querying the graph, computing hashes, and recovering from WIL state. Defined in `ariadne/adapters/base.py`.
+The abstract interface any storage backend must implement to serve as an ASTP adapter. Provides methods for writing nodes, querying the graph, computing hashes, and recovering from WIL state. Defined in `ariadne/adapters/base.py`.
 
 ### ASI — Adapter Service Interface
 
@@ -364,7 +364,7 @@ Concrete byte-level test cases (in the `tests/` directory) that any third-party 
 
 ### Episode of Record
 
-For protocol amendments: the Ariadne Episode that **ratifies** the change cryptographically. The amendment document is the human-readable description; the Episode of Record is the authoritative cryptographic anchor. Amendments without an Episode of Record are drafts, not ratified surface. See `CLAUDE.md` and `VERSIONING.md`.
+For protocol amendments: the ASTP Episode that **ratifies** the change cryptographically. The amendment document is the human-readable description; the Episode of Record is the authoritative cryptographic anchor. Amendments without an Episode of Record are drafts, not ratified surface. See `CLAUDE.md` and `VERSIONING.md`.
 
 ### Schema Version
 
