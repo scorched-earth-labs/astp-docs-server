@@ -58,5 +58,8 @@ def test_get_hash_preimage_tool(r):
 
 def test_corpus_info_tool(r):
     info = tools.corpus_info(r)
-    assert len(info["governance_rules"]) == 36
+    # Assert the tool reports what the retriever holds, not a pinned count —
+    # this is a test of corpus_info, not of how many rules the protocol has.
+    assert len(info["governance_rules"]) == len(r.list_governance_rules())
+    assert info["governance_rules"], "corpus_info reported no governance rules"
     assert info["docs"] == 13

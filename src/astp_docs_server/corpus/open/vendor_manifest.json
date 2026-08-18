@@ -11,9 +11,9 @@
     "IMPLEMENTATION-LAYER3.md": "1b9fb89018cd273a5cb301f2dd1af49df85249220c1ec2cdd56221fbeeabde5f",
     "IMPLEMENTATION-PHASE3.md": "23ed31a2e723c6ff18529d636c36bfbb07b008ac444aa18d4a61aad9d043dadb",
     "README.md": "4fe6c17fd28c8f64cc813d41a8f6f65452bd20dff5e964a642152b71b7003387",
-    "SPEC.md": "0d8c681aeab67951c86e9468fb25866fbd9eb64292c03380a8e958dec4555fc5",
-    "VERSIONING.md": "b95870944bfa2cf69b8d5feea8201a07013d940be4c068333b2383d094ff3374"
+    "SPEC.md": "897084684d4eb3186c84534839ffd715339b7c9283d9dad4a5c19e7f13fe5eb4",
+    "VERSIONING.md": "32b26778c4bd4033d3e135c30e85abb9d1eabda6e804c673f03b48142df4bed7"
   },
-  "source_commit": "5462a52ddef52374a5305c197db0d30ee838dda9",
-  "spec_version": "3.3.0"
+  "source_commit": "31b6e9697ba39cb0501721dfd69392a3c4e865dc",
+  "spec_version": "3.4.0"
 }
