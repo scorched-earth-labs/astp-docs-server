@@ -19,6 +19,7 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 
 from astp_docs.core import Retriever
+from astp_docs.toolkit import anchored_search
 from ..open_corpus import build_open_corpus_spec
 from .answerer import Answerer, default_answerer
 
@@ -68,7 +69,9 @@ def create_app(retriever: Retriever | None = None, answerer: Answerer | None = N
 
     @app.post("/chat")
     def chat(req: ChatRequest) -> dict:
-        results = get_retriever().search(req.query, k=req.k)
+        # Exact anchors named in the question resolve first (G-2, WF-001, §5.2),
+        # vector search fills the rest — see astp_docs.toolkit.anchored_search.
+        results = anchored_search(get_retriever(), req.query, k=req.k)
         out = get_answerer().answer(req.query, results)
         return {"query": req.query, **out}
 

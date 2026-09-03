@@ -226,3 +226,9 @@ def test_claude_answerer_accepts_custom_system_prompt():
 
     ClaudeAnswerer(client=_Client(), system_prompt="You are Bob.").answer("q", _results())
     assert captured["system"] == "You are Bob."
+
+
+def test_chat_route_resolves_named_anchor_exactly(client):
+    r = client.post("/chat", json={"query": "what does G-1 require?", "k": 3})
+    assert r.status_code == 200
+    assert r.json()["citations"][0]["anchor"] == "G-1"
