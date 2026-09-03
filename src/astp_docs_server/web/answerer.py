@@ -12,6 +12,7 @@ told. This module only *generates*; retrieval is the shared core.
 from __future__ import annotations
 
 import os
+import re
 from abc import ABC, abstractmethod
 
 from astp_docs.core.models import Result
@@ -105,10 +106,14 @@ class ExtractiveAnswerer(Answerer):
 class ClaudeAnswerer(Answerer):
     """Doc-grounded RAG answers via Claude. The deployment default."""
 
-    def __init__(self, model: str | None = None, client=None):
+    def __init__(self, model: str | None = None, client=None,
+                 system_prompt: str | None = None):
         self.model = model or os.environ.get("ARIADNE_CHAT_MODEL", DEFAULT_CHAT_MODEL)
         self.name = f"claude:{self.model}"
         self._client = client  # injected for tests; else built lazily
+        # Another head (e.g. a differently-named community bot over a different
+        # corpus) can supply its own persona; the grounding rules travel with it.
+        self.system_prompt = system_prompt or SYSTEM_PROMPT
 
     def _get_client(self):
         if self._client is None:
@@ -121,7 +126,7 @@ class ClaudeAnswerer(Answerer):
         resp = self._get_client().messages.create(
             model=self.model,
             max_tokens=2048,
-            system=SYSTEM_PROMPT,
+            system=self.system_prompt,
             thinking={"type": "adaptive"},        # low effort: scoped, latency-sensitive
             output_config={"effort": "low"},
             messages=[{"role": "user", "content": build_user_prompt(query, results)}],
@@ -135,11 +140,87 @@ class ClaudeAnswerer(Answerer):
                 "generator": self.name, "grounded": bool(results)}
 
 
+# Local-inference defaults. qwen3:14b is the strongest model that fits a 16GB
+# consumer GPU; override per deployment.
+DEFAULT_OLLAMA_URL = "http://localhost:11434"
+DEFAULT_OLLAMA_MODEL = "qwen3:14b"
+
+# Reasoning models sometimes leak their scratchpad even with thinking disabled.
+_THINK_BLOCK_RE = re.compile(r"<think>.*?</think>\s*", re.DOTALL)
+
+
+class OllamaAnswerer(Answerer):
+    """Doc-grounded RAG answers via a local Ollama model. Keyless, $0 per call.
+
+    Same prompt assembly as the Claude generator, so the answer is grounded in
+    the same cited passages — only the generator differs. Deliberately stdlib-
+    only (urllib) so the server gains no dependency for a local deployment.
+    A ``transport`` callable ``(payload: dict) -> dict`` can be injected for
+    tests; the default POSTs to ``/api/chat``.
+    """
+
+    def __init__(self, model: str | None = None, base_url: str | None = None,
+                 system_prompt: str | None = None, transport=None,
+                 timeout: float = 120.0, num_predict: int = 700,
+                 keep_alive: str = "30m"):
+        self.model = model or os.environ.get("ARIADNE_OLLAMA_MODEL", DEFAULT_OLLAMA_MODEL)
+        self.base_url = (base_url or os.environ.get("ARIADNE_OLLAMA_URL", DEFAULT_OLLAMA_URL)).rstrip("/")
+        self.system_prompt = system_prompt or SYSTEM_PROMPT
+        self.name = f"ollama:{self.model}"
+        self._transport = transport
+        self.timeout = timeout
+        self.num_predict = num_predict
+        self.keep_alive = keep_alive
+
+    def _post(self, payload: dict) -> dict:
+        if self._transport is not None:
+            return self._transport(payload)
+        import json
+        from urllib.request import Request, urlopen
+
+        req = Request(
+            f"{self.base_url}/api/chat",
+            data=json.dumps(payload).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with urlopen(req, timeout=self.timeout) as resp:
+            return json.loads(resp.read().decode("utf-8"))
+
+    def build_payload(self, query: str, results: list[Result]) -> dict:
+        return {
+            "model": self.model,
+            "stream": False,
+            "think": False,                 # answer, don't deliberate (qwen3 et al.)
+            "keep_alive": self.keep_alive,  # stay resident between questions
+            "options": {"temperature": 0.2, "num_predict": self.num_predict},
+            "messages": [
+                {"role": "system", "content": self.system_prompt},
+                {"role": "user", "content": build_user_prompt(query, results)},
+            ],
+        }
+
+    def answer(self, query: str, results: list[Result]) -> dict:
+        data = self._post(self.build_payload(query, results))
+        text = (data.get("message") or {}).get("content") or ""
+        text = _THINK_BLOCK_RE.sub("", text).strip()
+        if not text:
+            # A silent empty completion must not look like "the docs say nothing".
+            return {"answer": "I couldn't produce an answer just now — please try again.",
+                    "citations": [], "generator": self.name, "grounded": False}
+        return {"answer": text, "citations": _citations(results),
+                "generator": self.name, "grounded": bool(results)}
+
+
 def default_answerer() -> Answerer:
-    """Pick a generator from the environment: extractive when forced or when the
-    anthropic SDK isn't importable, else Claude."""
-    if os.environ.get("ARIADNE_CHAT_MODE", "").lower() == "extractive":
+    """Pick a generator from the environment: ``ARIADNE_CHAT_MODE`` =
+    ``extractive`` (keyless, no LLM) or ``ollama`` (keyless, local model);
+    otherwise Claude when the anthropic SDK is importable, else extractive."""
+    mode = os.environ.get("ARIADNE_CHAT_MODE", "").lower()
+    if mode == "extractive":
         return ExtractiveAnswerer()
+    if mode == "ollama":
+        return OllamaAnswerer()
     try:
         import anthropic  # noqa: F401
     except ImportError:
