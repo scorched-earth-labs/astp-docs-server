@@ -1,4 +1,4 @@
-# Ariadne Protocol — BFM Conformance Test Vectors
+# ASTP — BFM Conformance Test Vectors
 
 **Version:** 1.2.0
 **Status:** Stable
@@ -10,7 +10,7 @@
 
 ## 1. Overview
 
-This document specifies the conformance test vectors for the Branch/Fork/Merge (BFM) feature family of the Ariadne Protocol. A conforming implementation MUST pass all vectors marked **REQUIRED**. Vectors marked **RECOMMENDED** test behaviors that conforming implementations SHOULD support.
+This document specifies the conformance test vectors for the Branch/Fork/Merge (BFM) feature family of ASTP (the AI State Tree Protocol). A conforming implementation MUST pass all vectors marked **REQUIRED**. Vectors marked **RECOMMENDED** test behaviors that conforming implementations SHOULD support.
 
 BFM is organized into the following phases, matching `IMPLEMENTATION-BFM.md`:
 
@@ -424,5 +424,5 @@ Level 1 plus all **RECOMMENDED** vectors and the advisory checks in IMPLEMENTATI
 
 ---
 
-*Ariadne Protocol BFM Conformance Test Vectors are maintained by Scorched Earth Labs.*
+*ASTP BFM Conformance Test Vectors are maintained by Scorched Earth Labs.*
 *Vector set version: 1.2.0 | Applies to SPEC.md: v3.3.0 §19*

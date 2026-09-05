@@ -1,4 +1,4 @@
-# Ariadne Protocol — Layer 3 (Workflow & Execution DAG) Conformance Test Vectors
+# ASTP — Layer 3 (Workflow & Execution DAG) Conformance Test Vectors
 
 **Version:** 1.0.0
 **Status:** Stable
@@ -10,7 +10,7 @@
 
 ## 1. Overview
 
-This document specifies the conformance test vectors for **Layer 3 — the Workflow & Execution DAG** of the Ariadne Protocol. A conforming implementation MUST pass all vectors marked **REQUIRED**. Vectors marked **RECOMMENDED** test behaviors that conforming implementations SHOULD support.
+This document specifies the conformance test vectors for **Layer 3 — the Workflow & Execution DAG** of ASTP (the AI State Tree Protocol). A conforming implementation MUST pass all vectors marked **REQUIRED**. Vectors marked **RECOMMENDED** test behaviors that conforming implementations SHOULD support.
 
 Layer 3 is the forensic provenance layer: `WorkflowDeclaration`, `ExecutionNode`, and `SkillInvocation` record *how* an Episode's cognition was carried out. Its defining property is **cryptographic isolation from the Merkle Spine** — Layer 3 nodes reference Layers 1/2 by `node_id` only and MUST NOT participate in Spine hashing (Invariant L3-I1). This isolation is a first-class conformance concern; see the `L3-` vectors of §6.
 
@@ -178,7 +178,7 @@ All hex values lowercase. All string fields UTF-8.
 **L3-002** — Layer 3 absence/corruption does not invalidate Layers 1/2
 - **Class:** REQUIRED
 - **Spec Reference:** §21 §2 (consequence 2)
-- **Description:** A workspace whose Layer 3 is entirely absent or entirely corrupt MUST remain a valid Ariadne workspace at Layers 1 and 2. Layer 3 is a strict augmentation, never a dependency.
+- **Description:** A workspace whose Layer 3 is entirely absent or entirely corrupt MUST remain a valid ASTP workspace at Layers 1 and 2. Layer 3 is a strict augmentation, never a dependency.
 - **Verification Protocol:** Delete/corrupt all Layer 3 records; assert Layer 1 and Layer 2 verification still pass.
 - **Failure Condition:** Layer 1/2 verification depends on Layer 3 state.
 
@@ -266,5 +266,5 @@ The Behavioral tier is **NOT REQUIRED** for protocol conformance; the audit-the-
 
 ---
 
-*Ariadne Protocol Layer 3 Conformance Test Vectors are maintained by Scorched Earth Labs.*
+*ASTP Layer 3 Conformance Test Vectors are maintained by Scorched Earth Labs.*
 *Vector set version: 1.0.0 | Applies to SPEC.md: v3.2.1 §21*

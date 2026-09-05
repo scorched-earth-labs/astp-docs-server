@@ -6,6 +6,10 @@ All notable changes to the Ariadne protocol. Version numbering follows [VERSIONI
 
 The next change-set queues here.
 
+### Changed (editorial — no normative change)
+- **Public naming residue.** The four `CONFORMANCE*.md` titles and their intro/footer lines still said "Ariadne Protocol"; they now say ASTP, matching the SPEC/README rebrand (v3.2.2 era). Code identifiers, package paths, HKDF info strings, Redis key prefixes and Neo4j labels are unchanged by design — "Ariadne" remains the internal codename.
+- **README drift.** The README restated the protocol version (`3.2.2`, while SPEC was 4.2.1) and the governance range ("G-1 through G-9", while SPEC defines through G-39). Both now defer to `SPEC.md` instead of restating it. The package structure tree now shows the `protocol/` and `nodes/` layers and the namespace firewall.
+
 ### Clarified (errata — PATCH)
 - **Segment parentage vs. proof-chain parentage.** New §3.4.1 states explicitly that a Segment's `parent_node_id` is its **`EpisodeNode`** (an upward anchor), that segments order by `sequence_index` with no segment→segment edge, and that the canonical materialization is an ordered `(Episode)-[:CONTAINS {sequence_index}]->(Segment)` fan-out (derive next/prev at read time, don't persist a chain). A reciprocal note at §16.5.3 distinguishes this from the proof-chain rule `B.parent_node_id == A.node_id`, which links whole nodes causally (e.g. episode→episode). **No canonical-form change** — this clarifies existing semantics (G-2 reparenting prohibition; §5.2 leaf-hash preimage). Surfaced by a reference-implementation question ([ariadne-samples #1](https://github.com/scorched-earth-labs/ariadne-samples/issues/1)): an adapter graph showed a segment→segment containment chain instead of the canonical episode→segment fan-out.
 
