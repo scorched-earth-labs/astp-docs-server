@@ -426,7 +426,7 @@ Run vectors **WS-001 through WS-007** before proceeding.
 
 A `ProofChain` is a verifiable sequence of `CognitiveNode` states that establishes causal ordering across nodes. It is the mechanism for proving that a sequence of cognitive events occurred in a specific order — across node boundaries, across node types, and across AI architectures.
 
-A `ProofChain` is self-contained: a verifier needs only the chain data and the Ariadne Merkle algorithm to verify it. No access to the originating implementation's storage or key material is required.
+A `ProofChain` is self-contained: a verifier needs only the chain data and the ASTP Merkle algorithm to verify it. No access to the originating implementation's storage or key material is required.
 
 ### 6.2 ProofLink Construction
 

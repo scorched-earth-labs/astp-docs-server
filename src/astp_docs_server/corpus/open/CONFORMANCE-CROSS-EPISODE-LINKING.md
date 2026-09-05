@@ -1,4 +1,4 @@
-# Ariadne Protocol — Cross-Episode Linking & Grouping Conformance Test Vectors
+# ASTP — Cross-Episode Linking & Grouping Conformance Test Vectors
 
 **Version:** 1.0.0
 **Status:** Stable
@@ -10,7 +10,7 @@
 
 ## 1. Overview
 
-This document specifies the conformance test vectors for the **Cross-Episode Linking & Grouping** feature family of the Ariadne Protocol (SPEC §20). A conforming implementation MUST pass all vectors marked **REQUIRED**. Vectors marked **RECOMMENDED** test behaviors that conforming implementations SHOULD support.
+This document specifies the conformance test vectors for the **Cross-Episode Linking & Grouping** feature family of ASTP (the AI State Tree Protocol; SPEC §20). A conforming implementation MUST pass all vectors marked **REQUIRED**. Vectors marked **RECOMMENDED** test behaviors that conforming implementations SHOULD support.
 
 These are **cross-implementation-consistency** vectors, not hardcoded golden-hash values. A hash vector specifies the canonical byte layout (ordered field set + canonicalization rules) and asserts that **two conforming implementations MUST produce identical bytes for the same input tuple**. This is wire-tier conformance (§20 →12.1): the protocol fixes the preimage, not a specific digest. Where a vector references SPEC §20, it uses the amendment's internal §1–§12 numbering scoped within §20 (cited as `§20 →N`).
 
@@ -252,5 +252,5 @@ Signal-combination algorithm, embedding-model selection, threshold-calibration s
 
 ---
 
-*Ariadne Protocol Cross-Episode Linking & Grouping Conformance Test Vectors are maintained by Scorched Earth Labs.*
+*ASTP Cross-Episode Linking & Grouping Conformance Test Vectors are maintained by Scorched Earth Labs.*
 *Vector set version: 1.0.0 | Applies to SPEC.md: v3.2.1 §20*

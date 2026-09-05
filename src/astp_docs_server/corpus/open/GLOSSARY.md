@@ -1,6 +1,6 @@
 # Glossary of Terms
 
-A single-source definition for every term used normatively in `SPEC.md`, the implementation guides, and the Ariadne package. Definitions are grouped by category for learning; an alphabetical index sits at the bottom for lookup.
+A single-source definition for every term used normatively in `SPEC.md`, the implementation guides, and the `ariadne` Python package. Definitions are grouped by category for learning; an alphabetical index sits at the bottom for lookup.
 
 This glossary covers the **current published surface** (`SPEC.md` version `2.5.0-draft`). Terms introduced by pending amendments (cross-episode linking, Layer 3 Workflow & Execution DAG) are added to the glossary when those amendments integrate into the next published version. If you encounter a term in code or amendment documents that isn't defined here, it's either a near-future addition or a documentation gap worth raising.
 

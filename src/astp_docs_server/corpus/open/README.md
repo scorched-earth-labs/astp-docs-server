@@ -8,7 +8,7 @@ Bring your own cognitive architecture. ASTP handles the persistence, integrity v
 
 📖 **New to ASTP?** Start with the [Glossary](./GLOSSARY.md) — every term used in the spec and code, defined once with explicit structural relationships (e.g. how `EpisodeNode` relates to `CognitiveNode` + `EpisodePayload`).
 
-**Current version:** `3.2.2` — see [`SPEC.md`](./SPEC.md). Versioning policy: [`VERSIONING.md`](./VERSIONING.md). Change history: [`CHANGELOG.md`](./CHANGELOG.md).
+**Current version:** the `**Version:**` field at the top of [`SPEC.md`](./SPEC.md) is the protocol version (it is not restated here, so it can't drift). Versioning policy: [`VERSIONING.md`](./VERSIONING.md). Change history: [`CHANGELOG.md`](./CHANGELOG.md).
 
 ---
 
@@ -19,7 +19,7 @@ Multi-agent AI systems have a memory problem. Agents reason across long episodes
 ASTP is a protocol for solving that problem. It defines:
 
 - A **hash-chained state tree** that provides cryptographic proof that the cognitive record hasn't been tampered with
-- A **governance rule set** (G-1 through G-9) that any conforming implementation must enforce
+- A **governance rule set** (the numbered `G-*` rules in `SPEC.md`) that any conforming implementation must enforce
 - A **Write Intent Log (WIL)** that coordinates multi-store writes and guarantees recoverability
 - A **Crystallization protocol** that captures point-in-time integrity snapshots as first-class state transitions
 - A **Consultation record** that treats cross-agent exchanges as first-class protocol nodes, not implementation details
@@ -38,22 +38,31 @@ ASTP is not a vector database, a RAG system, or a session memory layer. It is a 
 
 ```
 ariadne/
-├── core/                    # The protocol — zero database dependencies
-│   ├── schema.py            # Episodes, Segments, Signals, governance G-1–G-9
-│   ├── merkle.py            # Adaptive Merkle tree
-│   ├── crystallization.py   # Delta state machine and verification logic
+├── protocol/                # Node-generic layer — operates on CognitiveNode only
+│   ├── node.py              # CognitiveNode + NodePayload abstraction
+│   ├── leaf_hash.py         # Position-binding leaf hash
+│   ├── merkle.py            # Adaptive Merkle tree (spine)
+│   ├── governance.py        # Governance rule enforcement
+│   ├── keys.py              # HKDF key hierarchy (workspace → node → seal)
+│   ├── verification.py      # DeltaVerifier — the five-test gate
+│   └── …                    # audit, chain_proof, delta, witness, registry, …
+├── nodes/                   # Node-type instantiations (episode/, segment/)
+├── core/                    # Episode-era schema, governance errors, WIL, BFM,
+│   │                        #   cross-episode linking, Layer 3, coherence
+│   ├── schema.py            # Episodes, Segments, Signals + inline governance
 │   ├── wil.py               # Write Intent Log state machine
+│   ├── branching.py         # Branch / fork / merge primitives
+│   ├── workflow_execution.py# Layer 3 — Workflow & Execution DAG
+│   ├── hash_canonical.py    # Reference canonicalizer for content hashes
 │   └── contracts.py         # Conformance benchmark framework
 └── adapters/
     ├── base.py              # AriadneAdapter abstract interface (ASI)
     └── neo4j/               # Reference implementation
-        ├── writer.py
-        ├── queries.py
-        ├── crystallization.py
-        └── wil.py
+        ├── writer.py, queries.py, crystallization.py, wil.py
+        └── rebalance.py, retrieval_audit.py
 ```
 
-The dependency is strictly one-directional: adapters import the protocol core; the protocol core has no database dependencies.
+Two invariants shape the tree. The **namespace firewall**: `ariadne.protocol.*` never imports from `ariadne.nodes.*` (enforced by test). And the dependency is strictly one-directional: adapters import the protocol core; the protocol core has no database dependencies.
 
 ---
 
@@ -104,7 +113,7 @@ class MyDatabaseAdapter(AriadneAdapter):
 
 A conforming adapter must:
 
-1. Enforce governance rules G-1 through G-9
+1. Enforce every governance rule (`G-*`) defined in `SPEC.md`
 2. Preserve hash chain integrity — never modify `content_hash`, `spine_hash`, or `episode_root_hash` after creation
 3. Respect write ordering invariants across stores
 4. Support idempotent writes for WIL recovery

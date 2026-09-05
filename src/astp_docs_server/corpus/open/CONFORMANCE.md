@@ -1,4 +1,4 @@
-# Ariadne Protocol — Phase 3 Conformance Test Vectors
+# ASTP — Phase 3 Conformance Test Vectors
 
 **Version:** 1.0.0
 **Status:** Working Draft
@@ -11,7 +11,7 @@
 
 ## 1. Overview
 
-This document specifies the conformance test vectors for Phase 3 Trust Infrastructure (§16) of the Ariadne Protocol. For the BFM feature family (§19), see the companion document [CONFORMANCE-BFM.md](CONFORMANCE-BFM.md). A conforming implementation MUST pass all vectors marked **REQUIRED**. Vectors marked **RECOMMENDED** test behaviors that conforming implementations SHOULD support.
+This document specifies the conformance test vectors for Phase 3 Trust Infrastructure (§16) of ASTP (the AI State Tree Protocol). For the BFM feature family (§19), see the companion document [CONFORMANCE-BFM.md](CONFORMANCE-BFM.md). A conforming implementation MUST pass all vectors marked **REQUIRED**. Vectors marked **RECOMMENDED** test behaviors that conforming implementations SHOULD support.
 
 **Test vector format:**
 
@@ -675,7 +675,7 @@ The implementation passes all REQUIRED and RECOMMENDED vectors. It additionally 
 For vectors that require cross-implementation consistency (KH-001, KH-006, WS-001, TL-003), the verification protocol is:
 
 1. Each conforming implementation computes the specified output for the given inputs
-2. The output is published to the Ariadne Protocol conformance registry (location TBD)
+2. The output is published to the ASTP conformance registry (location TBD)
 3. Implementations compare their output against all published values
 4. Discrepancies trigger an investigation into HKDF parameterization, serialization format, or encoding differences
 
@@ -732,5 +732,5 @@ leaf_hash: [implementations compute and cross-verify per KH-006 protocol]
 
 ---
 
-*Ariadne Protocol Conformance Test Vectors are maintained by Scorched Earth Labs.*
+*ASTP Conformance Test Vectors are maintained by Scorched Earth Labs.*
 *Vector set version: 1.0.0 | Applies to SPEC.md: v2.3.0-draft*
