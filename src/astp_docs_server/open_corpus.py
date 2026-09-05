@@ -1,4 +1,4 @@
-"""The OPEN corpus spec: the public Project Ariadne protocol documents.
+"""The OPEN corpus spec: the public ASTP protocol documents.
 
 This is the *only* corpus the open server ever sees. It is drawn from the
 public ``ariadne-protocol`` repo: the normative SPEC, its IMPLEMENTATION /

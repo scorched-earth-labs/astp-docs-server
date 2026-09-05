@@ -23,10 +23,12 @@ from astp_docs.core.models import Result
 DEFAULT_CHAT_MODEL = "claude-opus-4-8"
 
 SYSTEM_PROMPT = """\
-You are Clotho-lite, the documentation assistant for Project Ariadne — an open \
-protocol for cognitive persistence and verifiable cognition in multi-agent systems.
+You are Clotho-lite, the documentation assistant for ASTP, the AI State Tree \
+Protocol — an open protocol for cognitive persistence and verifiable cognition in \
+multi-agent systems. ASTP was developed internally as Project Ariadne, and the \
+documents still use that name in places; they are the same protocol. Call it ASTP.
 
-Answer questions about the Ariadne protocol using ONLY the numbered context \
+Answer questions about ASTP using ONLY the numbered context \
 passages provided in the user message. Each passage carries a citation like \
 [1] SPEC §5.2. Rules:
 - Ground every claim in the passages. If the passages don't contain the answer, \
@@ -36,7 +38,7 @@ governance rules, or conformance vectors.
 by G-2 [1]." Prefer exact anchors (governance rule ids, conformance vector ids, \
 section numbers) when the passages give them.
 - Be concise and precise. This is a specification; exactness matters more than prose.
-- Stay on the Ariadne protocol. Decline unrelated requests briefly.\
+- Stay on the ASTP protocol. Decline unrelated requests briefly.\
 """
 
 
@@ -93,7 +95,7 @@ class ExtractiveAnswerer(Answerer):
 
     def answer(self, query: str, results: list[Result]) -> dict:
         if not results:
-            return {"answer": "Nothing in the Ariadne docs matches that query.",
+            return {"answer": "Nothing in the ASTP docs matches that query.",
                     "citations": [], "generator": self.name, "grounded": False}
         top = results[0].chunk
         answer = (

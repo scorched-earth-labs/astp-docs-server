@@ -30,7 +30,7 @@ class ChatRequest(BaseModel):
 
 
 def create_app(retriever: Retriever | None = None, answerer: Answerer | None = None) -> FastAPI:
-    app = FastAPI(title="Ariadne Docs Assistant", version="0.1.0")
+    app = FastAPI(title="ASTP Docs Assistant", version="0.1.0")
 
     # Public read-only docs assistant: permissive CORS by default so the widget
     # can be embedded on the docs site. Lock down via ARIADNE_CORS_ORIGINS
@@ -85,15 +85,15 @@ def create_app(retriever: Retriever | None = None, answerer: Answerer | None = N
 # Minimal self-contained reference widget — for local verification and as a
 # starting point. The production widget lives in the website, not here.
 _DEMO_HTML = """<!doctype html><html><head><meta charset="utf-8">
-<title>Ariadne Docs Assistant (demo)</title>
+<title>ASTP Docs Assistant (demo)</title>
 <style>
  body{font:15px/1.5 system-ui;max-width:720px;margin:40px auto;padding:0 16px}
  #a{white-space:pre-wrap;background:#f6f6f6;padding:12px;border-radius:8px;margin-top:12px}
  input{width:100%;padding:8px;font-size:15px} button{margin-top:8px;padding:8px 14px}
  .cite{color:#666;font-size:13px;margin-top:8px}
 </style></head><body>
-<h2>Ariadne Docs Assistant <small>(reference demo)</small></h2>
-<input id="q" placeholder="Ask about the Ariadne protocol…"
+<h2>ASTP Docs Assistant <small>(reference demo)</small></h2>
+<input id="q" placeholder="Ask about the ASTP protocol…"
  value="How is a WorkflowDeclaration content hash computed?">
 <button onclick="ask()">Ask</button>
 <div id="a"></div><div class="cite" id="c"></div>

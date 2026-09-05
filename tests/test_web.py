@@ -143,7 +143,7 @@ def test_chat_route(client):
 
 def test_demo_page_served(client):
     r = client.get("/")
-    assert r.status_code == 200 and "Ariadne Docs Assistant" in r.text
+    assert r.status_code == 200 and "ASTP Docs Assistant" in r.text
 
 
 # --- OllamaAnswerer (local inference) ----------------------------------------
