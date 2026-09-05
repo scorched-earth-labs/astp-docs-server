@@ -33,9 +33,11 @@ Once `astp-docs-core` is published to PyPI (or made public), drop the
 
 | Var | Default (image) | Purpose |
 |---|---|---|
-| `ARIADNE_CHAT_MODE` | `extractive` | `extractive` = keyless (no LLM). Set to `claude` to synthesize answers. |
+| `ARIADNE_CHAT_MODE` | `extractive` | `extractive` = keyless (no LLM). `claude` = synthesize with Claude. `ollama` = synthesize with a local Ollama model (keyless, $0/call). |
 | `ANTHROPIC_API_KEY` | — | Required when `ARIADNE_CHAT_MODE=claude`. |
-| `ARIADNE_CHAT_MODEL` | `claude-opus-4-8` | Generation model (cost/quality knob). |
+| `ARIADNE_CHAT_MODEL` | `claude-opus-4-8` | Generation model (cost/quality knob) when mode is `claude`. |
+| `ARIADNE_OLLAMA_URL` | `http://localhost:11434` | Ollama endpoint when mode is `ollama`. |
+| `ARIADNE_OLLAMA_MODEL` | `qwen3:14b` | Local model when mode is `ollama`. |
 | `ARIADNE_CORS_ORIGINS` | `*` | Comma-separated allowed origins — **lock this to your docs domain in prod.** |
 | `ARIADNE_PROTOCOL_DIR` | — | Override the vendored corpus with a live checkout (dev only). |
 | `ARIADNE_WEB_HOST` / `ARIADNE_WEB_PORT` | `0.0.0.0` / `8080` | Bind address. |

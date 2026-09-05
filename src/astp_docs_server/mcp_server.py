@@ -1,4 +1,4 @@
-"""The OPEN Ariadne documentation MCP server (FastMCP transport).
+"""The OPEN ASTP documentation MCP server (FastMCP transport).
 
 Serves ONLY the open protocol corpus (see ``corpora/open_corpus.py``). Adopters
 point their coding agents (Claude Code / Codex / Copilot) at this to implement
@@ -38,7 +38,7 @@ def retriever() -> Retriever:
 # -- tools: thin wrappers over the pure functions in tools.py ---------------
 @mcp.tool()
 def search_spec(query: str, k: int = 5) -> dict:
-    """Search the Ariadne protocol docs for passages relevant to a query.
+    """Search the ASTP protocol docs for passages relevant to a query.
 
     Args:
         query: What you want to find (a concept, symbol, or question).
@@ -101,7 +101,7 @@ def run() -> None:
         level=logging.INFO,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
-    logger.info("Starting Ariadne Open Docs MCP Server")
+    logger.info("Starting ASTP Open Docs MCP Server")
     retriever()  # build eagerly so a bad corpus fails at startup, not first call
     mcp.run()
 

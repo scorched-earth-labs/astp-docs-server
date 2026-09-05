@@ -9,6 +9,79 @@ The next change-set queues here.
 ### Clarified (errata — PATCH)
 - **Segment parentage vs. proof-chain parentage.** New §3.4.1 states explicitly that a Segment's `parent_node_id` is its **`EpisodeNode`** (an upward anchor), that segments order by `sequence_index` with no segment→segment edge, and that the canonical materialization is an ordered `(Episode)-[:CONTAINS {sequence_index}]->(Segment)` fan-out (derive next/prev at read time, don't persist a chain). A reciprocal note at §16.5.3 distinguishes this from the proof-chain rule `B.parent_node_id == A.node_id`, which links whole nodes causally (e.g. episode→episode). **No canonical-form change** — this clarifies existing semantics (G-2 reparenting prohibition; §5.2 leaf-hash preimage). Surfaced by a reference-implementation question ([ariadne-samples #1](https://github.com/scorched-earth-labs/ariadne-samples/issues/1)): an adapter graph showed a segment→segment containment chain instead of the canonical episode→segment fan-out.
 
+## [4.2.1] — 2026-08-21
+
+**PATCH.** `write_attachment_node_sync` — sync variant of `create_attachment_node`, for callers that are not async and cannot become so without restructuring their caller in turn. Exists for the same reason `write_document_node_sync` does, and writes the same node and edge, so the two variants are indistinguishable in the graph.
+
+Documents its own limit: a caller performing an attachment owes an `ATTACHMENT_COMMIT` entry under G-39, and this function cannot produce one because write-intent coordination is async by necessity. A sync caller must surface that its write is unledgered rather than absorb the gap (§12.4.2).
+
+## [4.2.0] — 2026-08-21
+
+**MINOR.** Restores `CONSULTATION_COMMIT` to the §12.4.1 register (Tier 1) and corrects a contradiction.
+
+v3.5.0 removed the operation on the stated ground that "the protocol does not define" consultation. **It does, and always has:** G-8 and G-9 have governed consultation since v1, and `compute_consultation_node_hash` / `compute_exchange_chain_hash` are protocol hash functions. SPEC.md asserted both positions at once until now.
+
+- One operation covers the consultation node, its ordered exchange entries and the consulted agent's participation record — they commit together, so they are one operation rather than three.
+- **Collaboration gets no separate operation.** It is a `ConsultationType`, so a collaborative session commits as a consultation and the type distinguishes it; a second register name would encode in the ledger what the node already records.
+- §12.4 clarifies that an operation's **tier turns on whether an interruption leaves recoverable work, not on store count** — a multi-record write to one store is Tier 1 when a partial write leaves a chain stopping mid-sequence. The register already assigned tiers this way; the definitions had said "more than one store".
+- Reference implementation gains `create_consultation_node`, `create_exchange_entry_node`, `create_consultation_participant_node` and `execute_consultation_commit`. These were the last abstract adapter methods without implementations, and they were unimplemented only because of the same mistaken premise.
+
+**Additive** — no existing operation, node or conformance requirement changes.
+
+## [4.1.1] — 2026-08-20
+
+**PATCH.** `create_amendment_link_node` — the last abstract adapter method with no Neo4j implementation.
+
+`AriadneAdapter.create_amendment_link` was declared and left `...`, so consumers reopening a sealed Episode wrote their own node and edges. Same gap as codicils, closure records, episode-status transitions and attachments; this closes the set.
+
+Writes the node and **both** edges — `AMENDS` to the source, `PRODUCES` to the new Episode. The link is not symmetric: following provenance backwards wants the source, asking "what came of this" wants the amendment, and one edge would make the other direction a scan. G-1 is deliberately not enforced — the source is sealed *by definition*, which is the precondition for amending it, not an obstacle.
+
+**Known gap recorded, not closed:** `create_consultation`, `create_exchange_entry` and `create_consultation_participant` remain abstract with no implementation. v3.5.0 retired consultation from the protocol but removed only its WIL operations and `SegmentType` members — these three methods and the `ConsultationNode` / `ExchangeEntry` / `ConsultationParticipantNode` types survived, and appear nowhere in SPEC.md. Finishing that removal is a cross-repo migration (26 references downstream, including `bdi_bridge` importing `ExchangeEntry` from the protocol schema). Pinned by test so the gap cannot grow.
+
+## [4.1.0] — 2026-08-20
+
+**MINOR.** SPEC §4.7 `AttachmentNode` — external content injected into an Episode's context, recorded so the injection is verifiable after the fact.
+
+- Narrow by design: episode, content hash, media type, locator, who and when.
+- **Kind is a property, not a node type.** A document, an image and an audio file are one node distinguished by `media_type`. Separate node types per artifact kind would contradict §1 ("agnostic to node type") and force a protocol revision for every new format.
+- `content_hash` is over the content **as received**, never an extraction — hashing text pulled from a PDF proves the extraction unchanged while leaving the PDF unverified.
+- `ATTACHMENT_COMMIT` registered (Tier 1), with writer and coordinated write.
+
+**Additive** — no existing node, operation or conformance requirement changes. `DocumentNode` remains as legacy in the reference implementation; its docstring claimed protocol status the specification never conferred, and its `drive_url` / `content_text` / `char_count` fields are precisely why that claim was untrue.
+
+## [4.0.0] — 2026-08-20
+
+**MAJOR.** Ledgering obligations (SPEC §12.4.2), deferred since 3.4.0. Requires a ratifying **Episode of Record**.
+
+- **G-39** — an implementation MUST record a ledger entry for every §12.4.1 operation it performs. Performing one without an entry is a conformance violation, not a degraded mode.
+- Scoped to operations *performed*: an implementation owes nothing for capabilities it does not implement.
+- Ledger writes MAY be best-effort with respect to availability, but a gap MUST be surfaced rather than absorbed — the distinction is between an implementation that cannot record and knows it, and one that does not record and cannot tell.
+- **Consequence:** a missing entry from a conforming implementation now means the operation did not occur. That inference was explicitly unavailable before. It remains unavailable for records written prior to this version, and an implementation MUST NOT retroactively assert coverage over a period it did not have it.
+
+**Breaking.** Every 3.x-conformant implementation that performs a registered operation without ledgering it becomes non-conformant. `SPEC.md` at 3.5.1 retained as `SPEC-v3.md`.
+
+## [3.5.1] — 2026-08-20
+
+**PATCH (errata).** SPEC §4.4.1 Episode Lifecycle States.
+
+The prior one-line list read "ACTIVE, REBALANCING, SEALING, SEALED, SEALING_FAILED, REBALANCE_FAILED, ARCHIVED, EXPIRED". Four of those states have never existed in any implementation; seven real ones were missing, including the entire closure workflow. Four of eleven overlapped.
+
+Written 2026-04-09, two days *after* the enum it was describing already carried the states it omitted — wrong on the day it was authored, not drift. Replaced with the closed set as a table, plus: **crystallization is a fact recorded by a `CrystallizationDelta`, not a state**; an implementation MUST NOT infer it from `episode_status`, and MAY restore the pre-lock status, which is required for correctness mid-closure.
+
+## [3.5.0] — 2026-08-19
+
+**MINOR.** Retires `CONSULTATION_COMMIT` and `COLLABORATION_COMMIT` from the §12.4.1 register, and the never-used `SegmentType.CONSULTATION` / `COLLABORATION` members.
+
+Both describe multi-agent interaction patterns the protocol does not define; registering their operations extended the protocol's vocabulary to cover behaviour it does not specify. Implementations that ledger them namespace them (`sel:CONSULTATION_COMMIT`) under the §12.4.1 prefix rule. No conformant implementation affected — neither operation was ever emitted by the reference implementation, and the segment types had no writer and zero instances.
+
+## [3.4.0] — 2026-08-18
+
+**MINOR.** Write Intent Log operation register (SPEC §12.4).
+
+§12 defined *how* a write intent is recorded but never *which* operations record one, so the vocabulary existed only as a Python enum documented nowhere normative. Adds the closed register of all operation values and the two entry forms: **Tier 1 coordinated write** (multi-store, full three-phase §12.2 protocol, `completed_at=null` past the provisional window is a recovery candidate) and **Tier 2 ledger record** (single authoritative store, one completed entry at commit, never a recovery candidate).
+
+New governance rules **G-37** and **G-38** constrain the *form* of an entry whenever one is written; neither compels an entry to exist. §12.4.2 deferred that obligation to 4.0.0.
+
 ## [3.3.0] — 2026-07-05
 
 **MINOR.** Departure-fork orphan recovery (SPEC §19.3.7). Additive on top of v3.2.x — no breaking changes; every v3.2.x-conformant implementation remains conformant. The runtime enforcement layer for the §19.3.5 producer invariants: it catches partial-failure states the producers couldn't prevent (a crash between the two writes, a rolled-back status).

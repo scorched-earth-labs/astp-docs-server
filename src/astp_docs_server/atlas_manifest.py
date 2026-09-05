@@ -1,4 +1,4 @@
-"""Atlas service manifest for the Ariadne Open Docs MCP Server.
+"""Atlas service manifest for the ASTP Open Docs MCP Server.
 
 Registers the server's read-only capabilities with Atlas so agents can discover
 it. All tools are ``read`` (a docs server writes nothing). No API keys.
@@ -26,10 +26,10 @@ def _read_cap(cap_id: str, tool_name: str, name: str, desc: str, schema: dict) -
 def get_astp_docs_open_manifest() -> dict[str, Any]:
     return {
         "service_id": "astp-docs-open",
-        "name": "Ariadne Open Docs MCP Server",
+        "name": "ASTP Open Docs MCP Server",
         "version": "0.1.0",
         "description": (
-            "Serves the OPEN Project Ariadne protocol corpus (SPEC, "
+            "Serves the OPEN ASTP protocol corpus (SPEC, "
             "IMPLEMENTATION/CONFORMANCE companions, GLOSSARY, CHANGELOG) with "
             "exact lookup of governance rules, conformance vectors, and sections "
             "plus lexical search. Read-only; no proprietary content."
@@ -37,7 +37,7 @@ def get_astp_docs_open_manifest() -> dict[str, Any]:
         "mcp_endpoint": "stdio://astp-docs-open",
         "health_endpoint": None,
         "docs_url": "https://github.com/scorched-earth-labs/astp-docs",
-        "contact": {"team": "Ariadne Protocol", "email": "protocol@scorchedearthlabs.com"},
+        "contact": {"team": "ASTP Protocol", "email": "protocol@scorchedearthlabs.com"},
         "metadata": {
             "category": "documentation",
             "corpus_visibility": "open",
