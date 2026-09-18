@@ -10,7 +10,7 @@
 
 ## 1. Purpose and Relationship to SPEC.md
 
-SPEC §21 defines the protocol surface of **Layer 3 — the Workflow & Execution DAG**: the forensic provenance record of *how* an Episode's cognition was carried out — which autonomous workflows were declared, which discrete execution steps ran, which skills were invoked, and where execution failed. It is the third cryptographic layer, cryptographically **isolated** from the Merkle Spine (Layers 1/2): it references them by `node_id` only and never participates in Spine hashing. This document describes **how Scorched Earth Labs implemented that surface** — the `ariadne.core.workflow_execution` protocol-type module and the Ignis OS reference storage adapter. It is not normative: another adapter (relational, document, graph) may differ in storage layout while remaining spec-conforming.
+SPEC §21 defines the protocol surface of **Layer 3 — the Workflow & Execution DAG**: the forensic provenance record of *how* an Episode's cognition was carried out — which autonomous workflows were declared, which discrete execution steps ran, which skills were invoked, and where execution failed. It is the third cryptographic layer, cryptographically **isolated** from the Merkle Spine (Layers 1/2): it references them by `node_id` only and never participates in Spine hashing. This document describes **how Scorched Earth Labs implemented that surface** — the `astp.core.workflow_execution` protocol-type module and the reference storage adapter in Ignis OS (Scorched Earth Labs' agent runtime, the first consumer of this protocol). It is not normative: another adapter (relational, document, graph) may differ in storage layout while remaining spec-conforming.
 
 What is normative from this file:
 
@@ -22,8 +22,8 @@ What is normative from this file:
 
 What is implementation-space:
 
-- The concrete byte serialization. The reference canonicalizer (`ariadne/core/hash_canonical.py`) uses `sort_keys=False` field-ordered JSON (`separators=(",", ":")`, `ensure_ascii=False`, UTC-ISO8601 datetimes, UUID→str, Enum→`.value`) hashed with **SHA3-256**. This is a variant of SPEC §21 §8 Form B (canonical JSON) but with SHA3-256 rather than SHA-256 and caller-ordered rather than key-sorted fields. Another implementation may choose Form A (length-prefixed concatenation) and produce different bytes — legally, per SPEC §21 §8: cross-implementation hash *equivalence* is a non-goal at Layer 3; cross-implementation *verifiability* (documented, reproducible serialization) is the requirement.
-- Neo4j labels, edge storage, indexes, and constraint names (SPEC §21 Appendix A, reproduced in §6 below).
+- The concrete byte serialization. The reference canonicalizer (`astp/core/hash_canonical.py`) uses `sort_keys=False` field-ordered JSON (`separators=(",", ":")`, `ensure_ascii=False`, UTC-ISO8601 datetimes, UUID→str, Enum→`.value`) hashed with **SHA3-256**. This is a variant of SPEC §21 §8 Form B (canonical JSON) but with SHA3-256 rather than SHA-256 and caller-ordered rather than key-sorted fields. Another implementation may choose Form A (length-prefixed concatenation) and produce different bytes — legally, per SPEC §21 §8: cross-implementation hash *equivalence* is a non-goal at Layer 3; cross-implementation *verifiability* (documented, reproducible serialization) is the requirement.
+- Neo4j labels, edge storage, indexes, and constraint names (§6 below; SPEC §21 Appendix A points here).
 - The identity of the CIA and its enforcement mechanism (the Ignis reference names the `ignis_mcp_server` MCP server; SPEC §21 §3 permits any unique entity).
 - Which chain key anchors the Layer 3 audit chain (the Ignis reference uses `episode_id`).
 
@@ -32,7 +32,7 @@ What is implementation-space:
 ## 2. Module Layout
 
 ```
-ariadne/
+astp/
 ├── core/
 │   ├── workflow_execution.py   # Layer 3 schema types + enums + hash functions + governance + delta payloads
 │   ├── hash_canonical.py       # shared canonicalizer — hash_preimage(model, ordered_fields)
@@ -50,7 +50,7 @@ tests/unit/protocol/
 ### 3.1 The three node types
 
 ```python
-from ariadne.core.workflow_execution import (
+from astp.core.workflow_execution import (
     WorkflowDeclaration, ExecutionNode, SkillInvocation,
     WorkflowStatus, ExecutionStatus, SkillStatus, ErrorType, PrecedesEdgeType,
     LAYER_3_SCHEMA_VERSION,   # "3.0.0"
@@ -68,7 +68,7 @@ A `WorkflowDeclaration` with zero child `ExecutionNode`s is a valid forensic sta
 ### 3.2 Governance guards
 
 ```python
-from ariadne.core.workflow_execution import (
+from astp.core.workflow_execution import (
     Layer3GovernanceError,
     enforce_workflow_status_transition,   # (current: WorkflowStatus, target: WorkflowStatus) -> None
     enforce_execution_error_consistency,  # (node: ExecutionNode) -> None
@@ -88,7 +88,7 @@ from ariadne.core.workflow_execution import (
 ### 3.3 Hash stamping
 
 ```python
-from ariadne.core.workflow_execution import (
+from astp.core.workflow_execution import (
     compute_workflow_declaration_content_hash, stamp_workflow_declaration_hash,
     compute_execution_node_content_hash,      stamp_execution_node_hash,
     compute_skill_invocation_content_hash,    stamp_skill_invocation_hash,
@@ -103,7 +103,7 @@ The `stamp_*` helpers compute and set `content_hash` in place and return the ins
 
 ## 4. Content-Hash Preimages — Exact Field Orders
 
-Ground truth is `ariadne/core/workflow_execution.py`; each order below is the literal tuple passed to `hash_preimage(node, ordered_fields)`. The serialization form is implementation-space (SPEC §21 §8); the **field set and its order** are the protocol commitment (W-L3-2). Field order is caller-controlled (`sort_keys=False`) — the tuple order *is* the preimage order.
+Ground truth is `astp/core/workflow_execution.py`; each order below is the literal tuple passed to `hash_preimage(node, ordered_fields)`. The serialization form is implementation-space (SPEC §21 §8); the **field set and its order** are the protocol commitment (W-L3-2). Field order is caller-controlled (`sort_keys=False`) — the tuple order *is* the preimage order.
 
 ### 4.1 `WorkflowDeclaration` — `compute_workflow_declaration_content_hash()`
 
@@ -148,7 +148,7 @@ status, error_detail
 
 ## 5. Per-Operation Writes and the Audit Chain
 
-Every Layer 3 write is anchored to the protocol audit chain by one of four `CognitiveDeltaType` values (defined in `ariadne/core/branching.py`; SPEC §21 §11). **`cia_identifier` is mandatory on every one** — it is the field that makes the sole-writer principle (§3) verifiable: a verifier walking the chain confirms every L3 write came from the declared CIA and no other principal contributed.
+Every Layer 3 write is anchored to the protocol audit chain by one of four `CognitiveDeltaType` values (defined in `astp/core/branching.py`; SPEC §21 §11). **`cia_identifier` is mandatory on every one** — it is the field that makes the sole-writer principle (§3) verifiable: a verifier walking the chain confirms every L3 write came from the declared CIA and no other principal contributed.
 
 | Operation | Delta type | Delta payload class | Required forward fields |
 |-----------|-----------|---------------------|-------------------------|
@@ -167,7 +167,7 @@ Each delta payload carries a **reverse delta** for audit-chain rollback consiste
 
 ## 6. Neo4j Reference Storage Layout (Non-Normative)
 
-Reproduced from SPEC §21 Appendix A. The reference storage adapter lives in the Ignis OS implementation; these notes describe one complete adapter path.
+SPEC.md is provider-neutral; this section is where the reference deployment's provider-specific layout is recorded. The reference storage adapter lives in the Ignis OS implementation; these notes describe one complete adapter path, and nothing here is a conformance requirement.
 
 ### 6.1 Edge vocabulary — the seven edges (§7)
 
@@ -224,7 +224,7 @@ RETURN i, m, w, collect(e) AS executions
 
 ### 6.4 Reference CIA (§3, G-36)
 
-The Ignis reference designates a single MCP server — `ignis_mcp_server` — as the CIA for **all three** Layer 3 node types in the SEL workspace. Enforcement is layered:
+The Ignis reference designates a single MCP server — `ignis_mcp_server` — as the CIA for **all three** Layer 3 node types in its workspace. Enforcement is layered:
 
 - **Application-layer guard:** no other process holds Neo4j credentials with INSERT on the Layer 3 labels.
 - **MCP-tool surface:** the four write tools `ignis_declare_workflow`, `ignis_record_execution_step`, `ignis_record_skill_invocation`, `ignis_close_workflow` are the *only* authorized write paths.
@@ -269,13 +269,13 @@ Edge types: the seven of §6.1. Indexes: the eight of §6.2. All storage form is
 
 All Layer 3 protocol vectors run under `ARIADNE_ENABLED=true` against the pure-Python schema types (no live adapter — the reference adapter is exercised in the Ignis OS repo).
 
-| File | Count | Focus |
-|------|-------|-------|
-| `tests/unit/protocol/test_workflow_execution.py` | 40 | Enum surfaces (`WorkflowStatus`/`ExecutionStatus`/`SkillStatus`/`ErrorType`/`PrecedesEdgeType`), `LAYER_3_SCHEMA_VERSION`, the four `CognitiveDeltaType` additions, per-node instantiation, per-node hash (field inclusion/exclusion, mutation-surface hash-stability, `registry_id` backfill hash-stability), status-transition state machine, execution error consistency, delta-payload shapes |
+| File | Focus |
+|------|-------|
+| `tests/unit/protocol/test_workflow_execution.py` | Enum surfaces (`WorkflowStatus`/`ExecutionStatus`/`SkillStatus`/`ErrorType`/`PrecedesEdgeType`), `LAYER_3_SCHEMA_VERSION`, the four `CognitiveDeltaType` additions, per-node instantiation, per-node hash (field inclusion/exclusion, mutation-surface hash-stability, `registry_id` backfill hash-stability), status-transition state machine, execution error consistency, delta-payload shapes |
 
 Test classes: `TestWorkflowStatus`, `TestExecutionStatus`, `TestSkillStatus`, `TestErrorType`, `TestPrecedesEdgeType`, `TestSchemaVersion`, `TestCognitiveDeltaTypeAdditions`, `TestWorkflowDeclarationInstantiation`, `TestWorkflowDeclarationHash`, `TestExecutionNodeInstantiation`, `TestExecutionNodeHash`, `TestSkillInvocationInstantiation`, `TestSkillInvocationHash`, `TestWorkflowStatusTransitions`, `TestExecutionErrorConsistency`, `TestDeltaPayloads`.
 
-Combined with the full protocol test surface (namespace firewall, trust infrastructure, cross-episode, BFM, verification, etc.), `.venv/bin/python -m pytest tests/ -q` runs the complete suite green.
+Run the whole suite with `pytest`.
 
 ---
 
@@ -283,9 +283,9 @@ Combined with the full protocol test surface (namespace firewall, trust infrastr
 
 Deliberate scope limits, forward-compatible with future amendments (SPEC §21 §13):
 
-1. **Mandate — full protocol surface (§13.1).** `mandate_id` and the `SPAWNED_BY_MANDATE` edge are introduced, but the `Mandate` node type itself (fields, hash preimage, lifecycle, layer position) is unspecified. Conforming implementations MAY treat `Mandate` as an opaque reference. A future amendment (provisional **v3.1.0 — Mandate Codification**) will define it.
+1. **Mandate — full protocol surface (§13.1).** `mandate_id` and the `SPAWNED_BY_MANDATE` edge are introduced, but the `Mandate` node type itself (fields, hash preimage, lifecycle, layer position) is unspecified. Conforming implementations MAY treat `Mandate` as an opaque reference. A future amendment will define it.
 2. **Skill Registry (§13.2).** `SkillInvocation.registry_id` is reserved and MUST be left null. Its exclusion from `content_hash` is the enabling provision: when the Skill Registry amendment ships, a backfill MAY populate `registry_id` on existing records without invalidating their hashes.
-3. **SkillInvocation Spine promotion (§13.3).** SkillInvocation remains a Layer 3 node; this amendment declines to promote it into Spine hashing. A future major amendment (provisional **v4.0.0**) may revisit once production usage informs the design.
+3. **SkillInvocation Spine promotion (§13.3).** SkillInvocation remains a Layer 3 node; this amendment declines to promote it into Spine hashing. A future major amendment may revisit once production usage informs the design.
 4. **CIA designation change events.** SPEC §21 §3 reserves the `CIA_DESIGNATION_CHANGED` audit event type for a future amendment if/when CIA reassignment proves non-rare; the current surface treats the CIA as stable.
 
 ---
