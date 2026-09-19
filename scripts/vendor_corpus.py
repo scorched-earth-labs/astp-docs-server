@@ -23,6 +23,7 @@ sys.path.insert(0, os.path.join(_HERE, "..", "src"))
 from astp_docs_server.open_corpus import (  # noqa: E402
     DEFAULT_PROTOCOL_DIR,
     OPEN_DOC_EXCLUDE,
+    OPEN_ASSET_PATTERNS,
     OPEN_DOC_PATTERNS,
 )
 
@@ -49,9 +50,9 @@ def main() -> int:
     for pat in OPEN_DOC_EXCLUDE:
         excluded.update(glob.glob(os.path.join(src, pat)))
 
+    if os.path.isdir(DEST):  # clean prior snapshot, assets included
+        shutil.rmtree(DEST)
     os.makedirs(DEST, exist_ok=True)
-    for old in glob.glob(os.path.join(DEST, "*")):  # clean prior snapshot
-        os.remove(old)
 
     copied: list[str] = []
     seen: set[str] = set()
@@ -63,6 +64,12 @@ def main() -> int:
             seen.add(name)
             shutil.copy2(path, os.path.join(DEST, name))
             copied.append(name)
+    for pat in OPEN_ASSET_PATTERNS:
+        for path in sorted(glob.glob(os.path.join(src, pat))):
+            rel = os.path.relpath(path, src).replace(os.sep, "/")
+            os.makedirs(os.path.dirname(os.path.join(DEST, rel)), exist_ok=True)
+            shutil.copy2(path, os.path.join(DEST, rel))
+            copied.append(rel)
 
     if not copied:
         print(f"ERROR: no docs matched under {src!r}", file=sys.stderr)

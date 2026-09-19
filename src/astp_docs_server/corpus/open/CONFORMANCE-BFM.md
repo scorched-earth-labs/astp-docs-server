@@ -1,14 +1,16 @@
 # ASTP — BFM Conformance Test Vectors
 
-**Version:** 1.2.0
+**Version:** 1.3.0
 **Status:** Stable
 **Authors:** Scorched Earth Labs
-**Date:** 2026-07-04
-**Applies To:** SPEC.md §19 (Branch / Fork / Merge / **Departure Fork** / Aside / Soliloquy / CoherenceFingerprint + Orphan Recovery), v3.3.0
+**Date:** 2026-09-19
+**Applies To:** SPEC.md §19 (Branch / Fork / Merge / **Departure Fork** / Aside / Soliloquy / CoherenceFingerprint + Orphan Recovery), 5.1.0 (SPEC §19 as of 5.1.0; see the note in §1)
 
 ---
 
 ## 1. Overview
+
+> **SPEC 5.0.0 / 5.1.0 note.** Two things changed above this document and are stated here so it is not read as current on them. (1) **Seals commit structural nodes.** Under `spine_algorithm_version` 2 a BranchPoint, BranchTerminus, ForkPoint, DepartureForkPoint, ForkReturn, MergePoint and every concluded HITL event is a *structural-manifest member* (SPEC §5.7.1), hashed from its **stored fields** under its own `:v2:` prefix by the canonical field encoding of §5.1.1 — provenance and commentary fields (`initiated_by`, `initiator`, `returned_by`, labels, summaries) are out of those preimages, `spine_merkle_snapshot` and `merge_type` are in, and `GENESIS` is NULL. Those member hashes are pinned in [`vectors/5.0.0/seal-constructions.json`](./vectors/5.0.0/seal-constructions.json) and computed by `astp/core/seal_v2.py`; the reader is `astp/adapters/neo4j/seal_inputs.py`. The 4.x `content_hash` values this document describes are still what the reference writers stamp on the nodes; they are not what a version 2 seal commits. (2) **Asides and soliloquies.** SPEC §19.4 now defines their content hashes as `ASIDE:v2:`, `ASIDE_TERMINUS:v2:`, `SOLILOQUY:v2:`, `DELIBERATION_CHAIN:v2:` (over the deliberation Segments' content hashes, in order) and `SOLILOQUY_CONCLUSION:v2:`, with the 4.x forms — including the two-policy `SoliloquyContentHashPolicy` — retained only as the definitions of nodes already written. The reference writers (`create_aside`, `close_aside`, `create_soliloquy`, `conclude_soliloquy`) still stamp the 4.x forms as of `astp` 0.3.0; adopting the 5.0.0 forms is the next adapter change. The `FINGERPRINT:` prefix is retired: a coherence fingerprint has no content hash (§19.5.1).
 
 This document specifies the conformance test vectors for the Branch/Fork/Merge (BFM) feature family of ASTP (the AI State Tree Protocol). A conforming implementation MUST pass all vectors marked **REQUIRED**. Vectors marked **RECOMMENDED** test behaviors that conforming implementations SHOULD support.
 

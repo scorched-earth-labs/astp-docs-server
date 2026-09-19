@@ -25,6 +25,7 @@ import pytest
 
 from astp_docs_server.open_corpus import (
     DEFAULT_PROTOCOL_DIR,
+    OPEN_ASSET_PATTERNS,
     OPEN_DOC_EXCLUDE,
     OPEN_DOC_PATTERNS,
 )
@@ -63,6 +64,9 @@ def _source_files(src: str) -> dict[str, str]:
             if path in excluded or not os.path.isfile(path) or name in found:
                 continue
             found[name] = file_digest(path)
+    for pat in OPEN_ASSET_PATTERNS:
+        for path in sorted(glob.glob(os.path.join(src, pat))):
+            found[os.path.relpath(path, src).replace(os.sep, "/")] = file_digest(path)
     return found
 
 

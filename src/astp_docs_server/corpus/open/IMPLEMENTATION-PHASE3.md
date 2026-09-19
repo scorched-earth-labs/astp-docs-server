@@ -1,10 +1,10 @@
 # ASTP — Phase 3 Implementation Guide
 
-**Version:** 1.1.1
-**Status:** Working Draft
+**Version:** 2.0.0
+**Status:** Stable
 **Authors:** Scorched Earth Labs
-**Date:** 2026-09-17
-**Applies To:** SPEC.md §16 (Phase 3 Trust Infrastructure) and §4.6 (HITL, Appendix C). Written against SPEC v2.4.0-draft; not yet re-verified against 4.x.
+**Date:** 2026-09-19
+**Applies To:** SPEC.md 5.1.0 §16 (Trust Infrastructure) and §4.6 (HITL, Appendix C). The anchor and witness constructions below are the 5.0.0 forms; the 4.x forms remain in SPEC §16.3.2 / §16.4.2 as the definitions of records already written.
 **Conformance Reference:** Phase 3 Conformance Test Vectors v1.0.0
 
 ---
@@ -55,8 +55,9 @@ Phase 3 requires:
 |-----------|--------------|
 | HKDF | RFC 5869, instantiated with SHA3-256 as the hash function |
 | SHA3-256 | FIPS 202 |
-| Signing algorithm | Implementation-defined (§2.5.3) — Ed25519 is RECOMMENDED |
-| Canonical JSON | Keys in lexicographic order, no whitespace, UTF-8 encoding |
+| Signing | Ed25519 (RFC 8032) over the 32 raw bytes of a commitment — the one registered scheme (§2.5.2, §16.4.2) |
+| Canonical field encoding | SPEC §5.1.1 — the byte form of every commitment; `astp.protocol.encoding` |
+| Canonical JSON | RFC 8785 + NFC, where a preimage carries a document (§5.1.2); not used by the §16 commitments |
 
 > **Note on HKDF instantiation:** RFC 5869 specifies HKDF with a pluggable hash function. ASTP uses SHA3-256, not SHA-256. Verify your HKDF library supports SHA3-256 as the underlying PRF — some libraries default to SHA-256 and require explicit configuration. This is the most common source of KH-001/KH-006 failures.
 
@@ -219,47 +220,38 @@ class TransparencyLogAdapter(ABC):
 
 Implement this interface for your chosen log backend. The protocol does not constrain the log technology — only the interface contract.
 
-### 4.3 AnchorCommitment Construction
+### 4.3 Anchor Commitment Construction
 
-The `AnchorCommitment` is the payload submitted to the transparency log. It contains node structure fields only — **no payload internals** (TL-002). Construct it as follows at the crystallization boundary:
+The anchor commitment is what the transparency log receives at the crystallization boundary: node structure only — **no payload internals** (TL-002). Build it from the seal you just computed, never from live node state:
 
 ```python
-def build_anchor_commitment(node: CognitiveNode, logical_clock: int) -> AnchorCommitment:
-    return AnchorCommitment(
-        node_id                 = node.node_id,
-        node_type               = node.node_type,
-        workspace_id            = node.workspace_id,
-        crystallization_root    = node.spine_root,   # spine_root AT crystallization
-        crystallization_sequence = node.sequence_index,
-        logical_clock           = logical_clock,
-        wall_clock              = utc_now_iso8601(),  # "2026-04-12T11:00:00Z"
-        protocol_version        = "2.3.0"
+from astp.protocol.anchor_v2 import compute_anchor_commitment_v2
+
+def anchor_commitment_for(seal, node, workspace_id: str, logical_clock: int, anchored_at) -> str:
+    return compute_anchor_commitment_v2(
+        node_id=node.node_id,
+        node_type=node.node_type,
+        workspace_id=workspace_id,
+        root=seal.episode_root_hash,          # the outermost sealed commitment — for an Episode, the Episode root
+        root_version=2,                        # the construction that produced it (spine_algorithm_version)
+        crystallization_sequence=seal.leaf_count - 1,
+        logical_clock=logical_clock,
+        anchored_at=anchored_at,               # timezone-aware; hashed at millisecond precision
     )
 ```
 
-> **Critical:** `crystallization_root` MUST be the `spine_root` at the moment crystallization is triggered, not a live reference. If your implementation allows any post-crystallization spine mutation (even for administrative purposes), the `AnchorCommitment` must be constructed before that mutation can occur.
+> **Critical:** `root` MUST be the value the seal recorded, captured before any post-crystallization mutation could occur, and `root_version` MUST name the construction that produced it — a witness record for the same crystallization binds the same pair, which is what makes a log receipt and a witness record attest the same object.
 
-### 4.4 Commitment Hash Computation
-
-The `commitment_hash` in the `AnchorReceipt` is SHA3-256 of the canonical JSON serialization of the `AnchorCommitment`. The canonical serialization is:
+### 4.4 Commitment Computation
 
 ```
-- JSON encoding
-- Keys in lexicographic order (sorted alphabetically)
-- No whitespace (no spaces, no newlines)
-- datetime fields in ISO 8601 UTC: "YYYY-MM-DDTHH:MM:SSZ"
-- integer fields as JSON numbers (not strings)
-- UTF-8 encoding
+anchor_commitment = SHA3-256( "ANCHOR_COMMITMENT:v2:"
+    ‖ UUID(node_id) ‖ STRING(node_type) ‖ STRING(workspace_id)
+    ‖ HASH(root) ‖ UINT(root_version)
+    ‖ UINT(crystallization_sequence) ‖ UINT(logical_clock) ‖ TIMESTAMP(anchored_at) )
 ```
 
-Example canonical serialization for the reference node:
-```json
-{"crystallization_root":"a1b2c3d4...","crystallization_sequence":42,"logical_clock":1000,"node_id":"550e8400-e29b-41d4-a716-446655440000","node_type":"episode","protocol_version":"2.3.0","wall_clock":"2026-04-12T11:00:00Z","workspace_id":"ws-test-001"}
-```
-
-Note the lexicographic key order: `crystallization_root` before `crystallization_sequence` before `logical_clock` before `node_id`, etc.
-
-**This serialization is protocol-mandatory for commitment hashing.** Implementations that use different serialization (protobuf, CBOR, whitespace JSON) will produce non-matching commitment hashes and fail cross-architecture receipt verification (TL-003).
+under the canonical field encoding of SPEC §5.1.1 — typed, self-delimiting fields behind one domain prefix; a hash enters as its 32 raw bytes, a timestamp as UTC milliseconds. There is no JSON and no field-order or whitespace question to get wrong. Expected value for the reference fixture: CONFORMANCE.md TL-001. The 4.x form (sorted JSON carrying a `protocol_version` literal and a second-truncated timestamp) is retained in SPEC §16.3.2 only as the definition of receipts already issued.
 
 ### 4.5 Wiring Anchoring to Crystallization (G-14)
 
@@ -302,26 +294,35 @@ Run vectors **TL-001 through TL-007** before proceeding.
 
 Witness signatures provide multi-party attestation that a node's state was observed and verified at a specific point. The witness record includes a cryptographic commitment that binds the witness to a specific `spine_root`, `sequence_index`, and role — preventing a witness record from being replayed against a different node state.
 
-### 5.2 WitnessCommitment Construction
+### 5.2 Witness Commitment Construction
 
-The `WitnessCommitment` hash is the core of the witness record's integrity. It is computed as SHA3-256 of a pipe-delimited UTF-8 string:
+A witness record is a claim by one party about what it saw: **this witness** saw **this root** for **this node** at **this time**, in **this role**. The commitment binds all five:
 
 ```
-preimage = node_id + "|" + node_type + "|" + spine_root + "|" +
-           str(sequence_index) + "|" + str(logical_clock) + "|" + role
-
-commitment_hash = SHA3-256(UTF-8(preimage))
+witness_commitment = SHA3-256( "WITNESS_COMMITMENT:v2:"
+    ‖ STRING(witness_id) ‖ UUID(node_id) ‖ STRING(node_type)
+    ‖ HASH(root) ‖ UINT(root_version)
+    ‖ UINT(sequence_index) ‖ UINT(logical_clock) ‖ TIMESTAMP(witnessed_at)
+    ‖ STRING(role) ‖ STRING(role_detail) | NULL )
 ```
 
-**Field order is fixed and protocol-mandatory.** The six fields must appear in exactly this order. Integer fields (`sequence_index`, `logical_clock`) are serialized as their decimal string representation (e.g., `42`, not `0x2a` or `"042"`).
+`root` is the node's outermost sealed commitment (the Episode root for an Episode; the spine root for a node type with no manifests) and `root_version` the construction that produced it. Because `witness_id` and `witnessed_at` are bound, two witnesses of one root have two commitments, and a record copied under another name is cryptographically invalid rather than merely uncounted (WS-005).
 
-Example construction for the reference node with role REVIEWER:
-```
-preimage = "550e8400-e29b-41d4-a716-446655440000|episode|a1b2c3d4e5f6...|42|1000|REVIEWER"
-commitment_hash = SHA3-256(UTF-8(preimage))
+```python
+from astp.protocol.witness_v2 import sign_witness_record_v2
+
+record = sign_witness_record_v2(
+    private_key,                                  # Ed25519PrivateKey
+    witness_id="reviewer-7", node_id=node.node_id, node_type=node.node_type,
+    root=seal.episode_root_hash, root_version=2,
+    sequence_index=seal.leaf_count - 1, logical_clock=logical_clock,
+    witnessed_at=now, role="REVIEWER", role_detail=None,
+)
+# record.commitment_hash, record.signature (64 bytes over the raw commitment),
+# record.public_key (32 bytes), record.public_key_fingerprint (SHA3-256 of it)
 ```
 
-> **Why pipe-delimited rather than JSON?** The pipe-delimited format is simpler to implement correctly across architectures and eliminates JSON serialization ambiguity. The fields are all fixed-width or unambiguously delimited — `spine_root` is always a 64-character hex string, so there is no field boundary ambiguity.
+The signature is Ed25519 over the 32 raw bytes of the commitment — `Sign(sk, bytes.fromhex(commitment_hash))`, the same form as the HITL signatures of §4.6. `ed25519` is the one registered scheme; the registry is extensible by amendment and the commitment is scheme-independent. The 4.x pipe-delimited commitment (`node_id|node_type|spine_root|sequence_index|logical_clock|role`) bound neither the witness nor the time and is retained in SPEC §16.4.2 only as the definition of records already written.
 
 ### 5.3 WitnessRecord Lifecycle
 
@@ -340,57 +341,40 @@ A `WitnessRecord` is created when an agent or external system witnesses a node s
 8. If both pass: store WitnessRecord and count toward threshold
 ```
 
-### 5.4 Commitment Hash Verification (G-12)
+### 5.4 Witness Validity (G-12)
 
-On receipt of a `WitnessRecord`, your implementation MUST verify the commitment hash before storing or counting the record:
+On receipt of a `WitnessRecord`, verify it before storing it as valid or counting it. Validity is four executable conditions, checked in order, the first failure reported:
 
 ```python
-def verify_witness_record(record: WitnessRecord) -> bool:
-    # Recompute the commitment hash from the record's fields
-    preimage = (
-        record.node_id + "|" +
-        record.node_type + "|" +
-        record.spine_root + "|" +
-        str(record.sequence_index) + "|" +
-        str(record.logical_clock) + "|" +
-        record.role
-    )
-    expected_hash = sha3_256(preimage.encode("utf-8"))
+from astp.protocol.witness_v2 import check_witness_record_v2, WitnessInvalid
 
-    # G-12: reject if commitment_hash does not match recomputed value
-    if record.commitment_hash != expected_hash:
-        return False
-
-    # Verify the signature over the commitment_hash
-    return verify_signature(
-        public_key  = lookup_public_key(record.witness_id),
-        message     = record.commitment_hash,
-        signature   = record.signature
-    )
+try:
+    check_witness_record_v2(record, node_author=node.authored_by)
+except WitnessInvalid as why:
+    store_as_invalid(record, reason=str(why))   # recorded, never valid, never counted
+else:
+    store_as_valid(record)
 ```
 
-A `WitnessRecord` that fails commitment hash verification MUST be rejected and MUST NOT count toward the witness threshold (G-11, G-12). Do not store rejected records.
+1. `commitment_hash` recomputes from the record's fields.
+2. `public_key_fingerprint == SHA3-256(public_key)`.
+3. `signature` verifies under `public_key` over the raw commitment, under the registered scheme the record names.
+4. `witness_id != node.authored_by` — a party cannot witness its own claim; a self-witness is not an attestation.
+
+Whether the named key belongs to the named witness is your workspace key registry's question — outside the preimage and outside G-12. Check it at the same point, as policy.
 
 ### 5.5 Threshold Enforcement (G-11)
 
-The witness threshold is workspace-configured per node type:
+The threshold value is workspace-configured per node type; **how you count is protocol-fixed**. Each valid record is an edge between a name (`witness_id`) and a key (`public_key_fingerprint`); the count is the size of a **maximum bipartite matching** — one key cannot count twice under two names, one name cannot count twice under two keys, and the answer must not depend on record order.
 
 ```python
-def count_valid_witnesses(node_id: str, node_type: str) -> int:
-    records = query_witness_records(node_id=node_id, valid=True)
+from astp.protocol.witness_v2 import enforce_witness_threshold_v2
 
-    # Count distinct witness_id values only
-    # Multiple records from the same witness_id count as ONE
-    distinct_witnesses = set(r.witness_id for r in records)
-    return len(distinct_witnesses)
-
-def can_seal(node: CognitiveNode) -> bool:
-    policy = lookup_workspace_policy(node.workspace_id)
-    threshold = policy.min_counter_signatures[node.node_type]
-    return count_valid_witnesses(node.node_id, node.node_type) >= threshold
+enforce_witness_threshold_v2(valid_records, node_author=node.authored_by,
+                             min_counter_signatures=policy.min_counter_signatures[node.node_type])
 ```
 
-**Common implementation mistake:** Counting `WitnessRecord` rows rather than distinct `witness_id` values. A single agent can submit multiple witness records (e.g., at different sequence indices, with different roles). All of those records count as ONE witness toward the threshold.
+**Common implementation mistakes:** counting rows; deduplicating names only (a keyholder registers twice); deduplicating keys only (one identity with two keys double-counts); a greedy pass (A/k₁, A/k₂, B/k₁ admit two witnesses — A/k₂ and B/k₁ — and greedy finds one). CONFORMANCE.md WS-008 pins the cases.
 
 ### 5.6 Witness Roles
 
@@ -504,7 +488,7 @@ def build_proof_chain(
         links            = links,
         chain_root       = compute_chain_root(links),
         created_at       = utc_now_iso8601(),
-        protocol_version = "2.3.0"
+        protocol_version = "5.1.0"
     )
 ```
 
@@ -610,11 +594,10 @@ Step 2: Transparency Log Anchoring
     └── ✓ CHECKPOINT: Pass TL-001 through TL-007
 
 Step 3: Witness Signatures
-    ├── Implement WitnessCommitment pipe-delimited construction
-    ├── Implement commitment hash verification on WitnessRecord receipt (G-12)
-    ├── Implement signature verification
-    ├── Implement distinct witness_id threshold counting (G-11)
-    └── ✓ CHECKPOINT: Pass WS-001 through WS-007
+    ├── Implement the WITNESS_COMMITMENT:v2: construction (§5.2)
+    ├── Implement the four validity conditions on WitnessRecord receipt (G-12)
+    ├── Implement threshold counting as a maximum matching of names × keys (G-11)
+    └── ✓ CHECKPOINT: Pass WS-001 through WS-009
 
 Step 4: Cross-Node Chain Proofs
     ├── Implement ProofLink construction with InclusionProof
@@ -684,18 +667,18 @@ Step 5: Governance Rule Audit
 
 An implementation declaring Phase 3 conformance MUST:
 
-1. Pass all REQUIRED vectors in the Phase 3 Conformance Test Vectors (v1.0.0)
+1. Pass all REQUIRED vectors in the Phase 3 Conformance Test Vectors (v2.0.0)
 2. Publish cross-implementation consistency values for KH-001, KH-006, WS-001, and TL-003 to the conformance registry
 3. Declare a conformance level: **Level 1** (REQUIRED vectors only) or **Level 2** (REQUIRED + RECOMMENDED)
 4. Reference the SPEC.md version and Conformance Test Vectors version against which conformance was verified
 
-Conformance declarations are per-version. A declaration against v2.3.0-draft does not imply conformance against future versions.
+Conformance declarations are per-version. A declaration against one SPEC version does not imply conformance against a later MAJOR.
 
 ---
 
 ## Appendix C: Phase 4 — HITL Event Integration
 
-**Added:** v2.4.0-draft (2026-04-16)
+**Added:** 2.4.0 (2026-04-16); terminal states and the resolution writer restated at 5.0.0 (§4.6).
 
 Phase 4 adds Human-in-the-Loop (HITL) events as first-class nodes in the ASTP State Tree. HITL events record human oversight decisions with cryptographic attestation and Merkle spine participation.
 
@@ -719,8 +702,8 @@ Phase 4 builds on Phase 3 infrastructure. Implement in this order:
 
 ### C.2 Key Design Constraints
 
-- **Two-phase lifecycle:** HITL events are the only node type that permits post-creation mutation (INVOKED → RESOLVED). This exception is narrow and enforced by G-17.
-- **Fail-open recording:** The operational HITL path (approve/reject decisions) MUST NOT be blocked by ASTP recording failures. All recording hooks are wrapped in fail-open exception handling.
+- **Two-phase lifecycle:** HITL events are the only node type that permits post-creation mutation — `INVOKED` → one of the terminal states `RESOLVED`, `TIMED_OUT`, `ESCALATED`. The exception is narrow and enforced by G-17. `ESCALATED` concludes *this* gate (the recorded decision is the escalation; further deliberation is a new gate that references it) and MUST NOT be written as `RESOLVED`: the resolution writer records the status the decision concludes the gate with (`hitl_terminal_status`). A concluded event is a structural-manifest member under a version 2 seal (§5.7.1), so its context document (`context_json`) is stored on the node at invocation — an event stored without it cannot enter a version 2 seal.
+- **Recording failures are loud:** the adapter writers raise (SPEC §15 item 7); whether the operational HITL path proceeds when the record cannot be written is the host's policy, and a host that proceeds logs the gap at error level — a decision that is not on the record is not silently one that is.
 - **Timeout as event:** `TIMED_OUT` is a recorded terminal status with the same structural weight as `REJECTED`. System timeouts are recorded with `resolved_by: "system_timeout"` and no human signature.
 - **Gate type mapping:** Map operational HITL types to protocol gate types: `MUST → APPROVAL_REQUIRED`, `SHOULD/CAN → REVIEW_ADVISORY`, `INFORMED → not recorded`.
 
@@ -744,4 +727,4 @@ A Phase 4 conforming implementation MUST:
 ---
 
 *ASTP Implementation Guide is maintained by Scorched Earth Labs.*
-*Guide version: 1.1.1 | Written against SPEC.md v2.4.0-draft; not yet re-verified against 4.x | Conformance Vectors: v1.0.0*
+*Guide version: 2.0.0 | Written against SPEC.md 5.1.0 | Conformance Vectors: v2.0.0*

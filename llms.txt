@@ -1,33 +1,38 @@
-# Project Ariadne — Documentation
+# ASTP — AI State Tree Protocol — Documentation
 
-> Ariadne is an open protocol for **cognitive persistence** and **verifiable
+> ASTP is an open protocol for **cognitive persistence** and **verifiable
 > cognition** in multi-agent systems: it records that an agent reasoned, what
 > state resulted, and makes that record cryptographically verifiable and
 > re-interpretable. Bring your own cognitive architecture.
 
-Most Ariadne implementations are done by AI coding agents. This file, the
-companion AGENTS.md, and the Ariadne Docs MCP server exist so those agents
+Most ASTP implementations are done by AI coding agents. This file, the
+companion AGENTS.md, and the ASTP Docs MCP server exist so those agents
 implement the protocol from its normative text instead of guessing (which
 produces non-conforming adapters).
 
 ## Implementing the protocol
 
-- Prefer the **Ariadne Docs MCP server** for exact lookups — it returns
+- Prefer the **ASTP Docs MCP server** for exact lookups — it returns
   governance rules, conformance vectors, sections, and hash preimages verbatim
-  with citations: `search_spec`, `get_governance_rule` (G-1..G-36),
-  `get_conformance_vectors` (e.g. WF-004 or a family like WF), `get_section`,
-  `get_hash_preimage`, `corpus_info`.
+  with citations: `search_spec`, `get_governance_rule` (G-1..G-40),
+  `get_conformance_vectors` (e.g. RP-009 or a family like RP), `get_section`,
+  `get_hash_preimage`, `get_test_vectors` (the machine-readable expected digests),
+  `corpus_info`.
 - Hash preimages, field order, and governance rules are **normative and exact**
   — read them, do not infer them. A wrong field set or order produces a
   different content hash and a non-conforming implementation.
 
 ## Normative documents (open corpus)
 
-- SPEC.md — the canonical protocol specification (§1–§22; governance G-1..G-36)
+- SPEC.md — the canonical protocol specification, 5.1.0 (§1–§22; governance G-1..G-40)
+- CONFORMANCE-REPRODUCIBILITY.md — seal constructions and reproducibility (RP-*), with vectors/5.0.0/seal-constructions.json
+- GLOSSARY.md — every term, reconciled with the SPEC
+- GOVERNANCE.md / VERSIONING.md — how the protocol changes; Episodes of Record
+- docs/RATIFICATION-5.0.0.md — the 5.0.0 Episode of Record statement
 - IMPLEMENTATION-BFM.md / CONFORMANCE-BFM.md — branch/fork/merge
 - IMPLEMENTATION-CROSS-EPISODE-LINKING.md / CONFORMANCE-CROSS-EPISODE-LINKING.md — §20
 - IMPLEMENTATION-LAYER3.md / CONFORMANCE-LAYER3.md — §21 Workflow & Execution DAG
-- IMPLEMENTATION-PHASE3.md / CONFORMANCE.md — Phase 3 (witnesses, proof chains)
+- IMPLEMENTATION-PHASE3.md / CONFORMANCE.md — §16 trust infrastructure (keys, anchoring, witnesses, chain proofs)
 - GLOSSARY.md, CHANGELOG.md, VERSIONING.md
 
 ## Optional

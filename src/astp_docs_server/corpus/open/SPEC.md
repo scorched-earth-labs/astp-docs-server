@@ -1,9 +1,9 @@
 # ASTP — AI State Tree Protocol Specification
 
-**Version:** 5.0.0
+**Version:** 5.1.0
 **Status:** Stable — ratified in Episode of Record `ce3f569c-9cdc-4a3d-913a-b9d8573d9a28` (below)
 **Authors:** Scorched Earth Labs
-**Date:** 2026-09-18
+**Date:** 2026-09-19
 **Supersedes:** [`SPEC-v4.md`](./docs/history/SPEC-v4.md) (4.5.0); earlier, [`SPEC-v3.md`](./docs/history/SPEC-v3.md) (3.5.1) and [`SPEC-v1.md`](./docs/history/SPEC-v1.md) (0.1.0-draft)
 **Change history:** [`CHANGELOG.md`](./CHANGELOG.md)
 **Versioning policy:** [`VERSIONING.md`](./VERSIONING.md)
@@ -1147,7 +1147,7 @@ A conforming adapter MUST:
 4. Enforce the dual-index invariant: `tree_leaf_index` never in any hash preimage
 5. Respect write ordering invariants across stores
 6. Support idempotent writes for WIL recovery
-7. Fail loudly on errors — never silently swallow writes
+7. Fail loudly on errors — never silently swallow writes. A writer or reader that cannot complete raises a typed error to the host, chained to the store's; it does not return a default, log and continue, or gate itself on a feature flag — whether to call the adapter is the host's decision, and an operation the host asked for either happened or raised. A ledger entry is never written as `COMPLETE` for a write that did not happen (G-39), and an audit writer that cannot read its chain head fails rather than guesses (§8.2).
 8. Implement `get_spine_snapshot_index()` for authoritative spine tip queries
 9. Persist rebalance events with root-preservation invariant enforcement
 10. Implement `TransparencyLogAdapter` interface if transparency log anchoring is supported

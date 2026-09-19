@@ -74,15 +74,19 @@ def read_manifest(corpus_dir: str) -> dict[str, Any] | None:
 
 
 def corpus_files(corpus_dir: str) -> dict[str, str]:
-    """Digest of every vendored document, keyed by filename.
-
-    The manifest itself is excluded — it cannot contain its own digest.
-    """
-    return {
-        name: file_digest(os.path.join(corpus_dir, name))
-        for name in sorted(os.listdir(corpus_dir))
-        if name != MANIFEST_NAME and os.path.isfile(os.path.join(corpus_dir, name))
-    }
+    """Digest of every vendored file, keyed by corpus-relative path (documents
+    at the top level; assets such as ``vectors/5.0.0/seal-constructions.json``
+    under theirs). The manifest itself is excluded — it cannot contain its own
+    digest."""
+    out: dict[str, str] = {}
+    for root, _dirs, names in os.walk(corpus_dir):
+        for name in names:
+            path = os.path.join(root, name)
+            rel = os.path.relpath(path, corpus_dir).replace(os.sep, "/")
+            if rel == MANIFEST_NAME:
+                continue
+            out[rel] = file_digest(path)
+    return dict(sorted(out.items()))
 
 
 def verify(corpus_dir: str) -> list[str]:

@@ -1,0 +1,402 @@
+{
+  "status": "DRAFT for SPEC 5.0.0 — not ratified. Values change if any construction changes before ratification.",
+  "hash": "SHA3-256 (FIPS 202). Hash values are lowercase hex here; they enter every construction as 32 raw bytes.",
+  "note_on_identifiers": "node_id values here are fixed so the vectors are reproducible. Real node_id values MUST be random.",
+  "field_encoding": {
+    "NULL": "00",
+    "BYTES_0x0102": "01000000020102",
+    "STRING_segment": "02000000077365676d656e74",
+    "STRING_nfc_e_acute_composed_equals_decomposed": [
+      "0200000002c3a9",
+      "0200000002c3a9"
+    ],
+    "UINT_6": "030000000000000006",
+    "UUID_episode": "04550e8400e29b41d4a716446655440000",
+    "TIMESTAMP_2026-01-01T00:00:00.123Z": "050000019b76daa87b",
+    "TIMESTAMP_same_instant_at_-08:00": "050000019b76daa87b",
+    "HASH_of_leaf-0": "06aa6c290f56f0f7eb3a8da563ae72efc5d10cc89b88a3112c612d8e3825e20aad",
+    "LIST_of_STRING_a_b": "0700000002020000000161020000000162",
+    "LIST_empty": "0700000000",
+    "BOOL_true": "0801",
+    "BOOL_false": "0800",
+    "FLOAT_0.75": "093fe8000000000000",
+    "FLOAT_negative_zero_is_positive_zero": [
+      "090000000000000000",
+      "090000000000000000"
+    ],
+    "LIST_of_HASH_two": "070000000206aa6c290f56f0f7eb3a8da563ae72efc5d10cc89b88a3112c612d8e3825e20aad06ca70778c5a77caeb3f3a7646655525ad808e0a0501a50b80a05a5826cf070c22"
+  },
+  "content_hashes_v2": {
+    "inputs": "see tests/conformance/test_content_hashes_v2_vectors.py for the exact field values",
+    "aside_v2": "388b2d0c0a1349e30f74781b39bf3554cd43f15d930a3bd50502cf1da62d937a",
+    "aside_terminus_v2": "31e67ab057e6e8f564085cec5b73112b58ea57f045032d43fc63cfb7a8099e96",
+    "soliloquy_v2": "31bf26ef44876a9dbadf0fb223f63e538eaaa1bc27b64f48c340aa74733b58c6",
+    "deliberation_chain_v2": "504800655c2a5b282b2d711645b2da5823649a0b171c582591ea012ee8226e1d",
+    "deliberation_chain_v2_empty": "6f329548ba9c03d32947bbf9137b3bddaa25c08ed7d99030ad4845bdda163aaf",
+    "soliloquy_conclusion_v2": "560397391787117761f593c409d27e82bb79562497bb5b8b59d9c2bbb7f2ba12",
+    "link_signal_v2": [
+      "9209b44b88cca5da9b8575a89e0d4c5a63c641135e93032adf865f69dd6eb78e",
+      "147b6bbd193ebe6b1eaa442d4b01d15a1d219b9df8b00f5bc4086b60a79f76cc"
+    ],
+    "episode_link_v2_inferred_source_sealed": "dacd753768bd8d5d74f48bcd4a6aac71f457a232aa1ce379f17c1245f969d211",
+    "episode_link_v2_asserted_neither_sealed": "97967277af70d5328154ed159ccdb0ab458c62c0c945b92e5769e44189fbc4d9",
+    "source_episode_root_used": "13be960d1618ebc39541c6deec0d9c86f5ff8c4609538e8091f2644f52625ec7",
+    "target_episode_id": "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
+  },
+  "witness_and_anchor_v2": {
+    "signing_keys": "RFC 8032 section 7.1 TEST 1 and TEST 2 secret keys; signatures are over bytes.fromhex(commitment_hash)",
+    "witness_records": [
+      {
+        "witness_id": "witness-1",
+        "node_id": "550e8400-e29b-41d4-a716-446655440000",
+        "node_type": "episode",
+        "root": "13be960d1618ebc39541c6deec0d9c86f5ff8c4609538e8091f2644f52625ec7",
+        "root_version": 2,
+        "sequence_index": 7,
+        "logical_clock": 9,
+        "witnessed_at": "2026-01-01T00:01:00.123000Z",
+        "role": "SEAL_WITNESS",
+        "role_detail": null,
+        "commitment_hash": "7eaf9a74f7f6e83f7637cead3dbbb023b0a6c7fe56148b6833b9b3b64b63cf40",
+        "signature_scheme": "ed25519",
+        "public_key_fingerprint": "054f341a2fa584bb0c540fbf5232fcef6f76c5d5eb6a0663bacf8ccccf0d092b",
+        "signature": "fd5c273e0113a5e72e381da28895e04d904c396aa08edc18cf73e90ea47552cefe7f3dd4187640de8accf378ca38025884575082aff93cecdb71b41b3e43f303",
+        "public_key": "d75a980182b10ab7d54bfed3c964073a0ee172f3daa62325af021a68f707511a"
+      },
+      {
+        "witness_id": "witness-2",
+        "node_id": "550e8400-e29b-41d4-a716-446655440000",
+        "node_type": "episode",
+        "root": "13be960d1618ebc39541c6deec0d9c86f5ff8c4609538e8091f2644f52625ec7",
+        "root_version": 2,
+        "sequence_index": 7,
+        "logical_clock": 9,
+        "witnessed_at": "2026-01-01T00:01:00.123000Z",
+        "role": "CUSTOM",
+        "role_detail": "notary",
+        "commitment_hash": "ab96bc7d5dce90af96a84393a332012d021830f666a4c690c92847667c3c83df",
+        "signature_scheme": "ed25519",
+        "public_key_fingerprint": "b4f403514003c9ce67e0c3552e21ebfde117f88a550a03f1a387bfb495c0a35d",
+        "signature": "647e093ffe0cf8c009957093d73727a53a8cc073b9bdb51a1bc085885f7a25a3c24059887913aee7483fe4517b34c58b61ab3e0be2b5fa6341d33461cceb860d",
+        "public_key": "3d4017c3e843895a92b70aa74d1b7ebc9c982ccf2ec4968cc0cd55f12af4660c"
+      }
+    ],
+    "anchor_commitment_v2": "31ed0b8b98715bbef656a67914fb7110518ed3beaf69384e149aa189e5edf04f",
+    "anchor_inputs": {
+      "node_id": "550e8400-e29b-41d4-a716-446655440000",
+      "node_type": "episode",
+      "workspace_id": "ws-1",
+      "root": "13be960d1618ebc39541c6deec0d9c86f5ff8c4609538e8091f2644f52625ec7",
+      "root_version": 2,
+      "crystallization_sequence": 7,
+      "logical_clock": 9,
+      "anchored_at": "2026-01-01T00:02:00.123000+00:00"
+    }
+  },
+  "canonical_json": {
+    "rfc8785_appendix_example": {
+      "input_repr": "{'numbers': [333333333.3333333, 1e+30, 4.5, 0.002, 1e-27], 'string': '€$\\x0f\\nA\\'B\"\\\\\\\\/', 'literals': [None, True, False]}",
+      "canonical": "{\"literals\":[null,true,false],\"numbers\":[333333333.3333333,1e+30,4.5,0.002,1e-27],\"string\":\"€$\\u000f\\nA'B\\\"\\\\\\\\/\"}",
+      "sha3_256": "6d0c8d5aade6d7207376c70453a33e36183295ad30039c41aedb37ffbe68c721"
+    },
+    "nested_keys_sorted_by_utf16_code_units": {
+      "input_repr": "{'😀': 1, '\\uffff': 2, 'a': 3, 'B': 4, '': 5}",
+      "canonical": "{\"\":5,\"B\":4,\"a\":3,\"😀\":1,\"￿\":2}",
+      "sha3_256": "15b351dbde3544dc272c6a16b6c0ec63ba8fa05c0e6d3d2cfde8b7199e4b9a17"
+    },
+    "nfc_decomposed_key_and_value": {
+      "input_repr": "{'é': 'é'}",
+      "canonical": "{\"é\":\"é\"}",
+      "sha3_256": "efdd6d8f40acd437218d6e6b01d011458185f537b039b45ef9d6c8bc6cd13a70"
+    },
+    "numbers": {
+      "input_repr": "{'int': 1, 'neg': -7, 'float_one': 1.0, 'tiny': 1e-07, 'big': 1e+21, 'neg_zero': -0.0, 'large_int': 123456789012345678901234567890}",
+      "canonical": "{\"big\":1e+21,\"float_one\":1,\"int\":1,\"large_int\":123456789012345678901234567890,\"neg\":-7,\"neg_zero\":0,\"tiny\":1e-7}",
+      "sha3_256": "8b429171e845c27b465a4452a230866676ac5290903250a2e953c85a128e7137"
+    },
+    "empty_containers": {
+      "input_repr": "{'o': {}, 'a': []}",
+      "canonical": "{\"a\":[],\"o\":{}}",
+      "sha3_256": "d611298b38590a0c7b9983845add5166f0c176708cc6e44844a4c1e05445c6fa"
+    }
+  },
+  "audit_records_v2": {
+    "preimage_field_order": [
+      "audit_id UUID",
+      "chain_key STRING",
+      "delta_sequence UINT",
+      "delta_type STRING",
+      "agent_id STRING",
+      "session_id STRING",
+      "human_actor STRING|NULL",
+      "wall_clock_time TIMESTAMP",
+      "episode_time UINT",
+      "forward_delta BYTES",
+      "reverse_delta BYTES",
+      "affected_nodes LIST(STRING)",
+      "trigger_context STRING",
+      "explicit_reason STRING|NULL",
+      "caught_by STRING",
+      "detection_window_open BOOL",
+      "prior_audit_hash HASH|NULL"
+    ],
+    "prefix": "AUDIT_RECORD:v2:",
+    "chain": [
+      {
+        "audit_id": "00000000-0000-4000-8000-00000000001e",
+        "chain_key": "550e8400-e29b-41d4-a716-446655440000",
+        "delta_sequence": 1,
+        "delta_type": "BRANCH_CREATED",
+        "agent_id": "agent-α",
+        "session_id": "session-1",
+        "human_actor": "devin",
+        "wall_clock_time": "2026-01-01T00:00:00.123000Z",
+        "episode_time": 7,
+        "forward_delta": "{\"branch_id\":\"00000000-0000-4000-8000-000000000014\",\"depth\":2.5,\"label\":\"étude\"}",
+        "reverse_delta": "{\"branch_id\":\"00000000-0000-4000-8000-000000000014\",\"deleted\":true}",
+        "affected_nodes": [
+          "00000000-0000-4000-8000-000000000014",
+          "00000000-0000-4000-8000-000000000003"
+        ],
+        "trigger_context": "human_explicit",
+        "explicit_reason": "try the other reading",
+        "caught_by": "HUMAN",
+        "detection_window_open": true,
+        "prior_audit_hash": null,
+        "record_hash": "319cc66cf55f9599995a9f8116a3d740a5c9436b82a584aa8bf93ea35f695e48"
+      },
+      {
+        "audit_id": "00000000-0000-4000-8000-00000000001f",
+        "chain_key": "550e8400-e29b-41d4-a716-446655440000",
+        "delta_sequence": 2,
+        "delta_type": "BRANCH_ABANDONED",
+        "agent_id": "agent-α",
+        "session_id": "session-1",
+        "human_actor": null,
+        "wall_clock_time": "2026-01-01T00:00:02.122000Z",
+        "episode_time": 8,
+        "forward_delta": "{\"branch_id\":\"00000000-0000-4000-8000-000000000014\"}",
+        "reverse_delta": "{}",
+        "affected_nodes": [
+          "00000000-0000-4000-8000-000000000014"
+        ],
+        "trigger_context": "agent_detected",
+        "explicit_reason": null,
+        "caught_by": "SYSTEM",
+        "detection_window_open": false,
+        "prior_audit_hash": "319cc66cf55f9599995a9f8116a3d740a5c9436b82a584aa8bf93ea35f695e48",
+        "record_hash": "24963bd5d6fecfdf7215ac6d76be30133d1c900e8ddc0ee460411f10b65e986c"
+      },
+      {
+        "audit_id": "00000000-0000-4000-8000-000000000020",
+        "chain_key": "550e8400-e29b-41d4-a716-446655440000",
+        "delta_sequence": 3,
+        "delta_type": "LINK_ASSERTED",
+        "agent_id": "agent-α",
+        "session_id": "session-1",
+        "human_actor": null,
+        "wall_clock_time": "2026-01-01T00:00:02.123000Z",
+        "episode_time": 8,
+        "forward_delta": "{\"a\":\"\",\"z\":[1,{\"y\":null}]}",
+        "reverse_delta": "{}",
+        "affected_nodes": [],
+        "trigger_context": "human_explicit",
+        "explicit_reason": null,
+        "caught_by": "SYSTEM",
+        "detection_window_open": false,
+        "prior_audit_hash": "24963bd5d6fecfdf7215ac6d76be30133d1c900e8ddc0ee460411f10b65e986c",
+        "record_hash": "f14e91b7229318c321baaa42fc65a93e892a35db86c64b93e2d55098b407a161"
+      }
+    ],
+    "genesis_minimal": {
+      "audit_id": "00000000-0000-4000-8000-000000000021",
+      "chain_key": "declaration:system-x:group-y",
+      "delta_sequence": 1,
+      "delta_type": "GROUP_DECLARED",
+      "agent_id": "",
+      "session_id": "",
+      "human_actor": null,
+      "wall_clock_time": "1970-01-01T00:00:00Z",
+      "episode_time": 0,
+      "forward_delta": "{}",
+      "reverse_delta": "{}",
+      "affected_nodes": [],
+      "trigger_context": "system_automatic",
+      "explicit_reason": null,
+      "caught_by": "SYSTEM",
+      "detection_window_open": false,
+      "prior_audit_hash": null,
+      "record_hash": "3334b2aed11f30430484c1802c2d9f8ba46fd44f51981a25cfc7d5621ca8e2da"
+    },
+    "note": "wall_clock_time is stored at millisecond precision; record 2 was built from an instant with 999999 microseconds and is stored truncated, so the stored value is what was hashed."
+  },
+  "episode_id": "550e8400-e29b-41d4-a716-446655440000",
+  "segments": [
+    {
+      "node_id": "00000000-0000-4000-8000-000000000000",
+      "node_type": "segment",
+      "schema_version": "1.0.0",
+      "sequence_index": 0,
+      "content_hash": "aa6c290f56f0f7eb3a8da563ae72efc5d10cc89b88a3112c612d8e3825e20aad",
+      "parent_node_id": "550e8400-e29b-41d4-a716-446655440000",
+      "leaf_hash_v2": "25b617f0d7ac09871f88ce7e2851cc8f50b48305dee51d081b62a5f21ed84935"
+    },
+    {
+      "node_id": "00000000-0000-4000-8000-000000000001",
+      "node_type": "segment",
+      "schema_version": "1.0.0",
+      "sequence_index": 1,
+      "content_hash": "ca70778c5a77caeb3f3a7646655525ad808e0a0501a50b80a05a5826cf070c22",
+      "parent_node_id": "550e8400-e29b-41d4-a716-446655440000",
+      "leaf_hash_v2": "b973ecb4d01f5d42209614d41e5741ae5d96831fe3672e43c8953683059f455a"
+    },
+    {
+      "node_id": "00000000-0000-4000-8000-000000000002",
+      "node_type": "segment",
+      "schema_version": "1.0.0",
+      "sequence_index": 2,
+      "content_hash": "281e3ca5ac7adeb528142efc63603de6c8bec21fd257e5b7266efb35c3abfe73",
+      "parent_node_id": "550e8400-e29b-41d4-a716-446655440000",
+      "leaf_hash_v2": "5d6d7378c5a4ee7fdcb66718ff917915206f7dfbabe72f7ae2dbf767a698019e"
+    },
+    {
+      "node_id": "00000000-0000-4000-8000-000000000003",
+      "node_type": "segment",
+      "schema_version": "1.0.0",
+      "sequence_index": 3,
+      "content_hash": "eeda263100b29e61a1a0e06503b82ecf3e04847644dd45848750a8b86cfc1464",
+      "parent_node_id": "550e8400-e29b-41d4-a716-446655440000",
+      "leaf_hash_v2": "c4d8a309d6a8f03bba276fbd1127e8b2c22b07a1c7346c317486b43634466225"
+    },
+    {
+      "node_id": "00000000-0000-4000-8000-000000000004",
+      "node_type": "segment",
+      "schema_version": "1.0.0",
+      "sequence_index": 4,
+      "content_hash": "cbce4ff5e8c45c948a21c24ee91c92cb1f60eb6aa7a04c24a9170fc84cb05702",
+      "parent_node_id": "550e8400-e29b-41d4-a716-446655440000",
+      "leaf_hash_v2": "df9aac6cea5b5e64faecba2ed8eb75ae0798ad4fc421faf8d39954af1b698a09"
+    },
+    {
+      "node_id": "00000000-0000-4000-8000-000000000005",
+      "node_type": "segment",
+      "schema_version": "1.0.0",
+      "sequence_index": 5,
+      "content_hash": "59c541fb54167330df88b2197aed9b76ea15c7e9e900ddab913154bda57bdcea",
+      "parent_node_id": "550e8400-e29b-41d4-a716-446655440000",
+      "leaf_hash_v2": "aa77103b8e6c4dbd6607526935266ed4ec817076d9d710eb0246aa6306044c15"
+    },
+    {
+      "node_id": "00000000-0000-4000-8000-000000000006",
+      "node_type": "segment",
+      "schema_version": "1.0.0",
+      "sequence_index": 6,
+      "content_hash": "39745fce6a8339e908697078c16cfd9668cdfd436f464c6a75831dc510e06b23",
+      "parent_node_id": "550e8400-e29b-41d4-a716-446655440000",
+      "leaf_hash_v2": "1f2556934a29b56ea2e633081379ad2c92d9116d98da4f74c6c236dbdaca11b1"
+    }
+  ],
+  "spine_root_sav2": {
+    "1": "5e06ac5629faf452aa18836dcf3f33565db0cd2d8749b482c65365b9273b576e",
+    "2": "4961d0711f8ad12e0795faaa578e410477b88d08c21c0f318a7ccacfc80102fb",
+    "3": "e6d6f975c2d7df7b036131427f602e22159164abc5e1c10201b256f54475d67a",
+    "7": "4420e38a22409317822ac14e3d5bc8069e6556c0fc08928290f76d23396daa01"
+  },
+  "mixed_vintage_segment": {
+    "rule": "A Segment created before 5.0.0 is sealed under 5.0.0 by computing the hash_version 2 leaf hash from its stored fields. Never by re-hashing its stored version 1 leaf hash.",
+    "fields": {
+      "node_id": "00000000-0000-4000-8000-000000000002",
+      "node_type": "segment",
+      "schema_version": "1.0.0",
+      "sequence_index": 2,
+      "content_hash": "281e3ca5ac7adeb528142efc63603de6c8bec21fd257e5b7266efb35c3abfe73",
+      "parent_node_id": "550e8400-e29b-41d4-a716-446655440000"
+    },
+    "stored_leaf_hash_v1": "4409ff6552f902805d198bdcaddb7b21a2539ab359f8d99d53a8474bbbb6ebeb",
+    "leaf_hash_v2_from_fields": "5d6d7378c5a4ee7fdcb66718ff917915206f7dfbabe72f7ae2dbf767a698019e"
+  },
+  "inclusion_proofs_v2": {
+    "rule": "leaf_index and leaf_count fix the path shape; the verifier derives at which levels a sibling exists and on which side. A proof binds the leaf and its position, not the tree's size.",
+    "tree": "the seven leaf_hash_v2 values above, in order",
+    "leaf_3_of_7": {
+      "leaf_index": 3,
+      "leaf_count": 7,
+      "leaf_hash": "c4d8a309d6a8f03bba276fbd1127e8b2c22b07a1c7346c317486b43634466225",
+      "siblings": [
+        "8c5558dd9cf6dbbfb7d5c64757d4c2640fabc5b1105404a77c6fd5120fce9889",
+        "4961d0711f8ad12e0795faaa578e410477b88d08c21c0f318a7ccacfc80102fb",
+        "97af5a57298eddaca96c76e7747566a9cc353bb5243985133a0534d2dc8dda2b"
+      ],
+      "spine_root": "4420e38a22409317822ac14e3d5bc8069e6556c0fc08928290f76d23396daa01"
+    },
+    "leaf_6_of_7_unpaired_path": {
+      "leaf_index": 6,
+      "leaf_count": 7,
+      "leaf_hash": "1f2556934a29b56ea2e633081379ad2c92d9116d98da4f74c6c236dbdaca11b1",
+      "siblings": [
+        "62bb7692435aef7234c85f8dec29fb8b13b140211713889b899c14eead95fbf1",
+        "64803b5de46b8dd67284bc2edafd90f71a642d80e63615347e548b62b3c5fe96"
+      ],
+      "spine_root": "4420e38a22409317822ac14e3d5bc8069e6556c0fc08928290f76d23396daa01"
+    },
+    "leaf_0_of_1": {
+      "leaf_index": 0,
+      "leaf_count": 1,
+      "leaf_hash": "25b617f0d7ac09871f88ce7e2851cc8f50b48305dee51d081b62a5f21ed84935",
+      "siblings": [],
+      "spine_root": "5e06ac5629faf452aa18836dcf3f33565db0cd2d8749b482c65365b9273b576e"
+    },
+    "expected_sibling_counts_for_7_leaves": [
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      2
+    ]
+  },
+  "signals": [
+    "854926724cdda7832666b640fe92f340fc955dcc7374ccf35313bf40bc4e2336",
+    "29f91bc68ba3dfc98e6d6e257a659428af383748d7856e8ab949a7ede3623b70",
+    "3e14c60e262482c9961c603b04df46aca3d01cffd5e66f6b8999d63317728efa",
+    "6ac721abae8b1334464a88e731bf66ab4f9d80cf7159931568680168bd0d2695",
+    "3500a5b454b60626b1b097acbde35e842069829887eb725a334b4e385c2ce5a7"
+  ],
+  "signal_manifest_v2": {
+    "five_members_any_order": "70dbc8e8f2e87b63e49187979b14ad56ba11219b42be132015c23dcad36acb43",
+    "empty": "c86637569949949cf118e1efc9b97ea64b998de012e4afa5b1ca2a1575a4d1af"
+  },
+  "exclusion_v2": {
+    "empty": "ddea405cc1729ebf63d93b16d723873ad02f9f64af3cc159bf86e5f999b02ce1"
+  },
+  "structural_members": {
+    "timestamp": "2026-01-01T00:00:00.123000+00:00",
+    "branch_point_v2": "7e1932175f7ef510116f76aa22b68f152f7ed172d82783ec2fb341e13887de76",
+    "branch_terminus_v2": "b675296dd759538d145d54cd81850ddab7c25d99ac56995e56ce4376b4432c22",
+    "fork_point_v2": "f3af418f4004fb1297f39689b1090a0b66887c27381b2ca42496c274ac9793ea",
+    "departure_fork_point_v2": "0c54f19e565539f6e4116c82b2c3ac7c4d61b5ef7da6305af6b04709a6844408",
+    "fork_return_v2": "e94c66210fb7464521ee25717110e534af07a0ea10bed7657e68f08c8cb36421",
+    "merge_point_v2": "2c891a7ae57842ff819f8bd963c26454194d9f6338116746a13d93a3af457166",
+    "hitl_context_v2": "0f667804dfbb9441f599c855d363d4cf1b3918b8c12d7450154626c7ab14dbf0",
+    "hitl_resolution_v2": "7643c1c83b61214ad8abc35dc51d0024c079445a2371449f42bb89b67d311ca2",
+    "hitl_node_v2": "d077b174d554cf1d30bd3d032f8448bd647636eb0b6a95d74503d8e100c8687c",
+    "inputs": "see tests/conformance/test_seal_constructions_v2_vectors.py::test_structural_members for the exact field values"
+  },
+  "structural_manifest_v1": {
+    "seven_members_any_order": "0a4b777227b87ee0d6c8efd5b2e9a5fc05c02e61d677f2460f868ab06779b537",
+    "empty": "259f1b6181d0341fa2dfa33ce55e0ad686f8a7bbf66d88a8b47cc081aa3d7519",
+    "with_branch_terminus_removed": "a7fe07f9ec014d8162fb2046adcf42a81ddf847d898956adaf83aa92fcf02c37"
+  },
+  "episode_root_v2": {
+    "inputs": [
+      "episode_id",
+      "spine_root_sav2[7]",
+      "signal_manifest_v2.five_members_any_order",
+      "structural_manifest_v1.seven_members_any_order",
+      "exclusion_v2.empty"
+    ],
+    "hash": "f0511b4d1be172554b9f87ec64d400d24a1409f1742ad72f628bf5ab7b7d33f0",
+    "with_empty_structural_manifest": "a62b25ad6b2ec2ccd1ad91554ee92ec79d10a402befb63a9794e0677c71a6537"
+  }
+}
