@@ -2,7 +2,7 @@
 
 **Version:** 1.2.0
 **Status:** Stable
-**Authors:** Scorched Earth Labs / Clotho
+**Authors:** Scorched Earth Labs
 **Date:** 2026-07-04
 **Applies To:** SPEC.md §19 (Branch / Fork / Merge / **Departure Fork** / Aside / Soliloquy / CoherenceFingerprint + Orphan Recovery), v3.3.0
 
@@ -311,7 +311,7 @@ These vectors test the *shape of a conformant recovery*, not that an implementat
 **SL-005** — Human-accessible visibility policy (G-27)
 - **Class:** REQUIRED
 - **Spec Reference:** §19.4.2, G-27
-- **Description:** Every soliloquy's `SoliloquyVisibilityPolicy` MUST allow at least one identified human user to view the conclusion (Decision 1). Agent-only soliloquies (no human visibility ever) are forbidden.
+- **Description:** Every soliloquy's `SoliloquyVisibilityPolicy` MUST allow at least one identified human user to view the conclusion. Agent-only soliloquies (no human visibility ever) are forbidden.
 
 **SL-006** — Conclusion summary required
 - **Class:** REQUIRED
@@ -392,7 +392,7 @@ Summary of governance rules enforced across BFM, cross-referenced with SPEC §19
 | G-24 | Merge integrity assertions | FM-009 |
 | G-25 | Aside human-initiated | AS-002 |
 | G-26 | Aside return obligation | AS-005 |
-| G-27 | Soliloquy human accessibility (Decision 1) | SL-005 |
+| G-27 | Soliloquy human accessibility | SL-005 |
 | G-28 | Soliloquy return obligation | SL-007 |
 | G-29 | Write-time fingerprint | CF-005 |
 | G-30 | Departure-fork backdating integrity | DF-003 |

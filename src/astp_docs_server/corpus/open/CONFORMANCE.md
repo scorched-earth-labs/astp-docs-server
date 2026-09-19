@@ -2,9 +2,9 @@
 
 **Version:** 1.0.0
 **Status:** Working Draft
-**Authors:** Scorched Earth Labs / Clotho
+**Authors:** Scorched Earth Labs
 **Date:** 2026-04-12
-**Applies To:** SPEC.md v2.3.0-draft, Phase 3 Trust Infrastructure (§16)
+**Applies To:** SPEC.md §16 (Phase 3 Trust Infrastructure). Written against SPEC v2.3.0-draft; not yet re-verified against 4.x.
 **Companion:** [CONFORMANCE-BFM.md](CONFORMANCE-BFM.md) covers SPEC §19 (Branch/Fork/Merge/Aside/Soliloquy/CoherenceFingerprint).
 
 ---
@@ -675,7 +675,7 @@ The implementation passes all REQUIRED and RECOMMENDED vectors. It additionally 
 For vectors that require cross-implementation consistency (KH-001, KH-006, WS-001, TL-003), the verification protocol is:
 
 1. Each conforming implementation computes the specified output for the given inputs
-2. The output is published to the ASTP conformance registry (location TBD)
+2. The output is published. No ASTP conformance registry exists yet; reference values will be published as vector files in this repository in a later release
 3. Implementations compare their output against all published values
 4. Discrepancies trigger an investigation into HKDF parameterization, serialization format, or encoding differences
 
@@ -687,7 +687,7 @@ The first implementation to publish a value for a given vector establishes the *
 
 The following are explicitly NOT covered by these conformance vectors:
 
-- **Storage adapter conformance** — covered by the ASI conformance suite (separate document)
+- **Storage adapter conformance** — not covered here. No ASI conformance suite has been published; adapter requirements are stated in SPEC §15
 - **Phase 1-2 verification** — covered by the existing `DeltaVerifier` five-test gate (§9.1)
 - **Signing algorithm correctness** — implementation-defined (§2.5.3); implementations are responsible for their own signing algorithm conformance
 - **Transparency log availability** — the `TransparencyLogAdapter` interface is tested for correct behavior, not for log availability or latency
@@ -733,4 +733,4 @@ leaf_hash: [implementations compute and cross-verify per KH-006 protocol]
 ---
 
 *ASTP Conformance Test Vectors are maintained by Scorched Earth Labs.*
-*Vector set version: 1.0.0 | Applies to SPEC.md: v2.3.0-draft*
+*Vector set version: 1.0.0 | Written against SPEC.md v2.3.0-draft; not yet re-verified against 4.x*

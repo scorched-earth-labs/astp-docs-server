@@ -17,10 +17,11 @@ What is normative from this file:
 - The **content-hash preimage field orders** (§4, §5, §6). These are wire-tier (§20 →12.1) — two conforming implementations MUST produce identical `content_hash` / `declaration_hash` bytes for the same input, so the ordered field list and the canonicalization rules are part of the protocol, not this adapter.
 - The **forward-pointer-exclusion discipline**: `quarantine_resolved_at` / `quarantine_resolution` are excluded from the `EpisodeLink` hash; `superseded_by_record_id` / `superseded_by` are excluded from the `MembershipRecord` / `ConformanceDeclaration` hashes (§20 →2, →7, →8, →10).
 - The **audit-anchored write rule**: every link/membership/declaration mutation advances a hash-linked `AriadneAuditRecord` chain, or it writes nothing through the operation layer.
-- The **write-order invariant**: Blob → Neo4j → QDrant (→ Redis) per §20 →11.5.1.
+- The **write-order invariant** (§20 →11.5.1): authoritative structural store, then append-only audit store — both synchronous — then the semantic search index and the ephemeral coordinator, asynchronously. The roles are normative; which provider fills each is not.
 
 What is implementation-space:
 
+- **The storage providers.** SPEC §20 →11.1 defines four storage roles and deliberately names no product. This adapter's choices are recorded in §9.
 - Neo4j labels (`AriadneEpisodeLink`, `AriadneMembershipRecord`, `AriadneConformanceDeclaration`, `AriadneEpisodeGroup`), property names, constraint/index names.
 - The compact string encodings of `inference_signals` and `capabilities` stored on the Neo4j node (full structured records live on the audit trail).
 - The composite-scoring algorithm, embedding-model choice, and threshold values (all behavioral-tier, sovereign per §20 →12.1).
@@ -31,7 +32,7 @@ What is implementation-space:
 ## 2. Module Layout
 
 ```
-ariadne/
+astp/
 ├── core/
 │   ├── cross_episode.py         # EpisodeLink + Signal + LinkType/LinkHealthState/QuarantineResolution
 │   │                            #   + hash fn + governance + Part-I operation layer (assert / propose / reject)
@@ -49,13 +50,13 @@ tests/unit/protocol/
 └── test_grouping.py               # MembershipRecord / ConformanceDeclaration schema, hash, SemVer, succession
 ```
 
-`ariadne/core/*` is the protocol-level type module — adapter modules import **from** core, never the reverse. The operation-layer functions in `cross_episode.py` / `grouping.py` defer their adapter imports to call time so the type module stays importable in schema-only environments.
+`astp/core/*` is the protocol-level type module — adapter modules import **from** core, never the reverse. The operation-layer functions in `cross_episode.py` / `grouping.py` defer their adapter imports to call time so the type module stays importable in schema-only environments.
 
 ---
 
 ## 3. The Canonicalizer — Shared Across All §20 Hashes
 
-Unlike the BFM family (SPEC §19), which builds each preimage as a `PREFIX:`-tagged colon-joined string, **every §20 content hash is computed by `hash_preimage(model, ordered_fields)`** in `ariadne/core/hash_canonical.py`. The mechanism is:
+Unlike the BFM family (SPEC §19), which builds each preimage as a `PREFIX:`-tagged colon-joined string, **every §20 content hash is computed by `hash_preimage(model, ordered_fields)`** in `astp/core/hash_canonical.py`. The mechanism is:
 
 1. For each field name in `ordered_fields` (in order), read the model attribute and pass it through `canonical_value()`.
 2. Assemble an ordered `dict` field_name → canonical value.
@@ -93,7 +94,7 @@ There is **no domain-prefix string** in any §20 hash. Domain separation is prov
 ### 4.1 Public API
 
 ```python
-from ariadne.core.cross_episode import (
+from astp.core.cross_episode import (
     EpisodeLink, Signal, LinkType, LinkHealthState, QuarantineResolution,
     assert_episode_link,
     propose_link_candidate, record_candidate_rejection, record_link_rejection,
@@ -105,7 +106,7 @@ from ariadne.core.cross_episode import (
 link = EpisodeLink(
     source_episode=src_uuid,
     target_episode=tgt_uuid,
-    created_by="odysseus",
+    created_by="agent-a",
     link_type=LinkType.CONTINUES_FROM,
     link_strength=0.87,
     is_inferred=False,
@@ -125,13 +126,13 @@ Phase-2 discovery emits **audit-only** events (no `EpisodeLink` node created):
 audit_id = propose_link_candidate(driver, source_episode=..., target_episode=...,
     proposed_link_type=LinkType.INFORMED_BY, composite_score=0.81,
     inference_signals=[...], discovery_threshold=0.75, auto_accept_threshold=0.90,
-    proposing_agent="metis")                             # → LINK_PROPOSED (score in [DISCOVERY, AUTO_ACCEPT))
+    proposing_agent="agent-b")                             # → LINK_PROPOSED (score in [DISCOVERY, AUTO_ACCEPT))
 
 record_candidate_rejection(driver, ..., composite_score=0.62,
-    discovery_threshold=0.75, detecting_agent="metis")  # → CANDIDATE_REJECTED (score < DISCOVERY)
+    discovery_threshold=0.75, detecting_agent="agent-b")  # → CANDIDATE_REJECTED (score < DISCOVERY)
 
 record_link_rejection(driver, proposed_audit_event_id=audit_id, ...,
-    rejecting_agent="devin", rejection_reason=RejectionReason.NOT_RELATED)  # → LINK_REJECTED
+    rejecting_agent="human-1", rejection_reason=RejectionReason.NOT_RELATED)  # → LINK_REJECTED
 ```
 
 ### 4.2 Content-Hash Preimage (wire-tier — `compute_episode_link_content_hash`)
@@ -191,7 +192,7 @@ There is **no automatic** `QUARANTINED → BROKEN`: exit from quarantine require
 ### 5.1 Public API
 
 ```python
-from ariadne.core.grouping import (
+from astp.core.grouping import (
     MembershipRecord, MembershipRole, GroupingSystem,
     assert_membership_record,
     compute_membership_record_content_hash, stamp_membership_record_hash,
@@ -199,7 +200,7 @@ from ariadne.core.grouping import (
 
 record = MembershipRecord(
     episode_id=ep_uuid, group_id="col-42", group_system="sel-thermyt:Collection",
-    asserted_by="clio", membership_role=MembershipRole.PRIMARY,
+    asserted_by="agent-c", membership_role=MembershipRole.PRIMARY,
     supersedes_record_id=None, succession_reason=None,
 )
 record = assert_membership_record(driver, record, explicit_reason="...")
@@ -214,7 +215,7 @@ record_id, episode_id, group_id, group_system, asserted_at,
 asserted_by, membership_role, supersedes_record_id, succession_reason
 ```
 
-**Included** per §20 →7 (Gap 6): `membership_role` — role is a content characterization, so a role change requires a **new** record via succession, not an in-place edit. `supersedes_record_id` is included as the record's commitment to its predecessor in the chain. **Excluded** per §20 →10 (forward-pointer exclusion): `superseded_by_record_id` — it is set by a *later* succession and would invalidate a sealed record's hash.
+**Included** per §20 →7: `membership_role` — role is a content characterization, so a role change requires a **new** record via succession, not an in-place edit. `supersedes_record_id` is included as the record's commitment to its predecessor in the chain. **Excluded** per §20 →10 (forward-pointer exclusion): `superseded_by_record_id` — it is set by a *later* succession and would invalidate a sealed record's hash.
 
 > Note: SPEC §20 →7's prose enumerates a shorter set (`record_id + episode_id + group_id + group_system + asserted_at + asserted_by + membership_role`). The implementation additionally binds `supersedes_record_id` and `succession_reason` so the record cryptographically commits to *which* predecessor it supersedes and *why*. This is the ground-truth preimage; see flagged discrepancy in §10.
 
@@ -235,7 +236,7 @@ asserted_by, membership_role, supersedes_record_id, succession_reason
 ### 6.1 Public API
 
 ```python
-from ariadne.core.grouping import (
+from astp.core.grouping import (
     ConformanceDeclaration, Capability,
     register_conformance_declaration, bump_conformance_declaration,
     enforce_semver_format, classify_version_bump,
@@ -244,7 +245,7 @@ from ariadne.core.grouping import (
 )
 
 decl = ConformanceDeclaration(
-    group_id="col-42", group_system="sel-thermyt:Collection", declared_by="atlas",
+    group_id="col-42", group_system="sel-thermyt:Collection", declared_by="agent-d",
     declaration_version="1.0.0",
     capabilities=[Capability(capability_id="supports_archival")],
 )
@@ -281,7 +282,7 @@ Declaration audit events anchor to a **synthetic chain key** `declaration:{group
 
 ## 7. Audit-Chain Substrate
 
-All §20 operation-layer functions advance a tamper-evident audit chain via `ariadne/core/audit_chain.py`:
+All §20 operation-layer functions advance a tamper-evident audit chain via `astp/core/audit_chain.py`:
 
 - `next_delta_sequence(driver, chain_key)` → next monotonic per-chain sequence (1 for empty; per §20 →11.5.3 sequences are within-Episode completeness proof, never cross-Episode ordering).
 - `prior_audit_hash(driver, chain_key)` → hash of the most recent record on the chain, or `GENESIS_HASH` (`"GENESIS"`) if empty.
@@ -327,16 +328,39 @@ Full list in `adapters/neo4j/writer.py` `SCHEMA_CONSTRAINTS` / `SCHEMA_INDEXES`.
 
 ## 9. Storage Architecture & Write-Order Invariant (§20 →11.1, →11.5)
 
-The four-tier consistency hierarchy (§20 →11.1.1):
+SPEC §20 →11.1 defines four storage **roles** and the obligations of each. It names no provider: any system that meets a role's obligations may fill it, and one system may fill several. The table maps those roles to what the reference deployment uses. The right-hand column is this deployment's choice and carries no conformance weight.
 
-| Tier | Store | Role |
-|------|-------|------|
-| PRIMARY TRUTH | Neo4j | structural ground truth (synchronous) |
-| AUDIT TRUTH | Blob | append-only audit history (authoritative event log) |
-| DISCOVERY | QDrant | semantic search (eventually consistent) |
-| WORKING STATE | Redis | ephemeral cache / quarantine queue (reconstructable) |
+| Role (normative, §20 →11.1.1) | Obligation | Reference deployment |
+|------|------|------|
+| Authoritative structural store | structural ground truth; synchronous writes; single source of truth | Neo4j |
+| Append-only audit store | authoritative event log; synchronous writes; never modified | blob storage |
+| Semantic search index | link-candidate discovery; eventually consistent; derived | QDrant |
+| Ephemeral coordinator | caches and queues; always reconstructable | Redis |
 
-**Write-order invariant (§20 →11.5.1): Blob → Neo4j → QDrant (→ Redis).** Blob (audit) and Neo4j are atomic from the protocol's perspective — a write that lands in Neo4j but fails in Blob is a partial write and MUST be retried or rolled back. QDrant (`episode_content_vectors`, 1536-dim; `participant_context_vectors`, 768-dim) and Redis propagation are asynchronous within the consistency-window SLA (typical < 60s, max 5 minutes; §20 →11.5.2). No read on structural data may serve a response that contradicts Neo4j; QDrant/Redis divergence is a consistency error, not an alternative view.
+**Write-order invariant (§20 →11.5.1): structural store → audit store → search index → coordinator.** `assert_episode_link()` writes the link record and then the audit record, in that order. The first two writes are atomic from the protocol's perspective — a write that lands in the structural store but fails in the audit store is a partial write and MUST be retried or rolled back. Propagation to the search index and the coordinator is asynchronous within the consistency-window SLA (typical < 60s, max 5 minutes; §20 →11.5.2). No read on structural data may serve a response that contradicts the structural store; divergence of the index or the coordinator is a consistency error, not an alternative view.
+
+### 9.1 Reference deployment — search index layout
+
+§20 →11.1.3 requires two separate vector spaces and fixes their payload fields. Collection names, dimensionality, distance metric and embedding model are this deployment's choices:
+
+| Vector space (§20 →11.1.3) | Collection | Dimensions | Distance |
+|------|------|------|------|
+| Episode content | `episode_content_vectors` | 1536 | Cosine |
+| Participant context | `participant_context_vectors` | 768 | Cosine |
+
+Payload fields are as the specification lists them, stored as keyword fields except `indexed_at` (datetime) and the two `*_threshold_at_index` fields (float). The two collections use different embedding models of different sizes; embeddings from different model families are never mixed within a collection, which is the one constraint §20 →11.1.3 places on model choice.
+
+### 9.2 Reference deployment — coordinator keys
+
+§20 →11.1.4 requires a quarantine queue scoped per Episode, threshold calibration state, and a link-health cache, all reconstructable. Key names and data structures are this deployment's choices:
+
+```
+ariadne:quarantine:queue:{episode_id}    sorted set   score = quarantine deadline (Unix timestamp)
+ariadne:quarantine:ttl                   string       default TTL in seconds
+ariadne:calibration:thresholds           hash         current DISCOVERY_THRESHOLD, AUTO_ACCEPT_THRESHOLD
+ariadne:calibration:history:{date}       list         daily calibration snapshots
+ariadne:link:health:{link_id}            hash         cached health_state + checked_at
+```
 
 Verification proof types (§20 →11.2): `LINK_INTEGRITY` (content_hash matches canonical fields — the §4.2 field set), `MEMBERSHIP_CHAIN` (succession chain unbroken + hashes valid), `DECLARATION_COMPATIBILITY` (version transition compatible/breaking), `AUDIT_COMPLETENESS` (all required audit events present). Non-existence proofs are a flagged gap (§20 →11.2.1, →12.3).
 

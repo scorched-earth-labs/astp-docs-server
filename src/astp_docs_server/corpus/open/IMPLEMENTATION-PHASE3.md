@@ -1,10 +1,10 @@
 # ASTP — Phase 3 Implementation Guide
 
-**Version:** 1.0.0
+**Version:** 1.1.1
 **Status:** Working Draft
-**Authors:** Scorched Earth Labs / Clotho
-**Date:** 2026-04-12
-**Applies To:** SPEC.md v2.3.0-draft, Phase 3 Trust Infrastructure (§16)
+**Authors:** Scorched Earth Labs
+**Date:** 2026-09-17
+**Applies To:** SPEC.md §16 (Phase 3 Trust Infrastructure) and §4.6 (HITL, Appendix C). Written against SPEC v2.4.0-draft; not yet re-verified against 4.x.
 **Conformance Reference:** Phase 3 Conformance Test Vectors v1.0.0
 
 ---
@@ -15,7 +15,7 @@ This guide walks implementors through building a Phase 3 conforming implementati
 
 **Audience:** Engineers implementing ASTP on a new AI architecture, or extending an existing Phase 1-2 implementation to Phase 3.
 
-**What this guide is not:** A tutorial on cryptographic primitives, a language-specific SDK guide, or a storage adapter guide. Those are covered separately.
+**What this guide is not:** A tutorial on cryptographic primitives, a language-specific SDK guide, or a storage adapter guide. Those are outside its scope.
 
 **How to use this guide:** Work through sections 3–6 in order. Each section ends with a conformance checkpoint that maps to the test vectors in the Conformance Test Vectors document. Do not proceed to the next section until the current section's checkpoint passes.
 
@@ -29,10 +29,10 @@ Phase 3 is additive. It does not replace or modify Phase 1-2 machinery — it ex
 
 - `DeltaVerifier` five-test gate (§9.1)
 - Dual Index semantics: `sequence_index` immutable and in hash, `tree_leaf_index` mutable and NOT in hash
-- Leaf hash construction: `SHA3-256(sequence_index ‖ content_hash ‖ prev_leaf_hash)`
+- Leaf hash construction exactly as SPEC §5.2: the length-prefixed preimage over `node_id`, `node_type`, `schema_version`, `sequence_index`, `content_hash`, `sealed_at` and `parent_node_id`. There is no `prev_leaf_hash` — a leaf does not chain to its predecessor (SPEC §3.4.1); position is bound by `sequence_index` inside the preimage
 - Spine Merkle: SHA3-256 binary Merkle tree with deterministic leaf ordering by `sequence_index`
 - `ContentDelta` records written on every append
-- `CrystallizationRecord` written at crystallization boundary
+- `CrystallizationDelta` written at the crystallization boundary
 - `CognitiveNode` schema with all core fields present
 
 If your Phase 1-2 implementation is not conforming, Phase 3 will not be either — the trust infrastructure signs and chains the outputs of Phase 1-2 machinery.
@@ -267,7 +267,7 @@ The transparency log anchor submission MUST be part of the crystallization state
 
 ```
 1. Compute spine_root (final state)
-2. Write CrystallizationRecord to storage
+2. Write the `CrystallizationDelta` to storage
 3. Build AnchorCommitment from crystallization_root = spine_root
 4. Submit AnchorCommitment to TransparencyLogAdapter → receive AnchorReceipt
 5. Store AnchorReceipt on the CognitiveNode
@@ -713,7 +713,7 @@ Phase 4 builds on Phase 3 infrastructure. Implement in this order:
 
 5. **Cryptographic attestation** — Sign `context_hash` with the agent's Ed25519 key at invocation. Sign `resolution_hash` with the human's Ed25519 key at resolution. Both use the Phase 3 HKDF key hierarchy with `entity_type` parameter ("agent" or "user").
 
-6. **Spine participation** — On HITL resolution, include `node_hash` as a causal anchor leaf (importance=2) in `compute_adaptive_spine_hash`. Invalidate spine tip cache.
+6. **No spine participation** — A resolved HITL event's `node_hash` records the decision; it is **not** a spine leaf. The spine is the Episode's non-ephemeral Segments and nothing else (SPEC §5.6), and no seal has ever included HITL hashes. Do not pass them to the spine computation.
 
 7. **Advisory gates** — For `REVIEW_ADVISORY` gates, tag segments written during the pending interval with `pending_hitl_ref`. These segments are `CONDITIONALLY_VALID` until the gate resolves. Advisory gates do NOT block crystallization or set `PENDING_HITL`.
 
@@ -733,15 +733,15 @@ Phase 4 builds on Phase 3 infrastructure. Implement in this order:
 
 A Phase 4 conforming implementation MUST:
 
-1. Create `AriadneHITLEvent` nodes with correct two-phase lifecycle
+1. Record HITL events with the correct two-phase lifecycle (the reference adapter stores them under the `AriadneHITLEvent` label; the representation is an adapter choice)
 2. Compute `context_hash`, `resolution_hash`, `node_hash` with correct domain-separated prefixes
 3. Enforce G-17 (no resolution on INVOKED nodes)
 4. Enforce G-18 (crystallization blocked by pending blocking HITL)
-5. Include resolved HITL `node_hash` in spine computation as importance=2 leaves
+5. Keep resolved HITL `node_hash` values out of the spine computation (SPEC §5.6)
 6. Sign invocation with agent key and resolution with human key (using Phase 3 HKDF hierarchy)
 7. Tag segments written during advisory gates with `pending_hitl_ref`
 
 ---
 
 *ASTP Implementation Guide is maintained by Scorched Earth Labs.*
-*Guide version: 1.1.0 | Applies to SPEC.md: v2.4.0-draft | Conformance Vectors: v1.0.0*
+*Guide version: 1.1.1 | Written against SPEC.md v2.4.0-draft; not yet re-verified against 4.x | Conformance Vectors: v1.0.0*

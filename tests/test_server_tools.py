@@ -62,4 +62,7 @@ def test_corpus_info_tool(r):
     # this is a test of corpus_info, not of how many rules the protocol has.
     assert len(info["governance_rules"]) == len(r.list_governance_rules())
     assert info["governance_rules"], "corpus_info reported no governance rules"
-    assert info["docs"] == 13
+    # Derived, not restated: the corpus grows with the spec (4.3.0 added
+    # CONFORMANCE-REPRODUCIBILITY.md and this line was hard-coded to 13).
+    from astp_docs_server.open_corpus import build_open_corpus_spec
+    assert info["docs"] == len(build_open_corpus_spec().docs) >= 13

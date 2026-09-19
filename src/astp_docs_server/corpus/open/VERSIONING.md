@@ -1,5 +1,13 @@
 # Versioning
 
+**Version:** none of its own — this policy is versioned with [`SPEC.md`](./SPEC.md) (see "Where versions are declared")
+**Status:** Stable
+**Authors:** Scorched Earth Labs
+**Date:** 2026-09-17
+**Applies To:** every version of `SPEC.md` and its companion documents
+
+---
+
 ASTP uses [Semantic Versioning](https://semver.org/) — three-segment `MAJOR.MINOR.PATCH`. No fourth segment.
 
 ## The rule
@@ -14,7 +22,7 @@ That's the policy. Everything else (compatibility expectations, deprecation, wha
 
 `SPEC.md` is the canonical version source. The `**Version:**` field at the top of that file IS the protocol version.
 
-- `SPEC-v{MAJOR}.md` retains prior major-version specs for historical reference (e.g., `SPEC-v1.md` is the original `0.1.0-draft`, superseded by the v2.x line in `SPEC.md`).
+- `docs/history/SPEC-v{MAJOR}.md` retains prior major-version specs for historical reference (e.g., [`docs/history/SPEC-v1.md`](./docs/history/SPEC-v1.md) is the original `0.1.0-draft`, superseded by the v2.x line in `SPEC.md`; [`docs/history/SPEC-v3.md`](./docs/history/SPEC-v3.md) is the 3.x line at 3.5.1; [`docs/history/SPEC-v4.md`](./docs/history/SPEC-v4.md) is the 4.x line at 4.5.0). The 2.x line has no retained file. The former standalone amendment documents are kept in the same directory, for provenance only.
 - Implementation Guides (`IMPLEMENTATION-*.md`), Conformance documents (`CONFORMANCE*.md`), and any other artifacts are versioned-against, not versioned-independently. They describe behavior at a specific protocol version (e.g. "this guide applies to ASTP v3.4.0"); they do not carry their own independent version numbers.
 
 ## Current version
@@ -68,7 +76,7 @@ A `-draft` suffix on a version (e.g., `2.5.0-draft`) indicates the version is st
 ## How to bump
 
 1. Identify the change category (MAJOR / MINOR / PATCH) using the rule above.
-2. For MAJOR bumps: open a ratifying Episode of Record, complete the amendment, and update `SPEC.md` with the integrated material. Move the prior version's `SPEC.md` to `SPEC-v{PRIOR_MAJOR}.md` for historical retention.
+2. For MAJOR bumps: open a ratifying Episode of Record, complete the amendment, and update `SPEC.md` with the integrated material. Move the prior version's `SPEC.md` to `docs/history/SPEC-v{PRIOR_MAJOR}.md`, with the historical banner the other files there carry.
 3. For MINOR / PATCH bumps: update `SPEC.md` in place; no historical retention file needed.
 4. Update `CHANGELOG.md` with the version entry.
 5. Update the `**Version:**` field at the top of `SPEC.md`.
