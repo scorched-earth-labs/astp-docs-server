@@ -1,5 +1,5 @@
 {
-  "status": "DRAFT for SPEC 5.0.0 — not ratified. Values change if any construction changes before ratification.",
+  "status": "Ratified with SPEC 5.0.0 (Episode of Record ce3f569c-9cdc-4a3d-913a-b9d8573d9a28). Every value is fixed: a construction never changes in place, so a different value is a new versioned construction.",
   "hash": "SHA3-256 (FIPS 202). Hash values are lowercase hex here; they enter every construction as 32 raw bytes.",
   "note_on_identifiers": "node_id values here are fixed so the vectors are reproducible. Real node_id values MUST be random.",
   "field_encoding": {

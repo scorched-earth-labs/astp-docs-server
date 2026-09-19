@@ -6,6 +6,11 @@ All notable changes to ASTP (the AI State Tree Protocol). Version numbering foll
 
 The next change-set queues here.
 
+### Added (reference package 0.4.0 — proofs of record)
+- **`astp.core.proof_of_record`**: the `astp-proof-of-record/1` document format (`full` / `attested` profiles), `build_proof_of_record`, `verify_proof_of_record`, and `python -m astp.core.proof_of_record verify <file>`. The verifier reproduces every root the profile allows under the seal's §5.8 identifiers and reports what it checked, what the profile withholds, and what failed; it never reports a claim it could not rebuild. Pre-4.3.0 seals (spine root only) are represented honestly.
+- **`vectors/5.0.0/seal-constructions.json`** `status` field no longer reads "DRAFT — not ratified". No value changed. As with the `-draft` suffix on `SPEC.md`, the digest the Episode of Record cites (`60e30400…`) is of the file's pre-edit bytes, by design; the values are identical.
+- **`docs/proofs/`**: exported proofs of record for the 4.0.0 and 5.0.0 Episodes of Record, each verified from a clean environment with only the package installed. The SPEC header, README and GLOSSARY no longer say none is published.
+
 ## [5.1.0] — 2026-09-19
 
 **MINOR.** The reference adapter's failure contract, and the implementation consequences 5.0.0 carried to the adapter work (§19 of the amendment draft). No canonical form changes; every 5.0.0 seal and every 4.x seal is untouched.

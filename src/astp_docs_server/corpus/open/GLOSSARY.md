@@ -483,7 +483,7 @@ Machine-readable expected values a third-party implementation reproduces: [`vect
 
 ### Proof of Record
 
-An exported file with which a third party verifies a sealed Episode — an *Episode of Record* in particular — using the package alone: the seal record with its version identifiers, the leaf hashes or Segments, and the manifests. Two profiles are anticipated: *attested* (roots and proofs only; withholds leaf lists and the *Resolved Signal Order*, which are unsalted content hashes) and *full*. Not yet published for any Episode of Record; the README says so.
+An exported file with which a third party verifies a sealed Episode — an *Episode of Record* in particular — using the package alone: the seal record with its version identifiers, the leaf hashes or Segments, and the manifests. Two profiles are anticipated: *attested* (roots and proofs only; withholds leaf lists and the *Resolved Signal Order*, which are unsalted content hashes) and *full*. Published for the 4.0.0 and 5.0.0 Episodes of Record under `docs/proofs/`; format `astp-proof-of-record/1` (`astp/core/proof_of_record.py`).
 
 ---
 

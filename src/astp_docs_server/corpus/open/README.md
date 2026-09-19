@@ -162,7 +162,7 @@ The first consumer of this protocol is Ignis OS, Scorched Earth Labs' agent runt
 
 ## Amendments
 
-Protocol amendments are ratified in a designated Episode of Record and reference the Episode's spine hash for provenance. The Episode of Record is the cryptographic anchor; the document is the human-readable artifact. The Episode of Record for 4.0.0 is `458fb62b-faee-4e42-9f92-c63187c1b59a`; its sealed root reproduces from its stored nodes. The Episode of Record for 5.0.0 is `ce3f569c-9cdc-4a3d-913a-b9d8573d9a28`, sealed 2026-09-18; it ratifies `SPEC.md` by content digest ([`docs/RATIFICATION-5.0.0.md`](./docs/RATIFICATION-5.0.0.md)). Exported proofs of record — files a third party can verify with this package alone — are not yet published for any MAJOR release. As of the **v3.2.1 integration pass**, both prior amendments are folded into the SPEC body — the amendment documents are retained for provenance only and are no longer normative. Amendment documents retain their authoring numerals; the canonical SPEC version per [`VERSIONING.md`](./VERSIONING.md) is shown alongside.
+Protocol amendments are ratified in a designated Episode of Record and reference the Episode's spine hash for provenance. The Episode of Record is the cryptographic anchor; the document is the human-readable artifact. The Episode of Record for 4.0.0 is `458fb62b-faee-4e42-9f92-c63187c1b59a`; its sealed root reproduces from its stored nodes. The Episode of Record for 5.0.0 is `ce3f569c-9cdc-4a3d-913a-b9d8573d9a28`, sealed 2026-09-18; it ratifies `SPEC.md` by content digest ([`docs/RATIFICATION-5.0.0.md`](./docs/RATIFICATION-5.0.0.md)). Exported proofs of record for both — files a third party verifies with this package alone (`python -m astp.core.proof_of_record verify <file>`) — are published under [`docs/proofs/`](./docs/proofs/). As of the **v3.2.1 integration pass**, both prior amendments are folded into the SPEC body — the amendment documents are retained for provenance only and are no longer normative. Amendment documents retain their authoring numerals; the canonical SPEC version per [`VERSIONING.md`](./VERSIONING.md) is shown alongside.
 
 | Amendment | SPEC version | Status | Now in SPEC | Document (historical) |
 |-----------|--------------|--------|-------------|-----------------------|
@@ -179,7 +179,7 @@ Each feature surface (§19, §20, §21) has a companion implementation guide and
 
 ## Specification Documents
 
-The protocol is one normative document (`SPEC.md`) plus, per feature surface, a non-normative implementation guide (reference Neo4j adapter) and a conformance document (test vectors stated as inputs and required properties; pinned expected digests are not yet published).
+The protocol is one normative document (`SPEC.md`) plus, per feature surface, a non-normative implementation guide (reference Neo4j adapter) and a conformance document (test vectors stated as inputs and required properties, with pinned expected digests in `vectors/`).
 
 | Surface | SPEC | Implementation guide | Conformance vectors |
 |---------|------|----------------------|---------------------|
