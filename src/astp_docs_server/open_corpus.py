@@ -31,7 +31,16 @@ OPEN_DOC_PATTERNS = [
     "GLOSSARY.md",
     "CHANGELOG.md",
     "VERSIONING.md",
+    "GOVERNANCE.md",
     "README.md",
+    "docs/RATIFICATION-*.md",   # Episode of Record statements (5.0.0 onward)
+]
+
+# Machine-readable assets served verbatim (not chunked or indexed): the pinned
+# expected digests every 5.0.0 construction reproduces to. Vendored under their
+# repository-relative path so versions never collide.
+OPEN_ASSET_PATTERNS = [
+    "vectors/*/seal-constructions.json",
 ]
 
 OPEN_DOC_EXCLUDE = [
@@ -81,4 +90,37 @@ def build_open_corpus_spec(protocol_dir: str | None = None) -> CorpusSpec:
             f"(python scripts/vendor_corpus.py) or set ARIADNE_PROTOCOL_DIR to a "
             f"checkout of the ariadne-protocol repo."
         )
-    return CorpusSpec(name="ariadne-open", visibility=Visibility.OPEN, docs=docs)
+    return CorpusSpec(name="astp-open", visibility=Visibility.OPEN, docs=docs)
+
+
+def list_test_vector_files(protocol_dir: str | None = None) -> dict[str, str]:
+    """Repository-relative path -> absolute path of every vendored/available
+    test-vector file, e.g. ``{"vectors/5.0.0/seal-constructions.json": ...}``."""
+    import glob
+
+    base = resolve_corpus_dir(protocol_dir)
+    found: dict[str, str] = {}
+    for pat in OPEN_ASSET_PATTERNS:
+        for path in sorted(glob.glob(os.path.join(base, pat))):
+            found[os.path.relpath(path, base).replace(os.sep, "/")] = path
+    return found
+
+
+def load_test_vectors(version: str | None = None, protocol_dir: str | None = None) -> dict:
+    """The vector file for ``version`` (default: the newest available), parsed,
+    with its path and SHA-256 so an adopter can cite exactly what they checked
+    against. Raises ``FileNotFoundError`` with the versions on offer otherwise."""
+    import hashlib
+    import json
+
+    files = list_test_vector_files(protocol_dir)
+    versions = sorted({rel.split("/")[1] for rel in files}, key=lambda v: tuple(int(x) if x.isdigit() else 0 for x in v.split(".")))
+    if not versions:
+        raise FileNotFoundError("no test-vector files in the corpus; vendor them with scripts/vendor_corpus.py")
+    chosen = version or versions[-1]
+    rel = f"vectors/{chosen}/seal-constructions.json"
+    if rel not in files:
+        raise FileNotFoundError(f"no vectors for {chosen!r}; available: {versions}")
+    raw = open(files[rel], "rb").read()
+    return {"path": rel, "version": chosen, "sha256": hashlib.sha256(raw).hexdigest(),
+            "available_versions": versions, "vectors": json.loads(raw)}

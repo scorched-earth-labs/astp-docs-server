@@ -49,7 +49,7 @@ def search_spec(query: str, k: int = 5) -> dict:
 
 @mcp.tool()
 def get_governance_rule(rule_id: str) -> dict:
-    """Get a governance rule (G-1 .. G-36) verbatim, with its citation.
+    """Get a governance rule (G-1 .. G-40) verbatim, with its citation.
 
     Args:
         rule_id: Rule id in any form — "G-2", "g2", "2".
@@ -88,6 +88,22 @@ def get_hash_preimage(type_name: str, k: int = 5) -> dict:
         k: Max passages to return (default 5).
     """
     return tools.get_hash_preimage(retriever(), type_name, k)
+
+
+@mcp.tool()
+def get_test_vectors(version: str | None = None) -> dict:
+    """The machine-readable conformance vector file: every 5.0.0 construction's
+    pinned expected digest (leaf hash, spine root, sets, Episode root, inclusion
+    proofs, canonical JSON, audit records, side-channel and link hashes, witness
+    and anchor commitments). Reproduce these from the SPEC text before trusting
+    an implementation.
+
+    Args:
+        version: Protocol version, e.g. "5.0.0" (default: the newest available).
+    """
+    from astp_docs_server.open_corpus import load_test_vectors
+
+    return load_test_vectors(version, os.environ.get("ARIADNE_PROTOCOL_DIR"))
 
 
 @mcp.tool()

@@ -1,7 +1,7 @@
 # astp-docs-server
 
-The **open** documentation server for Project Ariadne — two transports on one
-substrate, over the public protocol corpus:
+The **open** documentation server for ASTP, the AI State Tree Protocol — two
+transports on one substrate, over the public protocol corpus:
 
 - an **MCP server** adopters' coding agents (Claude Code / Codex / Copilot) point
   at to implement the protocol from its normative text, and
@@ -15,7 +15,7 @@ the proprietary corpus is a separate, private server.
 
 ```
 src/astp_docs_server/
-  open_corpus.py     # the OPEN CorpusSpec (points at the ariadne-protocol docs)
+  open_corpus.py     # the OPEN CorpusSpec (points at the astp protocol docs)
   mcp_server.py      # FastMCP transport — search_spec / get_governance_rule /
                      #   get_conformance_vectors / get_section / get_hash_preimage / corpus_info
   atlas_manifest.py  # Atlas registration (read-only)
@@ -31,13 +31,13 @@ are **separate extras**, so the web head deploys without the MCP SDK and vice-ve
 
 The open docs are copied into the package (`src/astp_docs_server/corpus/open/`) by
 `scripts/vendor_corpus.py`, and ship in the wheel/image — so a built server is
-**self-contained** (no sibling `ariadne-protocol` checkout at runtime). Corpus
+**self-contained** (no sibling protocol checkout at runtime). Corpus
 resolution precedence: explicit arg → `ARIADNE_PROTOCOL_DIR` (dev override) →
-vendored package corpus → `~/projects/ariadne-protocol` (dev fallback).
+vendored package corpus → `~/projects/ariadne-protocol` (dev fallback; the local checkout of `scorched-earth-labs/astp`).
 
 Refresh the snapshot when the protocol docs change:
 ```bash
-python scripts/vendor_corpus.py /path/to/ariadne-protocol
+python scripts/vendor_corpus.py /path/to/astp
 ```
 
 ## Run (dev)
@@ -60,7 +60,7 @@ The web head answers with Claude by default (`ANTHROPIC_API_KEY` or an
 
 The web head containerizes — see **[DEPLOY.md](DEPLOY.md)**. Short version:
 ```bash
-python scripts/vendor_corpus.py /path/to/ariadne-protocol
+python scripts/vendor_corpus.py /path/to/astp
 docker build --build-context core=../astp-docs-core -t astp-docs-server .
 docker run -p 8080:8080 astp-docs-server
 ```

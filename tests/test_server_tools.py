@@ -66,3 +66,20 @@ def test_corpus_info_tool(r):
     # CONFORMANCE-REPRODUCIBILITY.md and this line was hard-coded to 13).
     from astp_docs_server.open_corpus import build_open_corpus_spec
     assert info["docs"] == len(build_open_corpus_spec().docs) >= 13
+
+
+def test_get_test_vectors_returns_the_vendored_file_with_its_digest():
+    """The vector file is served verbatim, parsed, with the path and SHA-256 an
+    adopter cites, and the newest version is the default."""
+    from astp_docs_server.open_corpus import load_test_vectors, list_test_vector_files
+
+    files = list_test_vector_files()
+    if not files:
+        pytest.skip("no vendored test vectors (run scripts/vendor_corpus.py)")
+    out = load_test_vectors()
+    assert out["path"].startswith("vectors/") and out["path"].endswith("seal-constructions.json")
+    assert len(out["sha256"]) == 64 and out["version"] in out["available_versions"]
+    v = out["vectors"]
+    assert "episode_root_v2" in v and "witness_and_anchor_v2" in v and "audit_records_v2" in v
+    with pytest.raises(FileNotFoundError, match="available"):
+        load_test_vectors("0.0.1")

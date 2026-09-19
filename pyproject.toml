@@ -1,7 +1,7 @@
 [project]
 name = "astp-docs-server"
 version = "0.1.0"
-description = "Open documentation server for ASTP (Ariadne State Tree Protocol) — MCP transport for coding agents + web-chat head (Clotho-lite), over the public protocol corpus. Built on the astp-docs core."
+description = "Open documentation server for ASTP (AI State Tree Protocol) — MCP transport for coding agents + web-chat head (Clotho-lite), over the public protocol corpus. Built on the astp-docs core."
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
