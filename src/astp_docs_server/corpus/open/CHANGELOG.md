@@ -6,6 +6,11 @@ All notable changes to ASTP (the AI State Tree Protocol). Version numbering foll
 
 The next change-set queues here.
 
+### Changed (reference package 0.5.0 — the side-channel and link writers stamp the 5.0.0 content hashes)
+- `create_aside` / `close_aside` / `create_soliloquy` / `conclude_soliloquy` stamp `ASIDE:v2:`, `ASIDE_TERMINUS:v2:`, `SOLILOQUY:v2:`, `DELIBERATION_CHAIN:v2:` and `SOLILOQUY_CONCLUSION:v2:` (SPEC §19.4). The parent Segment is bound by identity **and content**, so an aside or soliloquy whose parent is not a UUID, or does not exist, is refused (a precondition refusal, `None`); the deliberation chain and an aside's produced content are hashed by the Segments' content hashes in `sequence_index` order; the merge target of a conclusion must be a UUID. `AsideSegmentNode.parent_hash` is now populated. The 4.x hash functions remain for verifying nodes already written.
+- `EpisodeLink.content_hash` is `EPISODE_LINK:v2:` (SPEC §20 →2): `write_episode_link_sync` fills the new `source_episode_root` / `target_episode_root` fields from the graph (each end's Episode root when that end is sealed) and stamps over them; the hash no longer moves with health or quarantine. `compute_episode_link_content_hash_4x` is retained for links written before 5.0.0.
+- `astp.adapters.neo4j.queries.segment_content_hashes_sync` / `content_hashes_in_sequence_order`.
+
 ### Added (reference package 0.4.0 — proofs of record)
 - **`astp.core.proof_of_record`**: the `astp-proof-of-record/1` document format (`full` / `attested` profiles), `build_proof_of_record`, `verify_proof_of_record`, and `python -m astp.core.proof_of_record verify <file>`. The verifier reproduces every root the profile allows under the seal's §5.8 identifiers and reports what it checked, what the profile withholds, and what failed; it never reports a claim it could not rebuild. Pre-4.3.0 seals (spine root only) are represented honestly.
 - **`vectors/5.0.0/seal-constructions.json`** `status` field no longer reads "DRAFT — not ratified". No value changed. As with the `-draft` suffix on `SPEC.md`, the digest the Episode of Record cites (`60e30400…`) is of the file's pre-edit bytes, by design; the values are identical.
