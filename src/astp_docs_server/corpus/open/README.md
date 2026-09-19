@@ -154,7 +154,7 @@ import astp
 
 ## Status
 
-**Alpha.** The protocol core and Neo4j reference adapter are extracted and stable. Active development continues on branching, forking, merging, and agent tool-call retrieval interfaces. The protocol specification is in `SPEC.md`.
+**5.1.0.** The protocol is ratified at 5.0.0 (Episode of Record `ce3f569c-9cdc-4a3d-913a-b9d8573d9a28`) and at 5.1.0 the reference adapter seals under `spine_algorithm_version` 2 with no feature flag and nothing swallowed. Every construction has machine-readable vectors. The protocol specification is in `SPEC.md`.
 
 The first consumer of this protocol is Ignis OS, Scorched Earth Labs' agent runtime, and integration tests for the reference adapter run there rather than in this repository. Not recommended for production use elsewhere until the first stable release.
 
@@ -173,7 +173,7 @@ Protocol amendments are ratified in a designated Episode of Record and reference
 
 **SPEC v3.1.0 (Layer 3, MINOR)** formalizes the three-Merkle-layer model and codifies Layer 3 — `WorkflowDeclaration`, `ExecutionNode`, `SkillInvocation`. Layer 3 is cryptographically isolated from Spine integrity by construction (Layer 3 nodes reference Layers 1/2 by ID only; never participate in Spine hashing), so no future Layer-3 change can force a MAJOR bump on Spine grounds. Each Layer 3 node type has a designated Cognitive Implementation Authority (CIA) — sole-writer guarantee as a wire-tier conformance principle.
 
-The SPEC integration pass landed in **v3.2.1**: this material is now normatively defined in the `SPEC.md` body (§20, §21), and each surface has a companion implementation guide and conformance-vector document (see **Specification Documents** below).
+Each feature surface (§19, §20, §21) has a companion implementation guide and conformance document, listed below. Ratification history: 4.0.0 (`458fb62b-faee-4e42-9f92-c63187c1b59a`), 5.0.0 (`ce3f569c-9cdc-4a3d-913a-b9d8573d9a28`, [`docs/RATIFICATION-5.0.0.md`](./docs/RATIFICATION-5.0.0.md)).
 
 ---
 
@@ -187,11 +187,12 @@ The protocol is one normative document (`SPEC.md`) plus, per feature surface, a 
 | Cross-Episode Linking & Grouping | §20 | [`IMPLEMENTATION-CROSS-EPISODE-LINKING.md`](./IMPLEMENTATION-CROSS-EPISODE-LINKING.md) | [`CONFORMANCE-CROSS-EPISODE-LINKING.md`](./CONFORMANCE-CROSS-EPISODE-LINKING.md) |
 | Layer 3 — Workflow & Execution DAG | §21 | [`IMPLEMENTATION-LAYER3.md`](./IMPLEMENTATION-LAYER3.md) | [`CONFORMANCE-LAYER3.md`](./CONFORMANCE-LAYER3.md) |
 | Reproducibility — spine leaf set, episode root, version identifiers | §5.6–§5.8, §9.3, G-1 | — | [`CONFORMANCE-REPRODUCIBILITY.md`](./CONFORMANCE-REPRODUCIBILITY.md) |
-| Trust Infrastructure (Phase 3) | §16 | [`IMPLEMENTATION-PHASE3.md`](./IMPLEMENTATION-PHASE3.md) | [`CONFORMANCE.md`](./CONFORMANCE.md) |
+| Trust Infrastructure — keys, anchoring, witnesses, chain proofs | §16 | [`IMPLEMENTATION-PHASE3.md`](./IMPLEMENTATION-PHASE3.md) | [`CONFORMANCE.md`](./CONFORMANCE.md) |
+| Seal constructions — encoding, leaf hash, spine, manifests, Episode root, inclusion proofs | §5, §9.2 | — | [`CONFORMANCE-REPRODUCIBILITY.md`](./CONFORMANCE-REPRODUCIBILITY.md) RP-009–011, [`vectors/5.0.0/`](./vectors/5.0.0/) |
 
 Supporting: [`VERSIONING.md`](./VERSIONING.md) (canonical version policy), [`GLOSSARY.md`](./GLOSSARY.md), [`CHANGELOG.md`](./CHANGELOG.md).
 
-Historical, retained for provenance only and not to be implemented from: [`docs/history/`](./docs/history/) — prior major-version specifications (`SPEC-v1.md`, `SPEC-v3.md`), the two former amendment documents, and the original architecture vision (`VISION.md`).
+Historical, retained for provenance only and not to be implemented from: [`docs/history/`](./docs/history/) — prior major-version specifications (`SPEC-v1.md`, `SPEC-v3.md`, `SPEC-v4.md`), the two former amendment documents, and the original architecture vision (`VISION.md`).
 
 ---
 
@@ -215,7 +216,7 @@ Apache-2.0. Copyright 2026 Scorched Earth Labs, LLC.
 
 The specification text and the code in this repository are both licensed under Apache-2.0; see [`LICENSE.txt`](./LICENSE.txt).
 
-The Apache license was chosen deliberately: it includes a patent grant clause, which matters for a protocol with novel cryptographic data structures at its core.
+The Apache license was chosen deliberately for its explicit grant terms.
 
 ---
 

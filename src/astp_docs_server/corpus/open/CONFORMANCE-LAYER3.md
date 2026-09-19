@@ -1,14 +1,16 @@
 # ASTP — Layer 3 (Workflow & Execution DAG) Conformance Test Vectors
 
-**Version:** 1.0.0
+**Version:** 1.1.0
 **Status:** Stable
 **Authors:** Scorched Earth Labs
-**Date:** 2026-07-04
-**Applies To:** SPEC.md §21 (Layer 3 — Workflow & Execution DAG), v3.2.1
+**Date:** 2026-09-19
+**Applies To:** SPEC.md §21 (Layer 3 — Workflow & Execution DAG), 5.1.0 (SPEC §21; unchanged by 5.0.0 — see the note in §1)
 
 ---
 
 ## 1. Overview
+
+> **SPEC 5.0.0 / 5.1.0 note.** Layer 3 is unchanged by 5.0.0: its byte form is governed by SPEC §21 Part III §8 and is deliberately outside the §5.1 single-encoding statement (§5.1 says so). What did change around it: the audit records Layer 3 events write are the version 2 audit record of SPEC §8; and, under the 5.1.0 adapter failure contract, a Layer 3 writer that cannot complete raises rather than returning a default.
 
 This document specifies the conformance test vectors for **Layer 3 — the Workflow & Execution DAG** of ASTP (the AI State Tree Protocol). A conforming implementation MUST pass all vectors marked **REQUIRED**. Vectors marked **RECOMMENDED** test behaviors that conforming implementations SHOULD support.
 

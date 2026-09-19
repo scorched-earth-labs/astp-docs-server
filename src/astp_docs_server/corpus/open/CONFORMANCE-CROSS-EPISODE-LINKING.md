@@ -1,14 +1,16 @@
 # ASTP — Cross-Episode Linking & Grouping Conformance Test Vectors
 
-**Version:** 1.0.0
+**Version:** 1.1.0
 **Status:** Stable
 **Authors:** Scorched Earth Labs
-**Date:** 2026-07-04
-**Applies To:** SPEC.md §20 (Cross-Episode Linking & Grouping), v3.2.1
+**Date:** 2026-09-19
+**Applies To:** SPEC.md §20 (Cross-Episode Linking & Grouping), 5.1.0 (SPEC §20 as of 5.1.0; see the note in §1)
 
 ---
 
 ## 1. Overview
+
+> **SPEC 5.0.0 / 5.1.0 note.** SPEC §20 →2 now defines `EpisodeLink.content_hash` as `EPISODE_LINK:v2:` — binding each end's Episode root when that end was sealed at link creation, the type, exact strength, every inference signal (`LINK_SIGNAL:v2:`) in order and the threshold, with health, quarantine and `created_by` **out** of the preimage (they are lifecycle and provenance, the audit chain's). The 4.x preimage this document describes, which bound `health_state` and the quarantine fields and so changed whenever a link's health did, is retained in SPEC only as the definition of links already written; the `LINK_INTEGRITY` field snapshot is the bound set. The reference writer (`stamp_content_hash` / `write_episode_link_sync`) still stamps the 4.x form as of `astp` 0.3.0; adopting the 5.0.0 form is the next adapter change. `MembershipRecord` and `ConformanceDeclaration` hashes are unchanged. The audit records these operations write are the version 2 audit record of SPEC §8 (`GENESIS` → NULL); `GroupingSystem` reserves only `ariadne_native`.
 
 This document specifies the conformance test vectors for the **Cross-Episode Linking & Grouping** feature family of ASTP (the AI State Tree Protocol; SPEC §20). A conforming implementation MUST pass all vectors marked **REQUIRED**. Vectors marked **RECOMMENDED** test behaviors that conforming implementations SHOULD support.
 

@@ -1,10 +1,10 @@
 # ASTP — Phase 3 Conformance Test Vectors
 
-**Version:** 1.0.0
-**Status:** Working Draft
+**Version:** 2.0.0
+**Status:** Stable
 **Authors:** Scorched Earth Labs
-**Date:** 2026-04-12
-**Applies To:** SPEC.md §16 (Phase 3 Trust Infrastructure). Written against SPEC v2.3.0-draft; not yet re-verified against 4.x.
+**Date:** 2026-09-19
+**Applies To:** SPEC.md 5.1.0 §16 (Trust Infrastructure), G-11–G-16. The anchor and witness vectors (§3.1, §4) are the 5.0.0 constructions (`ANCHOR_COMMITMENT:v2:`, `WITNESS_COMMITMENT:v2:`), with expected values pinned in [`vectors/5.0.0/seal-constructions.json`](./vectors/5.0.0/seal-constructions.json); the 4.x forms are retained in SPEC §16.3.2 and §16.4.2 as the definitions of records already written and are not vectors here.
 **Companion:** [CONFORMANCE-BFM.md](CONFORMANCE-BFM.md) covers SPEC §19 (Branch/Fork/Merge/Aside/Soliloquy/CoherenceFingerprint).
 
 ---
@@ -164,60 +164,35 @@ All hex values are lowercase. All string fields are UTF-8 encoded unless otherwi
 
 ## 3. Transparency Log Anchoring Vectors (§16.3)
 
-### 3.1 AnchorCommitment Construction
+### 3.1 Anchor Commitment Construction
 
-**TL-001** — AnchorCommitment Field Completeness
+Fixture (from the vector file): node `550e8400-e29b-41d4-a716-446655440000` (`episode`), workspace `ws-1`, `root` `13be960d1618ebc39541c6deec0d9c86f5ff8c4609538e8091f2644f52625ec7` with `root_version` 2, `crystallization_sequence` 7, `logical_clock` 9, `anchored_at` `2026-01-01T00:02:00.123000+00:00`.
+
+**TL-001** — Anchor Commitment Construction
 - **Class:** REQUIRED
-- **Spec Reference:** §16.3.2
-- **Description:** A conforming implementation MUST produce an `AnchorCommitment` containing exactly the protocol-specified fields and no payload internals.
-- **Inputs:**
-  ```
-  node_id: "550e8400-e29b-41d4-a716-446655440000"
-  node_type: "episode"
-  workspace_id: "ws-test-001"
-  crystallization_root: "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
-  crystallization_sequence: 42
-  logical_clock: 1000
-  wall_clock: "2026-04-12T11:00:00Z"
-  protocol_version: "2.3.0"
-  ```
+- **Spec Reference:** §16.3.2, §5.1.1
+- **Description:** `anchor_commitment = SHA3-256("ANCHOR_COMMITMENT:v2:" ‖ UUID(node_id) ‖ STRING(node_type) ‖ STRING(workspace_id) ‖ HASH(root) ‖ UINT(root_version) ‖ UINT(crystallization_sequence) ‖ UINT(logical_clock) ‖ TIMESTAMP(anchored_at))` under the canonical field encoding. `root` is the node's outermost sealed commitment — the Episode root for an Episode — and `root_version` names its construction, exactly as for the witness commitment, so a log receipt and a witness record attest the same object.
 - **Expected Output:**
   ```
-  AnchorCommitment {
-    node_id: "550e8400-e29b-41d4-a716-446655440000",
-    node_type: "episode",
-    workspace_id: "ws-test-001",
-    crystallization_root: "a1b2c3d4e5f6...",
-    crystallization_sequence: 42,
-    logical_clock: 1000,
-    wall_clock: "2026-04-12T11:00:00Z",
-    protocol_version: "2.3.0"
-  }
+  anchor_commitment: 31ed0b8b98715bbef656a67914fb7110518ed3beaf69384e149aa189e5edf04f
   ```
-- **Failure Condition:** The `AnchorCommitment` contains payload fields (segment content, agent reasoning traces, implementation-specific metadata). Payload internals in the anchor commitment violate the protocol/implementation boundary.
+- **Failure Condition:** Any other value; a commitment that varies with a `protocol_version` string or a second-truncated timestamp (the 4.x form); a commitment computed over hex text rather than the 32 raw bytes of `root`.
 
 ---
 
-**TL-002** — AnchorCommitment Excludes Payload Internals
+**TL-002** — Anchor Commitment Excludes Payload Internals
 - **Class:** REQUIRED
 - **Spec Reference:** §16.3.2, §2.5.2
-- **Description:** The `AnchorCommitment` MUST NOT contain `NodePayload` fields. The protocol anchors node structure, not node content.
-- **Test:** Given a node with a richly populated payload (e.g., an `EpisodePayload` with title, participants, segment content), the `AnchorCommitment` produced at crystallization MUST contain only the fields specified in §16.3.2.
-- **Failure Condition:** Any payload field appears in the `AnchorCommitment`. This is both a protocol surface violation and a potential privacy/confidentiality breach.
+- **Description:** The commitment is a function of exactly the eight fields above. Given a node with a richly populated payload, no payload field enters the preimage.
+- **Failure Condition:** Any payload field changes the commitment. This is both a protocol-surface violation and a confidentiality breach.
 
 ---
 
-**TL-003** — Commitment Hash Determinism
+**TL-003** — Commitment Determinism Across Implementations
 - **Class:** REQUIRED
-- **Spec Reference:** §16.3.3 (AnchorReceipt.commitment_hash)
-- **Description:** SHA3-256 of the `AnchorCommitment` MUST be deterministic — identical inputs produce identical commitment hashes across implementations and invocations.
-- **Inputs:** The `AnchorCommitment` from TL-001.
-- **Expected Output:**
-  ```
-  commitment_hash: [implementations compute and cross-verify this value]
-  ```
-- **Verification Protocol:** Two independent implementations MUST produce identical `commitment_hash` for the same `AnchorCommitment`. This requires agreement on the serialization format used as input to SHA3-256 — conforming implementations MUST use canonical JSON serialization with keys in lexicographic order and no whitespace.
-- **Failure Condition:** Two implementations produce different `commitment_hash` for identical `AnchorCommitment` inputs. This indicates a serialization disagreement — cross-architecture receipt verification will fail.
+- **Spec Reference:** §16.3.2, §5.1.1
+- **Description:** Two independent implementations produce TL-001's value from the fixture. Because the preimage is the §5.1.1 field encoding — typed, self-delimiting, one domain prefix — there is no serialization to agree on beyond the specification.
+- **Failure Condition:** Differing commitments for identical inputs.
 
 ---
 
@@ -292,159 +267,86 @@ All hex values are lowercase. All string fields are UTF-8 encoded unless otherwi
 
 ## 4. Witness Signature Vectors (§16.4)
 
-### 4.1 WitnessCommitment Construction
+Fixture (from the vector file): two records over the same node (`550e8400-e29b-41d4-a716-446655440000`, `episode`, `root` `13be960d1618ebc39541c6deec0d9c86f5ff8c4609538e8091f2644f52625ec7`, `root_version` 2, `sequence_index` 7, `logical_clock` 9, `witnessed_at` `2026-01-01T00:01:00.123000Z`), signed with the RFC 8032 §7.1 TEST 1 and TEST 2 secret keys — Ed25519 signatures are deterministic, so the signatures reproduce to the byte and the public keys are the RFC's.
 
-**WS-001** — WitnessCommitment Hash Determinism
+| | witness-1 | witness-2 |
+|---|---|---|
+| `role` / `role_detail` | `SEAL_WITNESS` / NULL | `CUSTOM` / `notary` |
+| `public_key` | `d75a980182b10ab7d54bfed3c964073a0ee172f3daa62325af021a68f707511a` | `3d4017c3e843895a92b70aa74d1b7ebc9c982ccf2ec4968cc0cd55f12af4660c` |
+| `public_key_fingerprint` | `054f341a2fa584bb0c540fbf5232fcef6f76c5d5eb6a0663bacf8ccccf0d092b` | `b4f403514003c9ce67e0c3552e21ebfde117f88a550a03f1a387bfb495c0a35d` |
+| `commitment_hash` | `7eaf9a74f7f6e83f7637cead3dbbb023b0a6c7fe56148b6833b9b3b64b63cf40` | `ab96bc7d5dce90af96a84393a332012d021830f666a4c690c92847667c3c83df` |
+| `signature` | `fd5c273e0113a5e72e381da28895e04d904c396aa08edc18cf73e90ea47552cefe7f3dd4187640de8accf378ca38025884575082aff93cecdb71b41b3e43f303` | `647e093ffe0cf8c009957093d73727a53a8cc073b9bdb51a1bc085885f7a25a3c24059887913aee7483fe4517b34c58b61ab3e0be2b5fa6341d33461cceb860d` |
+
+### 4.1 Witness Commitment Construction
+
+**WS-001** — Witness Commitment
+- **Class:** REQUIRED
+- **Spec Reference:** §16.4.2, §5.1.1
+- **Description:** `witness_commitment = SHA3-256("WITNESS_COMMITMENT:v2:" ‖ STRING(witness_id) ‖ UUID(node_id) ‖ STRING(node_type) ‖ HASH(root) ‖ UINT(root_version) ‖ UINT(sequence_index) ‖ UINT(logical_clock) ‖ TIMESTAMP(witnessed_at) ‖ STRING(role) ‖ STRING(role_detail)|NULL)`. It binds the witness and the time: two witnesses of the same root have different commitments.
+- **Expected Output:** the two `commitment_hash` values above.
+- **Failure Condition:** Any other value; a commitment that does not change when `witness_id` or `witnessed_at` changes (the 4.x form).
+
+---
+
+**WS-002** — The Commitment Binds the Outermost Sealed Commitment and Its Version
 - **Class:** REQUIRED
 - **Spec Reference:** §16.4.2
-- **Description:** The `WitnessCommitment` hash MUST be deterministic across implementations. The commitment scheme (UTF-8 fields separated by `|`, then SHA3-256) MUST be applied identically.
-- **Inputs:**
-  ```
-  node_id: "550e8400-e29b-41d4-a716-446655440000"
-  node_type: "episode"
-  spine_root: "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
-  sequence_index: 42
-  logical_clock: 1000
-  role: "REVIEWER"
-  ```
-- **Commitment Construction:**
-  ```
-  preimage = UTF-8("550e8400-e29b-41d4-a716-446655440000")
-           | UTF-8("|")
-           | UTF-8("episode")
-           | UTF-8("|")
-           | UTF-8("a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2")
-           | UTF-8("|")
-           | UTF-8("42")
-           | UTF-8("|")
-           | UTF-8("1000")
-           | UTF-8("|")
-           | UTF-8("REVIEWER")
-
-  commitment_hash = SHA3-256(preimage)
-  ```
-- **Expected Output:**
-  ```
-  commitment_hash: [implementations compute and cross-verify this value]
-  ```
-- **Verification Protocol:** Two independent conforming implementations MUST produce identical `commitment_hash` for these inputs.
-- **Failure Condition:** Different implementations produce different `commitment_hash`. This means witness records from one implementation cannot be verified by another — cross-architecture witness verification is broken.
+- **Description:** Changing `root` or `root_version` changes the commitment; an Episode root is never compared against a spine root and the mismatch called a forgery.
+- **Failure Condition:** A commitment insensitive to either.
 
 ---
 
-**WS-002** — WitnessCommitment Binds to Specific spine_root
+**WS-003** — Signature Form
 - **Class:** REQUIRED
-- **Spec Reference:** §16.4.2
-- **Description:** A witness commitment for spine_root R1 MUST be cryptographically distinct from a commitment for spine_root R2, even if all other fields are identical.
-- **Inputs:** Same as WS-001, but with two spine_root values:
-  ```
-  spine_root_1: "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
-  spine_root_2: "b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3"
-  ```
-- **Expected Output:**
-  ```
-  commitment_hash(spine_root_1) != commitment_hash(spine_root_2)
-  ```
-- **Failure Condition:** Both spine roots produce the same commitment hash. A witness signature would then be valid for any spine root, defeating the purpose of the witness record.
+- **Spec Reference:** §16.4.2, §4.6
+- **Description:** `signature = Ed25519.Sign(sk, bytes.fromhex(commitment_hash))` — over the 32 raw bytes, the same form as HITL signatures. `public_key_fingerprint = SHA3-256(public_key)`. `signature_scheme` is `ed25519`, the one registered scheme.
+- **Expected Output:** the two signatures above verify under the RFC 8032 public keys.
+- **Failure Condition:** A signature over the hex text of the commitment; a record naming an unregistered scheme treated as valid.
 
----
+### 4.2 Witness Validity and Threshold (G-12, G-11)
 
-**WS-003** — WitnessCommitment Binds to Role
+**WS-004** — Validity Is Four Executable Conditions (G-12)
 - **Class:** REQUIRED
-- **Spec Reference:** §16.4.2, §16.4.4
-- **Description:** A witness commitment for role REVIEWER MUST be cryptographically distinct from a commitment for role AUDITOR, even if all other fields are identical.
-- **Inputs:** Same as WS-001, but with two role values:
-  ```
-  role_1: "REVIEWER"
-  role_2: "AUDITOR"
-  ```
-- **Expected Output:**
-  ```
-  commitment_hash(role_1) != commitment_hash(role_2)
-  ```
-- **Failure Condition:** Both roles produce the same commitment hash. Role confusion becomes possible — a REVIEWER signature could be presented as an AUDITOR signature.
+- **Spec Reference:** G-12
+- **Description:** A record is valid iff: its commitment recomputes from its fields; `public_key_fingerprint` is SHA3-256 of `public_key`; the signature verifies under `public_key` over the raw commitment; `witness_id` is not the node's `authored_by`. A verifier reports the first condition that failed.
+- **Test:** each of the two fixture records is valid for `authored_by = "author"`; each condition, failed on its own, makes it invalid.
 
 ---
 
-### 4.2 WitnessRecord Integrity (G-12)
-
-**WS-004** — Commitment Hash Verification (G-12)
+**WS-005** — A Copied Record Is Cryptographically Invalid (G-12)
 - **Class:** REQUIRED
-- **Spec Reference:** §16.4.3, G-12
-- **Description:** A conforming implementation MUST reject a `WitnessRecord` where `commitment_hash` does not match the recomputed `WitnessCommitment` over the record's fields.
-- **Setup:** A valid `WitnessRecord` with correct `commitment_hash`.
-- **Inputs:**
-  ```
-  Variant A: WitnessRecord with correct commitment_hash (valid)
-  Variant B: WitnessRecord with commitment_hash mutated by 1 bit (tampered)
-  Variant C: WitnessRecord with spine_root field changed but commitment_hash unchanged (field/hash mismatch)
-  ```
-- **Expected Output:**
-  ```
-  Variant A: VALID
-  Variant B: INVALID — commitment_hash does not match recomputed value (G-12)
-  Variant C: INVALID — commitment_hash does not match recomputed value (G-12)
-  ```
-- **Failure Condition:** Variant B or C is accepted as valid. A non-conforming implementation that skips commitment hash verification cannot detect tampered witness records.
+- **Spec Reference:** G-12, §16.4.2
+- **Description:** witness-1's record copied under `witness_id = "someone-else"` **with its commitment recomputed for the new name** fails *signature verification*: the signature was made over a commitment that named the original witness. A copy that does not recompute the commitment fails earlier, at recomputation. Either way the copy is invalid, not merely uncounted — this is the hole the 4.x commitment left open.
+- **Failure Condition:** A copied record accepted as valid.
 
 ---
 
-**WS-005** — Invalid WitnessRecords Do Not Count Toward Threshold (G-11, G-12)
+**WS-006** — An Empty or Unverifiable Signature Is Invalid (G-12)
 - **Class:** REQUIRED
-- **Spec Reference:** G-11, G-12
-- **Description:** Invalid `WitnessRecord` entries MUST NOT count toward the `min_counter_signatures` threshold for sealing.
-- **Setup:**
-  ```
-  workspace policy: min_counter_signatures = 2 for node_type="episode"
-  WitnessRecord_1: valid (commitment_hash correct, signature valid)
-  WitnessRecord_2: invalid (commitment_hash tampered — G-12 violation)
-  WitnessRecord_3: invalid (duplicate witness_id as WitnessRecord_1 — same witness, not distinct)
-  ```
-- **Test:** Attempt to seal the node with WitnessRecord_1 + WitnessRecord_2.
-- **Expected Output:**
-  ```
-  seal_attempt: REJECTED — only 1 valid witness record with distinct witness_id (threshold requires 2)
-  ```
-- **Failure Condition:** The seal succeeds with 1 valid + 1 invalid witness record. A non-conforming implementation that counts invalid records toward the threshold allows threshold bypass.
+- **Spec Reference:** G-12
+- **Description:** A record whose `signature` is empty, or does not verify, is invalid and MUST NOT count toward any threshold. (4.x let an empty signature pass.)
 
 ---
 
-**WS-006** — Witness Threshold Requires Distinct witness_id Values (G-11)
+**WS-007** — Author-Distinctness (G-12)
+- **Class:** REQUIRED
+- **Spec Reference:** G-12
+- **Description:** A record whose `witness_id` equals the node's `authored_by` is invalid — a self-witness is not an attestation.
+
+---
+
+**WS-008** — Threshold Counts a Maximum Matching of Distinct Names and Distinct Keys (G-11)
 - **Class:** REQUIRED
 - **Spec Reference:** G-11
-- **Description:** Multiple `WitnessRecord` entries from the same `witness_id` count as ONE witness toward the threshold, regardless of how many records exist.
-- **Setup:**
-  ```
-  workspace policy: min_counter_signatures = 2
-  WitnessRecord_1: { witness_id: "agent-alpha", role: "REVIEWER", ... }  (valid)
-  WitnessRecord_2: { witness_id: "agent-alpha", role: "AUDITOR", ... }   (valid, same agent)
-  ```
-- **Test:** Attempt to seal with WitnessRecord_1 + WitnessRecord_2.
-- **Expected Output:**
-  ```
-  seal_attempt: REJECTED — only 1 distinct witness_id (threshold requires 2 distinct)
-  ```
-- **Failure Condition:** The seal succeeds. A single agent witnessing twice should not satisfy a two-witness threshold — that defeats the purpose of multi-party witness requirements.
+- **Description:** With valid records A/k₁, A/k₂ and B/k₁, the count is **2** (A/k₂ and B/k₁). A/k₁ twice counts 1; A/k₁ and A/k₂ count 1; A/k₁ and B/k₁ count 1. A greedy pass that takes A/k₁ first finds 1 for the first case and is non-conformant.
+- **Failure Condition:** Any count other than these; a count that depends on record order.
 
 ---
 
-**WS-007** — CUSTOM Role Requires role_detail
-- **Class:** RECOMMENDED
-- **Spec Reference:** §16.4.4
-- **Description:** A `WitnessRecord` with `role=CUSTOM` SHOULD include a non-empty `role_detail` field describing the implementation-defined witness semantics.
-- **Inputs:**
-  ```
-  Variant A: { role: "CUSTOM", role_detail: "consensus-quorum-v1" }  (valid)
-  Variant B: { role: "CUSTOM", role_detail: null }                   (missing detail)
-  Variant C: { role: "CUSTOM", role_detail: "" }                     (empty detail)
-  ```
-- **Expected Output:**
-  ```
-  Variant A: ACCEPTED
-  Variant B: WARNING — CUSTOM role without role_detail
-  Variant C: WARNING — CUSTOM role with empty role_detail
-  ```
-- **Note:** This is RECOMMENDED, not REQUIRED. Implementations MAY treat Variants B and C as errors. The protocol does not mandate rejection, but conforming implementations SHOULD surface the missing detail as a diagnostic.
+**WS-009** — CUSTOM Role Carries `role_detail`, and It Is Bound
+- **Class:** REQUIRED
+- **Spec Reference:** §16.4.2, §16.4.4
+- **Description:** witness-2's `CUSTOM` role has `role_detail` `notary`; changing it changes the commitment. A `CUSTOM` role with NULL `role_detail` is a different (and unhelpful) claim, not an error of form.
 
 ---
 
@@ -472,7 +374,7 @@ All hex values are lowercase. All string fields are UTF-8 encoded unless otherwi
     links: [Link_0],
     chain_root: SHA3-256(Link_0.spine_root),
     created_at: "2026-04-12T11:00:00Z",
-    protocol_version: "2.3.0"
+    protocol_version: "5.1.0"
   }
   ```
 - **Expected Output:**
@@ -697,40 +599,17 @@ The following are explicitly NOT covered by these conformance vectors:
 
 ## Appendix A: Canonical Serialization for Commitment Hashing
 
-For vectors requiring deterministic hash computation across implementations (TL-003, WS-001), the following canonical serialization MUST be used:
+Every commitment in this document is built with the canonical field encoding of SPEC §5.1.1: one domain prefix, then each field as a one-byte type tag and its payload. There is no JSON, no delimiter and no textual rendering of a number or a hash anywhere in a preimage; a hash enters as its 32 raw bytes and a timestamp as UTC milliseconds. The reference tests reproduce every vector here with `hashlib` and a from-prose encoder that imports nothing from the `astp` package (`tests/conformance/test_witness_anchor_v2_vectors.py`).
 
-**AnchorCommitment serialization:** JSON with keys in lexicographic order, no whitespace, datetime fields in ISO 8601 UTC format (`YYYY-MM-DDTHH:MM:SSZ`), integer fields as JSON numbers.
-
-**WitnessCommitment serialization:** Pipe-delimited UTF-8 string as specified in §16.4.2. Field order is fixed: `node_id|node_type|spine_root|sequence_index|logical_clock|role`. Integer fields are serialized as their decimal string representation.
-
-These serialization rules are protocol-mandatory for commitment hashing. Implementations that use different serialization (e.g., protobuf, CBOR, whitespace-formatted JSON) will produce non-matching commitment hashes and fail cross-architecture verification.
+The 4.x serializations (sorted JSON for the anchor commitment; pipe-delimited UTF-8 for the witness commitment) remain the definitions of records written under 4.x (SPEC §16.3.2, §16.4.2) and are not used for new records.
 
 ---
 
-## Appendix B: Reference Test Node
+## Appendix B: Reference Fixture
 
-The following `CognitiveNode` is used as the reference node across multiple test vectors:
-
-```
-node_id:          "550e8400-e29b-41d4-a716-446655440000"
-node_type:        "episode"
-schema_version:   "2.0.0"
-sequence_index:   42
-tree_leaf_index:  7
-content_hash:     "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
-authored_by:      "agent-test-001"
-created_at:       "2026-04-12T10:00:00Z"
-sealed_at:        "2026-04-12T11:00:00Z"
-parent_node_id:   null
-workspace_id:     "ws-test-001"
-```
-
-The leaf hash for this reference node (computed per §5.2) is:
-```
-leaf_hash: [implementations compute and cross-verify per KH-006 protocol]
-```
+The reference fixture for the anchor and witness vectors is the one the vector file uses throughout: Episode `550e8400-e29b-41d4-a716-446655440000`, seven Segments with fixed `node_id`s `00000000-0000-4000-8000-00000000000i` and `content_hash = SHA3-256("leaf-i")`, `schema_version` `1.2.0`, parent the Episode. Its `hash_version` 2 leaf hashes, `spine_algorithm_version` 2 spine root, manifests and Episode root are pinned in `vectors/5.0.0/seal-constructions.json` and in [`CONFORMANCE-REPRODUCIBILITY.md`](./CONFORMANCE-REPRODUCIBILITY.md) RP-009–RP-011. Fixed `node_id`s are for reproducibility only; real `node_id`s MUST be random (SPEC §5.2).
 
 ---
 
 *ASTP Conformance Test Vectors are maintained by Scorched Earth Labs.*
-*Vector set version: 1.0.0 | Written against SPEC.md v2.3.0-draft; not yet re-verified against 4.x*
+*Vector set version: 2.0.0 | Written against SPEC.md 5.1.0*

@@ -1,14 +1,16 @@
 # ASTP — Cross-Episode Linking & Grouping Implementation Guide
 
-**Version:** 1.0.0
+**Version:** 1.1.0
 **Status:** Stable
 **Authors:** Scorched Earth Labs
-**Date:** 2026-07-04
-**Applies To:** SPEC.md §20 (Cross-Episode Linking & Grouping), v3.2.1
+**Date:** 2026-09-19
+**Applies To:** SPEC.md §20 (Cross-Episode Linking & Grouping), 5.1.0 (SPEC §20 as of 5.1.0; see the note in §1)
 
 ---
 
 ## 1. Purpose and Relationship to SPEC.md
+
+> **SPEC 5.0.0 / 5.1.0 note.** SPEC §20 →2 now defines `EpisodeLink.content_hash` as `EPISODE_LINK:v2:` — binding each end's Episode root when that end was sealed at link creation, the type, exact strength, every inference signal (`LINK_SIGNAL:v2:`) in order and the threshold, with health, quarantine and `created_by` **out** of the preimage (they are lifecycle and provenance, the audit chain's). The 4.x preimage this document describes, which bound `health_state` and the quarantine fields and so changed whenever a link's health did, is retained in SPEC only as the definition of links already written; the `LINK_INTEGRITY` field snapshot is the bound set. The reference writer (`stamp_content_hash` / `write_episode_link_sync`) still stamps the 4.x form as of `astp` 0.3.0; adopting the 5.0.0 form is the next adapter change. `MembershipRecord` and `ConformanceDeclaration` hashes are unchanged. The audit records these operations write are the version 2 audit record of SPEC §8 (`GENESIS` → NULL); `GroupingSystem` reserves only `ariadne_native`.
 
 SPEC §20 defines the protocol surface of **Cross-Episode Linking & Grouping** — how Episodes connect across time (`EpisodeLink`) and how they aggregate into external groupings (`MembershipRecord`, `ConformanceDeclaration`). §20's internal §1–§12 numbering is the original Amendment v2.0 scheme, scoped within §20; this document cites it as `§20 →N` (e.g. `§20 →2`, `§20 →11.1`). SPEC §20 is normative: it fixes the schemas, the hash preimages, the link-type taxonomy, the health/quarantine state machine, and the three-tier conformance boundary. This document describes **how Scorched Earth Labs implemented that surface** against the Neo4j reference adapter. It is not normative: another adapter (Postgres, DynamoDB, a document store) may differ in storage layout while remaining spec-conforming.
 
@@ -285,9 +287,9 @@ Declaration audit events anchor to a **synthetic chain key** `declaration:{group
 All §20 operation-layer functions advance a tamper-evident audit chain via `astp/core/audit_chain.py`:
 
 - `next_delta_sequence(driver, chain_key)` → next monotonic per-chain sequence (1 for empty; per §20 →11.5.3 sequences are within-Episode completeness proof, never cross-Episode ordering).
-- `prior_audit_hash(driver, chain_key)` → hash of the most recent record on the chain, or `GENESIS_HASH` (`"GENESIS"`) if empty.
+- `prior_audit_hash(driver, chain_key)` → hash of the most recent record on the chain (the 4.x helpers return the text `"GENESIS"` for an empty chain; a version 2 audit record carries NULL).
 
-Both fall through to a benign default on a transient query error (sequence 1 / GENESIS) rather than blocking the operation — a spurious mid-chain GENESIS shows up as a hash mismatch at the next record, so the failure is auditable, not silent. The chain key is an `episode_id` for link / membership events and the synthetic `declaration:...` key for declaration events; it flows to `AriadneAuditRecord.episode_id` as the indexed lookup field.
+Since astp 0.3.0 both **raise** `AdapterWriteError` on a store failure rather than falling through to a default: a writer that cannot read the chain head must not guess a sequence or a prior hash (SPEC §8.2), because a guessed GENESIS mid-chain forges a chain restart. The operation that needed the record fails; the host decides whether to retry.
 
 `AuditRecord.record_hash` is computed by `compute_audit_record_hash(audit_id, delta_sequence, delta_type, agent_id, wall_clock_time.isoformat(), json.dumps(forward_delta, default=str, sort_keys=True), prior_audit_hash)` — note the forward-delta serialization here uses `sort_keys=True` (audit-chain convention), distinct from the `sort_keys=False` content-hash canonicalizer of §3.
 

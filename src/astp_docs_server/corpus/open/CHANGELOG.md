@@ -6,6 +6,24 @@ All notable changes to ASTP (the AI State Tree Protocol). Version numbering foll
 
 The next change-set queues here.
 
+## [5.1.0] — 2026-09-19
+
+**MINOR.** The reference adapter's failure contract, and the implementation consequences 5.0.0 carried to the adapter work (§19 of the amendment draft). No canonical form changes; every 5.0.0 seal and every 4.x seal is untouched.
+
+### Changed
+- **§15 item 7 restated as a contract.** A writer or reader that cannot complete raises a typed error, chained to the store's; it never returns a default, logs and continues, or gates itself on a feature flag. Whether to call the adapter is the host's decision.
+
+### Reference package (`astp` 0.3.0)
+- **No feature flag.** `ARIADNE_ENABLED` and `_ariadne_guard` are gone — 121 flag guards removed across the Neo4j adapter and `core.wil`. A host that ran with the flag off now decides, at its own boundary, whether to call the adapter.
+- **Nothing swallowed.** Every `except Exception` in the adapter and operation modules raises `AdapterWriteError` (store failure) or `BranchOperationError` (an operation that failed after it began), chained; `AriadneProtocolError` subclasses pass through unwrapped. `next_delta_sequence` / `prior_audit_hash` refuse to guess a chain head (§8.2) instead of restarting at `GENESIS`; `_write_branch_wil` raises, so a `COMPLETE` entry is never ledgered for a write that did not happen (G-39). Precondition refusals in `branch_operations` still return `None` after logging, so a caller can tell *refused* from *failed*. A structural test guards both properties over the source.
+- **`ESCALATED` is terminal in the resolution writer** (`hitl_terminal_status`): an escalation is recorded as `escalated`, never `resolved` (§4.6, §5.7.1).
+- **G-40 write boundary:** `require_episode_uuid` / `EpisodeIdentifierError`; `create_episode_node` refuses a non-UUID identifier. A legacy Episode is still read and sealed under version 1 (`episode_ref`, 5.0.0 #50).
+- **`SealNode.countersignature`** replaces `mnemosyne_countersignature` (the 4.x name is accepted on input and readable as a property; the graph property keeps its stored name). **`GroupingSystem`** keeps only `ariadne_native` — vendors are named by their `ConformanceDeclaration`.
+- **The seal, as a runtime computes it:** `astp.core.seal_v2.compute_episode_seal_v2(episode_id, segments, …) → SealV2` seals under `spine_algorithm_version` 2 from the six stored fields of each Segment and returns the roots *with the identifiers that name the construction*, so a delta is stamped from the result and never from a module constant; `reproduce_episode_root(spine_algorithm_version=…)` rebuilds an Episode root under whichever version a seal record names. `SPINE_ALGORITHM_VERSION_CURRENT` stays `1` until the reference deployment's seal path adopts `compute_episode_seal_v2` (paired ignis-os change); flipping the constant first would stamp version-2 identifiers on version-1 roots.
+
+### Cutover (reference deployment)
+Paired with ignis-os: drop the `_ariadne_guard` imports; route the crystallize handler through `compute_episode_seal_v2` and the verifier through `reproduce_episode_root`; enforce `require_episode_uuid` at `POST /api/episodes`; handle `AdapterWriteError` / `BranchOperationError` at the call sites that previously relied on `None`. Pull the protocol checkout only together with that change.
+
 ## [5.0.0] — 2026-09-18
 
 **MAJOR.** Every hash construction of the 4.x line is replaced by a **new versioned construction**, and every rule written for a human reader is restated as one a verifier can execute against stored state. The discipline the constructions now share, and the reason this version exists: **every commitment binds exactly its claim, and every rule is executable against stored state.** No sealed record becomes unverifiable: the 4.x constructions are retained in `SPEC.md` as the definitions of `hash_version` 1 and `spine_algorithm_version` 0 and 1, selected by the §5.8 identifiers, and the retained text is the 4.5.0 text. Deliberated and ruled, unit by unit, in design Episode `4b9a779e-be46-4d61-872e-fd76545aa901`; the amendment draft from which this text was folded is retained at [`docs/history/SPEC-5.0.0-DRAFT-seal-constructions.md`](./docs/history/SPEC-5.0.0-DRAFT-seal-constructions.md). **Episode of Record:** `ce3f569c-9cdc-4a3d-913a-b9d8573d9a28`, sealed 2026-09-18 under `spine_algorithm_version` 1, `episode_root_hash` `3649bff4b96a17c99bb108ec23f4e6f8e41a455d9d38c98d6f32111800afe48a`; it ratifies `SPEC.md` at `44f764e` by content digest (`c2e13d0ee60f7db95d185ec2f8079d38c9f087f7168a3b613aada6bc0a6b8a8d`, the `-draft`-suffixed bytes — the suffix was stripped in this release commit, after the seal, with no normative change).

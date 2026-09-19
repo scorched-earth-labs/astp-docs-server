@@ -1,14 +1,16 @@
 # ASTP — Layer 3 (Workflow & Execution DAG) Implementation Guide
 
-**Version:** 1.0.0
+**Version:** 1.1.0
 **Status:** Stable
 **Authors:** Scorched Earth Labs
-**Date:** 2026-07-04
-**Applies To:** SPEC.md §21 (Layer 3 — Workflow & Execution DAG), v3.2.1
+**Date:** 2026-09-19
+**Applies To:** SPEC.md §21 (Layer 3 — Workflow & Execution DAG), 5.1.0 (SPEC §21; unchanged by 5.0.0 — see the note in §1)
 
 ---
 
 ## 1. Purpose and Relationship to SPEC.md
+
+> **SPEC 5.0.0 / 5.1.0 note.** Layer 3 is unchanged by 5.0.0: its byte form is governed by SPEC §21 Part III §8 and is deliberately outside the §5.1 single-encoding statement (§5.1 says so). What did change around it: the audit records Layer 3 events write are the version 2 audit record of SPEC §8; and, under the 5.1.0 adapter failure contract, a Layer 3 writer that cannot complete raises rather than returning a default.
 
 SPEC §21 defines the protocol surface of **Layer 3 — the Workflow & Execution DAG**: the forensic provenance record of *how* an Episode's cognition was carried out — which autonomous workflows were declared, which discrete execution steps ran, which skills were invoked, and where execution failed. It is the third cryptographic layer, cryptographically **isolated** from the Merkle Spine (Layers 1/2): it references them by `node_id` only and never participates in Spine hashing. This document describes **how Scorched Earth Labs implemented that surface** — the `astp.core.workflow_execution` protocol-type module and the reference storage adapter in Ignis OS (Scorched Earth Labs' agent runtime, the first consumer of this protocol). It is not normative: another adapter (relational, document, graph) may differ in storage layout while remaining spec-conforming.
 
@@ -267,7 +269,7 @@ Edge types: the seven of §6.1. Indexes: the eight of §6.2. All storage form is
 
 ## 9. Test Layout and Coverage
 
-All Layer 3 protocol vectors run under `ARIADNE_ENABLED=true` against the pure-Python schema types (no live adapter — the reference adapter is exercised in the Ignis OS repo).
+All Layer 3 protocol vectors run against the pure-Python schema types (no live adapter — the reference adapter is exercised in the Ignis OS repo).
 
 | File | Focus |
 |------|-------|
