@@ -89,7 +89,7 @@ A **human-in-the-loop decision gate** as a first-class node. Two-phase lifecycle
 
 ### AttachmentNode
 
-External content injected into an Episode's context — a file, an image, a transcript, a fetched page — recorded so the injection is verifiable afterwards. The protocol's concern is narrow: the reasoning was influenced by identifiable bytes, and those bytes are hash-bound. SPEC §4.7.
+External content injected into an Episode's context — a file, an image, a transcript, a fetched page — recorded so the injection is verifiable afterwards. The protocol's concern is narrow: the reasoning was influenced by identifiable bytes, and those bytes are hash-bound. Substitution of the bytes is detectable; the node is not a member of any Episode root component, so no seal detects its addition or removal after the fact. SPEC §4.7.
 
 ### CrystallizationDeltaNode
 
@@ -465,7 +465,7 @@ No field of any Layer 3 node or edge appears in the preimage of any Layer 1 or 2
 
 ## 16. Adapter and Conformance
 
-### AriadneAdapter / ASI
+### ASTPAdapter / ASI
 
 The abstract contract (the **Adapter Service Interface**) any storage backend implements to serve as an ASTP adapter: writing nodes, querying, computing hashes, WIL recovery. `astp/adapters/base.py`; SPEC §2, §15.
 
@@ -475,7 +475,7 @@ SPEC §15 item 7 as restated in 5.1.0: a writer or reader that cannot complete *
 
 ### Reference Implementation
 
-The Neo4j adapter in `astp/adapters/neo4j/`: the worked example of a conforming adapter and the ground truth for the vectors. Its graph labels keep the `Ariadne*` prefix and its HKDF `info` strings the `ariadne.` prefix — wire constants that feed derived keys or name stored data and are not renamed with the package.
+`astp.adapters.memory.InMemoryStore`: both adapter contracts over plain dicts — the worked example of a conforming implementation, and the store the protocol's own operations tests run against. The vectors' expected digests are pinned in `vectors/` and computed by the protocol modules, not by any store. A deployment's adapter (the reference deployment's is a graph database, with its own guides and guarded wire constants) lives with that deployment.
 
 ### Conformance Test Vectors
 
@@ -516,7 +516,7 @@ A normative change, taken through the process in `GOVERNANCE.md` (proposal → d
 - **Adapter Failure Contract** — §16
 - **Amendment** — §17
 - **Anchor Commitment / Receipt** — §13
-- **AriadneAdapter / ASI** — §16
+- **ASTPAdapter / ASI** — §16
 - **Aside** — §11
 - **AttachmentNode** — §2
 - **Audit Record** — §9

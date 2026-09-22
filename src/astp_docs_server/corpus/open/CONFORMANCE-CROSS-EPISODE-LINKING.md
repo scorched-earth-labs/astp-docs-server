@@ -10,13 +10,13 @@
 
 ## 1. Overview
 
-> **SPEC 5.0.0 / 5.1.0 note.** SPEC §20 →2 now defines `EpisodeLink.content_hash` as `EPISODE_LINK:v2:` — binding each end's Episode root when that end was sealed at link creation, the type, exact strength, every inference signal (`LINK_SIGNAL:v2:`) in order and the threshold, with health, quarantine and `created_by` **out** of the preimage (they are lifecycle and provenance, the audit chain's). The 4.x preimage this document describes, which bound `health_state` and the quarantine fields and so changed whenever a link's health did, is retained in SPEC only as the definition of links already written; the `LINK_INTEGRITY` field snapshot is the bound set. The reference writer (`write_episode_link_sync`) fills `source_episode_root` / `target_episode_root` from the graph and stamps the 5.0.0 form from `astp` 0.5.0; links written before that carry the 4.x form this document describes (`compute_episode_link_content_hash_4x`). `MembershipRecord` and `ConformanceDeclaration` hashes are unchanged. The audit records these operations write are the version 2 audit record of SPEC §8 (`GENESIS` → NULL); `GroupingSystem` reserves only `ariadne_native`.
+> **SPEC 5.0.0 / 5.1.0 note.** SPEC §20 →2 now defines `EpisodeLink.content_hash` as `EPISODE_LINK:v2:` — binding each end's Episode root when that end was sealed at link creation, the type, exact strength, every inference signal (`LINK_SIGNAL:v2:`) in order and the threshold, with health, quarantine and `created_by` **out** of the preimage (they are lifecycle and provenance, the audit chain's). The 4.x preimage this document describes, which bound `health_state` and the quarantine fields and so changed whenever a link's health did, is retained in SPEC only as the definition of links already written; the `LINK_INTEGRITY` field snapshot is the bound set. The reference writer (`write_episode_link_sync`) fills `source_episode_root` / `target_episode_root` from the graph and stamps the 5.0.0 form from `astp` 0.5.0; links written before that carry the 4.x form this document describes (`compute_episode_link_content_hash_4x`). `MembershipRecord` and `ConformanceDeclaration` hashes are unchanged. The audit records these operations write are the version 2 audit record of SPEC §8 (`GENESIS` → NULL); `GroupingSystem` reserves only the protocol's own value — `astp_native` from astp 0.6.0, with `ariadne_native` retained as the value carried by records written before it (`group_system` is in the MembershipRecord preimage).
 
 This document specifies the conformance test vectors for the **Cross-Episode Linking & Grouping** feature family of ASTP (the AI State Tree Protocol; SPEC §20). A conforming implementation MUST pass all vectors marked **REQUIRED**. Vectors marked **RECOMMENDED** test behaviors that conforming implementations SHOULD support.
 
 These are **cross-implementation-consistency** vectors, not hardcoded golden-hash values. A hash vector specifies the canonical byte layout (ordered field set + canonicalization rules) and asserts that **two conforming implementations MUST produce identical bytes for the same input tuple**. This is wire-tier conformance (§20 →12.1): the protocol fixes the preimage, not a specific digest. Where a vector references SPEC §20, it uses the amendment's internal §1–§12 numbering scoped within §20 (cited as `§20 →N`).
 
-Cross-Episode Linking & Grouping is organized into the following scopes, matching `IMPLEMENTATION-CROSS-EPISODE-LINKING.md`:
+Cross-Episode Linking & Grouping is organized into the following scopes (the reference deployment's adapter guide, `IMPLEMENTATION-CROSS-EPISODE-LINKING.md`, which lives with that adapter, follows the same order):
 
 | Scope | Coverage | Vector Prefix |
 |-------|----------|---------------|
@@ -37,7 +37,7 @@ All hex values lowercase. All string fields UTF-8. Datetimes UTC-normalized ISO 
 ### 2.1 Hash Canonicalization
 
 **CEL-001** — `EpisodeLink` content hash
-- **Class:** REQUIRED
+- **Class:** REQUIRED — *4.x form, for links written before astp 0.5.0; the 5.0.0 construction is `EPISODE_LINK:v2:` over the §5.1.1 field encoding (SPEC §20 →2)*
 - **Spec Reference:** §20 →2 (hash preimage note)
 - **Description:** `compute_episode_link_content_hash()` MUST produce identical bytes across implementations given identical inputs. The canonical layout is the ordered field set, serialized as a JSON object with `sort_keys=False` and `separators=(",",":")`, then SHA3-256. Field order (from `_HASH_PREIMAGE_FIELDS`): `link_id`, `source_episode`, `target_episode`, `created_at`, `created_by`, `link_type`, `link_strength`, `is_inferred`, `inference_signals`, `inference_threshold`, `retroactive`, `health_state`, `health_checked_at`, `source_version`, `target_version`, `quarantine_reason`, `quarantined_at`.
 - **Verification Protocol:** Cross-implementation consistency check. Two conforming implementations MUST produce identical `content_hash` bytes for the same input tuple.
@@ -50,7 +50,7 @@ All hex values lowercase. All string fields UTF-8. Datetimes UTC-normalized ISO 
 - **Failure Condition:** A link's `content_hash` changes when only `quarantine_resolved_at` / `quarantine_resolution` are set — the resolution lifecycle is committed by the audit log, not the content hash.
 
 **CEL-003** — Health-state field inclusion
-- **Class:** REQUIRED
+- **Class:** REQUIRED — *4.x form only; under `EPISODE_LINK:v2:` (SPEC §20 →2) `health_state` and `health_checked_at` are OUT of the preimage and re-stamping after a health transition MUST NOT change `content_hash`*
 - **Spec Reference:** §20 →2, §20 →11.2.2 (`LINK_INTEGRITY` field snapshot)
 - **Description:** Mutable health fields `health_state` and `health_checked_at` ARE part of the preimage (drift detection is cryptographically anchored to write-time state). The `LINK_INTEGRITY` proof's `field_snapshot` MUST cover exactly the CEL-001 field set. Re-stamping after a health transition MUST yield a new, deterministic hash.
 - **Verification Protocol:** Recompute over stored canonical fields; MUST equal stored `content_hash`.
@@ -248,7 +248,7 @@ Signal-combination algorithm, embedding-model selection, threshold-calibration s
 ## 9. Cross-Reference
 
 - **SPEC.md §20** — normative protocol surface (v3.2.1); internal §1–§12 numbering cited as `§20 →N`.
-- **IMPLEMENTATION-CROSS-EPISODE-LINKING.md** — Neo4j reference adapter (non-normative).
+- **IMPLEMENTATION-CROSS-EPISODE-LINKING.md** — the reference deployment's adapter guide (non-normative; shipped with that adapter, not with the protocol).
 - **CONFORMANCE-BFM.md** — sibling BFM vector set (SPEC §19); shares the cross-implementation-consistency vector format.
 - **`astp/core/hash_canonical.py`** — the shared canonicalizer that every `CEL-`/`MR-`/`CD-` hash vector references.
 

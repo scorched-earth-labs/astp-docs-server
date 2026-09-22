@@ -24,15 +24,17 @@ produces non-conforming adapters).
 
 ## Normative documents (open corpus)
 
-- SPEC.md — the canonical protocol specification, 5.1.0 (§1–§22; governance G-1..G-40)
+- SPEC.md — the canonical protocol specification, 5.2.0 (§1–§22; governance G-1..G-40)
 - CONFORMANCE-REPRODUCIBILITY.md — seal constructions and reproducibility (RP-*), with vectors/5.0.0/seal-constructions.json
 - GLOSSARY.md — every term, reconciled with the SPEC
 - GOVERNANCE.md / VERSIONING.md — how the protocol changes; Episodes of Record
 - docs/RATIFICATION-5.0.0.md — the 5.0.0 Episode of Record statement
-- IMPLEMENTATION-BFM.md / CONFORMANCE-BFM.md — branch/fork/merge
-- IMPLEMENTATION-CROSS-EPISODE-LINKING.md / CONFORMANCE-CROSS-EPISODE-LINKING.md — §20
-- IMPLEMENTATION-LAYER3.md / CONFORMANCE-LAYER3.md — §21 Workflow & Execution DAG
+- CONFORMANCE-BFM.md — §19 branch/fork/merge, asides, soliloquies
+- CONFORMANCE-CROSS-EPISODE-LINKING.md — §20 cross-episode linking and grouping
+- CONFORMANCE-LAYER3.md — §21 Workflow & Execution DAG
 - IMPLEMENTATION-PHASE3.md / CONFORMANCE.md — §16 trust infrastructure (keys, anchoring, witnesses, chain proofs)
+
+The protocol names storage roles, not providers (SPEC §12.1). Storage-layout guides for §19–§21 are a deployment's, not the protocol's, and ship with the reference deployment's adapter rather than in this corpus.
 - GLOSSARY.md, CHANGELOG.md, VERSIONING.md
 
 ## Optional

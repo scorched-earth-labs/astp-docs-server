@@ -47,5 +47,6 @@ Read SPEC §2 (terminology and the protocol/implementation boundary), §3
 root), §6 (governance), §8 (audit chain), §9 (verification). Then the surface
 you need: §16 trust infrastructure, §19 branch/fork/merge and the side
 channels, §20 cross-episode linking and grouping, §21 the Layer 3 DAG. Each has
-an IMPLEMENTATION-*.md and CONFORMANCE-*.md companion; `GLOSSARY.md` defines
+a CONFORMANCE-*.md companion (§16 also an IMPLEMENTATION-PHASE3.md; the storage-layout
+guides for §19–§21 ship with the reference deployment's adapter, not here); `GLOSSARY.md` defines
 every term; `GOVERNANCE.md` and `VERSIONING.md` say how the protocol changes.

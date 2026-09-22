@@ -65,7 +65,9 @@ def test_corpus_info_tool(r):
     # Derived, not restated: the corpus grows with the spec (4.3.0 added
     # CONFORMANCE-REPRODUCIBILITY.md and this line was hard-coded to 13).
     from astp_docs_server.open_corpus import build_open_corpus_spec
-    assert info["docs"] == len(build_open_corpus_spec().docs) >= 13
+    # 12 docs since astp 1.0.0: the three storage-adapter guides left the protocol
+    # repository with the adapter (a deployment's, not the protocol's).
+    assert info["docs"] == len(build_open_corpus_spec().docs) >= 12
 
 
 def test_get_test_vectors_returns_the_vendored_file_with_its_digest():
