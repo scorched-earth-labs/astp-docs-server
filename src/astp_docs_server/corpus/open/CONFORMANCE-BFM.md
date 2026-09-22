@@ -10,11 +10,11 @@
 
 ## 1. Overview
 
-> **SPEC 5.0.0 / 5.1.0 note.** Two things changed above this document and are stated here so it is not read as current on them. (1) **Seals commit structural nodes.** Under `spine_algorithm_version` 2 a BranchPoint, BranchTerminus, ForkPoint, DepartureForkPoint, ForkReturn, MergePoint and every concluded HITL event is a *structural-manifest member* (SPEC §5.7.1), hashed from its **stored fields** under its own `:v2:` prefix by the canonical field encoding of §5.1.1 — provenance and commentary fields (`initiated_by`, `initiator`, `returned_by`, labels, summaries) are out of those preimages, `spine_merkle_snapshot` and `merge_type` are in, and `GENESIS` is NULL. Those member hashes are pinned in [`vectors/5.0.0/seal-constructions.json`](./vectors/5.0.0/seal-constructions.json) and computed by `astp/core/seal_v2.py`; the reader is `astp/adapters/neo4j/seal_inputs.py`. The 4.x `content_hash` values this document describes are still what the reference writers stamp on the nodes; they are not what a version 2 seal commits. (2) **Asides and soliloquies.** SPEC §19.4 now defines their content hashes as `ASIDE:v2:`, `ASIDE_TERMINUS:v2:`, `SOLILOQUY:v2:`, `DELIBERATION_CHAIN:v2:` (over the deliberation Segments' content hashes, in order) and `SOLILOQUY_CONCLUSION:v2:`, with the 4.x forms — including the two-policy `SoliloquyContentHashPolicy` — retained only as the definitions of nodes already written. The reference writers (`create_aside`, `close_aside`, `create_soliloquy`, `conclude_soliloquy`) stamp the 5.0.0 forms from `astp` 0.5.0; nodes written before that carry the 4.x forms this document describes. The `FINGERPRINT:` prefix is retired: a coherence fingerprint has no content hash (§19.5.1).
+> **SPEC 5.0.0 / 5.1.0 note.** Two things changed above this document and are stated here so it is not read as current on them. (1) **Seals commit structural nodes.** Under `spine_algorithm_version` 2 a BranchPoint, BranchTerminus, ForkPoint, DepartureForkPoint, ForkReturn, MergePoint and every concluded HITL event is a *structural-manifest member* (SPEC §5.7.1), hashed from its **stored fields** under its own `:v2:` prefix by the canonical field encoding of §5.1.1 — provenance and commentary fields (`initiated_by`, `initiator`, `returned_by`, labels, summaries) are out of those preimages, `spine_merkle_snapshot` and `merge_type` are in, and `GENESIS` is NULL. Those member hashes are pinned in [`vectors/5.0.0/seal-constructions.json`](./vectors/5.0.0/seal-constructions.json) and computed by `astp/core/seal_v2.py`; the reference deployment's adapter supplies the reader. The 4.x `content_hash` values this document describes are still what the reference writers stamp on the nodes; they are not what a version 2 seal commits. (2) **Asides and soliloquies.** SPEC §19.4 now defines their content hashes as `ASIDE:v2:`, `ASIDE_TERMINUS:v2:`, `SOLILOQUY:v2:`, `DELIBERATION_CHAIN:v2:` (over the deliberation Segments' content hashes, in order) and `SOLILOQUY_CONCLUSION:v2:`, with the 4.x forms — including the two-policy `SoliloquyContentHashPolicy` — retained only as the definitions of nodes already written. The reference writers (`create_aside`, `close_aside`, `create_soliloquy`, `conclude_soliloquy`) stamp the 5.0.0 forms from `astp` 0.5.0; nodes written before that carry the 4.x forms this document describes. The `FINGERPRINT:` prefix is retired: a coherence fingerprint has no content hash (§19.5.1).
 
 This document specifies the conformance test vectors for the Branch/Fork/Merge (BFM) feature family of ASTP (the AI State Tree Protocol). A conforming implementation MUST pass all vectors marked **REQUIRED**. Vectors marked **RECOMMENDED** test behaviors that conforming implementations SHOULD support.
 
-BFM is organized into the following phases, matching `IMPLEMENTATION-BFM.md`:
+BFM is organized into the following phases (the reference deployment's adapter guide, `IMPLEMENTATION-BFM.md`, which lives with that adapter, follows the same order):
 
 | Phase | Scope | Vector Prefix |
 |-------|-------|---------------|
@@ -61,7 +61,7 @@ Vector format matches `CONFORMANCE.md` (Phase 3 Trust Infrastructure §16): ID, 
 
 ### 2.2 Governance Enforcement
 
-> Branch-phase governance below is enforced at the implementation layer (`IMPLEMENTATION-BFM.md` §3.2); the current SPEC §19 defines no numbered branch-phase governance rule. Numbered SPEC governance begins at G-19 (fork).
+> Branch-phase governance below is enforced at the implementation layer (the reference adapter's guide, `IMPLEMENTATION-BFM.md` §3.2, shipped with that adapter); the current SPEC §19 defines no numbered branch-phase governance rule. Numbered SPEC governance begins at G-19 (fork).
 
 **BR-005** — Branch depth limit
 - **Class:** REQUIRED
@@ -137,7 +137,7 @@ Vector format matches `CONFORMANCE.md` (Phase 3 Trust Infrastructure §16): ID, 
 
 ## 4. Phase D — Departure-Fork Vectors (§19.3.5–19.3.6)
 
-A departure fork is a single directional departure (`create_departure_fork()`) into a new Episode while the origin *continues* — distinct from the speculative fork of §3. See `IMPLEMENTATION-BFM.md` §5.
+A departure fork is a single directional departure (`create_departure_fork()`) into a new Episode while the origin *continues* — distinct from the speculative fork of §3. (The reference adapter's guide, `IMPLEMENTATION-BFM.md` §5, describes one storage layout.)
 
 ### 4.1 Hash Canonicalization
 
@@ -296,12 +296,12 @@ These vectors test the *shape of a conformant recovery*, not that an implementat
 **SL-002** — Deliberation chain hash
 - **Class:** REQUIRED
 - **Spec Reference:** §19.4.2
-- **Description:** `compute_deliberation_chain_hash()` (domain `DELIBERATION_CHAIN:`) binds each soliloquy segment to its predecessor via a rolling hash chain. Tampering with any intermediate segment MUST be detectable by recomputing the chain and comparing to the stored conclusion's chain hash.
+- **Description:** *4.x form — retained for nodes written before astp 0.5.0; the 5.0.0 construction is `DELIBERATION_CHAIN:v2:` over the deliberation Segments' content hashes in order (SPEC §19.4).* `compute_deliberation_chain_hash()` (domain `DELIBERATION_CHAIN:`) binds each soliloquy segment to its predecessor via a rolling hash chain. Tampering with any intermediate segment MUST be detectable by recomputing the chain and comparing to the stored conclusion's chain hash.
 
 **SL-003** — `SoliloquyConclusionNode` hash
 - **Class:** REQUIRED
 - **Spec Reference:** §19.4.2
-- **Description:** `compute_soliloquy_conclusion_hash()` (domain `SOLILOQUY_CONCLUSION:`) canonicalizes `soliloquy_id`, `conclusion_content_hash`, `deliberation_chain_hash`, `merged_into_segment_id`, `concluded_at`.
+- **Description:** *4.x form — retained for nodes written before astp 0.5.0; the 5.0.0 construction is `SOLILOQUY_CONCLUSION:v2:` (SPEC §19.4).* `compute_soliloquy_conclusion_hash()` (domain `SOLILOQUY_CONCLUSION:`) canonicalizes `soliloquy_id`, `conclusion_content_hash`, `deliberation_chain_hash`, `merged_into_segment_id`, `concluded_at`.
 
 ### 5.4 Soliloquy Governance
 
@@ -421,7 +421,7 @@ Level 1 plus all **RECOMMENDED** vectors and the advisory checks in IMPLEMENTATI
 ## 9. Cross-Reference
 
 - **SPEC.md §19** — normative protocol surface (v3.3.0)
-- **IMPLEMENTATION-BFM.md** — Neo4j reference adapter (non-normative)
+- **IMPLEMENTATION-BFM.md** — the reference deployment's adapter guide (non-normative; shipped with that adapter, not with the protocol)
 - **CONFORMANCE.md** — Phase 3 Trust Infrastructure vectors (§16)
 
 ---

@@ -18,7 +18,7 @@ Layer 3 is the forensic provenance layer: `WorkflowDeclaration`, `ExecutionNode`
 
 These vectors are **cross-implementation-consistency** vectors: they assert canonical *field inclusion and ordering* and behavioral invariants, not hardcoded golden-hash values. Per SPEC §21 §8, the hash **byte-form is left open at the protocol layer** — each implementation chooses a serialization (SHA3-256 length-prefixed concatenation, SHA-256 canonical JSON, or other) and MUST be internally consistent. Two conforming implementations that adopt the *same* documented serialization MUST produce identical bytes for identical inputs; two implementations that adopt *different* serializations legitimately produce different hashes. What every conforming implementation MUST agree on is **which fields contribute, in what order** (W-L3-2).
 
-Vectors are organized to match `IMPLEMENTATION-LAYER3.md`:
+Vectors are organized to match the reference deployment's adapter guide, `IMPLEMENTATION-LAYER3.md` (which lives with that adapter):
 
 | Scope | Description | Vector Prefix |
 |-------|-------------|---------------|
@@ -255,14 +255,14 @@ Implementation passes all **REQUIRED** vectors in sections 2–6 and the governa
 
 Level 1 plus all **RECOMMENDED** vectors, plus the SPEC §21 §12 **Behavioral tier** audit-the-decision documentation obligations: the implementation MUST document, in its `ConformanceDeclaration`, its chosen **hash byte serialization** (W-L3-3, in enough detail that an independent verifier can reproduce any node's hash from its field values), its **`skill_source` vocabulary**, its **CIA enforcement mechanism**, its **audit chain-key dimension**, and its **edge storage representation**. These choices are unconstrained by the protocol but MUST be recorded.
 
-The Behavioral tier is **NOT REQUIRED** for protocol conformance; the audit-the-decision pattern requires only that each choice be documented, not that any particular choice be made. The Ignis OS reference chooses: SHA3-256 over field-ordered canonical JSON, the four `ignis_*` MCP tools as the sole CIA write path (`cia_identifier = ignis_mcp_server@<workspace_id>`), `episode_id` as the audit chain key, and native Neo4j relationships for the seven edges.
+The Behavioral tier is **NOT REQUIRED** for protocol conformance; the audit-the-decision pattern requires only that each choice be documented, not that any particular choice be made. The Ignis OS reference chooses: SHA3-256 over field-ordered canonical JSON, the four `ignis_*` MCP tools as the sole CIA write path (`cia_identifier = ignis_mcp_server@<workspace_id>`), `episode_id` as the audit chain key, and native graph relationships for the seven edges.
 
 ---
 
 ## 9. Cross-Reference
 
 - **SPEC.md §21** — normative protocol surface (v3.2.1); §2 Spine isolation, §3 CIA / G-36, §4–§6 schemas, §7 edges, §8 hash preimages, §9 immutability, §10 state machine, §11 audit registry, §12 three-tier conformance, Appendix B conformance checklist.
-- **IMPLEMENTATION-LAYER3.md** — Ignis OS reference adapter (non-normative); exact hash-preimage field orders, Neo4j storage layout, reference CIA.
+- **IMPLEMENTATION-LAYER3.md** — the reference deployment's adapter guide (non-normative; shipped with that adapter, not with the protocol): exact hash-preimage field orders, one storage layout, the reference CIA.
 - **CONFORMANCE-BFM.md** — Branch/Fork/Merge conformance vectors (§19).
 - Ground-truth code: `astp/core/workflow_execution.py` (schemas + `compute_*_content_hash` functions), `astp/core/hash_canonical.py` (reference canonicalizer), `astp/core/branching.py` (`CognitiveDeltaType` Layer 3 audit values).
 

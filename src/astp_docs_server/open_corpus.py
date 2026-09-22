@@ -1,9 +1,10 @@
 """The OPEN corpus spec: the public ASTP protocol documents.
 
 This is the *only* corpus the open server ever sees. It is drawn from the
-public ``ariadne-protocol`` repo: the normative SPEC, its IMPLEMENTATION /
-CONFORMANCE companions, the amendments still referenced for Layer-3 semantics,
-plus GLOSSARY and CHANGELOG. Nothing proprietary. The enterprise corpus is a
+public ``astp`` repo: the normative SPEC, its CONFORMANCE companions (and the
+one IMPLEMENTATION guide the protocol keeps, §16 trust infrastructure — the
+storage-layout guides ship with the reference deployment's adapter), the
+Episode of Record statements, plus GLOSSARY and CHANGELOG. Nothing proprietary. The enterprise corpus is a
 separate spec in a separate (private) repo — never merged with this one.
 """
 from __future__ import annotations

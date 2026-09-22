@@ -72,17 +72,19 @@ The Phase 3 key hierarchy produces cryptographic keys at three levels: workspace
 ```
 Root Key Material
       │
-      ▼ HKDF(salt=workspace_id, info="ariadne.workspace.v1")
+      ▼ HKDF(salt=workspace_id, info="astp.workspace.v2")
 Workspace Key
       │
-      ▼ HKDF(salt=node_id, info="ariadne.node.v1:{node_type}")
+      ▼ HKDF(salt=node_id, info="astp.node.v2:{node_type}")
 Node Key
       │
-      ▼ HKDF(salt=spine_root_at_seal, info="ariadne.seal.v1")
+      ▼ HKDF(salt=spine_root_at_seal, info="astp.seal.v2")
 Seal Key
 ```
 
 ### 3.2 HKDF Parameterization
+
+> **Derivation versions (SPEC 5.2.0 §16.2.1).** The `info` strings below are derivation version 2. Keys derived before 5.2.0 used version 1 — `ariadne.workspace.v1`, `ariadne.node.v1:{node_type}`, `ariadne.seal.v1` — which is retained: a signed record carries the `derivation_version` (`key_derivation_version` on a `HITLEventNode`) of the key that made it, a record without one is version 1, and a verifier that re-derives a key selects the version the record names. The reference package exposes both through `derivation_version=`.
 
 All HKDF derivations in ASTP use the following fixed parameters unless the level-specific description overrides them:
 
@@ -99,7 +101,7 @@ The `salt` and `info` parameters are level-specific and are the primary mechanis
 workspace_key = HKDF(
     ikm   = root_key_material,      # 32 bytes from your KMS/HSM
     salt  = UTF-8(workspace_id),    # e.g., "ws-prod-001"
-    info  = UTF-8("ariadne.workspace.v1"),
+    info  = UTF-8("astp.workspace.v2"),
     len   = 32
 )
 ```
@@ -117,7 +119,7 @@ workspace_key = HKDF(
 node_key = HKDF(
     ikm   = workspace_key,
     salt  = UTF-8(node_id),
-    info  = UTF-8("ariadne.node.v1:" + node_type),   # e.g., "ariadne.node.v1:episode"
+    info  = UTF-8("astp.node.v2:" + node_type),   # e.g., "astp.node.v2:episode"
     len   = 32
 )
 ```
@@ -128,12 +130,12 @@ node_key = HKDF(
 
 | node_type | info string |
 |-----------|-------------|
-| `episode` | `ariadne.node.v1:episode` |
-| `signal` | `ariadne.node.v1:signal` |
-| `artifact` | `ariadne.node.v1:artifact` |
-| `agent` | `ariadne.node.v1:agent` |
+| `episode` | `astp.node.v2:episode` |
+| `signal` | `astp.node.v2:signal` |
+| `artifact` | `astp.node.v2:artifact` |
+| `agent` | `astp.node.v2:agent` |
 
-Future node types follow the same pattern: `ariadne.node.v1:{node_type}`. The protocol does not maintain a closed registry of node types — the info string construction rule is the registry.
+Future node types follow the same pattern: `astp.node.v2:{node_type}`. The protocol does not maintain a closed registry of node types — the info string construction rule is the registry.
 
 ### 3.5 Seal Key Derivation
 
@@ -141,7 +143,7 @@ Future node types follow the same pattern: `ariadne.node.v1:{node_type}`. The pr
 seal_key = HKDF(
     ikm   = node_key,
     salt  = spine_root_at_seal,     # 32-byte hash, not UTF-8 encoded
-    info  = UTF-8("ariadne.seal.v1"),
+    info  = UTF-8("astp.seal.v2"),
     len   = 32
 )
 ```
@@ -686,7 +688,7 @@ Phase 4 adds Human-in-the-Loop (HITL) events as first-class nodes in the ASTP St
 
 Phase 4 builds on Phase 3 infrastructure. Implement in this order:
 
-1. **Schema types** — Add `HITLEventNode`, `HITLGateType`, `HITLDecision`, `HITLNodeStatus` enums and model. Add hash functions: `compute_hitl_context_hash`, `compute_hitl_resolution_hash`, `compute_hitl_node_hash` with domain-separated prefixes (`HITL_CTX:`, `HITL_RES:`).
+1. **Schema types** — Add `HITLEventNode`, `HITLGateType`, `HITLDecision`, `HITLNodeStatus` enums and model. Add the three hash constructions of SPEC §4.6 / §5.7.1 — `HITL_CONTEXT:v2:`, `HITL_RESOLUTION:v2:`, `HITL_NODE:v2:` over the §5.1.1 field encoding (`astp.core.seal_v2.compute_hitl_*_v2`). The 4.x `HITL_CTX:` / `HITL_RES:` / `NODE:` forms (`astp.core.schema.compute_hitl_*`) are retained only as the definitions of values on events already written.
 
 2. **Storage layer** — Add `AriadneHITLEvent` constraint and indexes. Implement `write_hitl_event_invocation_sync` (creates INVOKED node + HITL_GATE edge) and `write_hitl_event_resolution_sync` (updates INVOKED → RESOLVED with MATCH + SET).
 
@@ -696,7 +698,7 @@ Phase 4 builds on Phase 3 infrastructure. Implement in this order:
 
 5. **Cryptographic attestation** — Sign `context_hash` with the agent's Ed25519 key at invocation. Sign `resolution_hash` with the human's Ed25519 key at resolution. Both use the Phase 3 HKDF key hierarchy with `entity_type` parameter ("agent" or "user").
 
-6. **No spine participation** — A resolved HITL event's `node_hash` records the decision; it is **not** a spine leaf. The spine is the Episode's non-ephemeral Segments and nothing else (SPEC §5.6), and no seal has ever included HITL hashes. Do not pass them to the spine computation.
+6. **Not a spine leaf; a structural-manifest member** — A concluded HITL event's `node_hash` records the decision. It is **not** a spine leaf — the spine is the Episode's non-ephemeral Segments and nothing else (SPEC §5.6) — and MUST NOT be passed to the spine computation. Under `spine_algorithm_version` 2 it is committed through the structural manifest (SPEC §5.7.1): every `RESOLVED`, `TIMED_OUT` or `ESCALATED` event is a member, computed from its stored fields at seal time; an `INVOKED` event is not. Under `spine_algorithm_version` 0 and 1 no seal included HITL hashes.
 
 7. **Advisory gates** — For `REVIEW_ADVISORY` gates, tag segments written during the pending interval with `pending_hitl_ref`. These segments are `CONDITIONALLY_VALID` until the gate resolves. Advisory gates do NOT block crystallization or set `PENDING_HITL`.
 
@@ -717,10 +719,10 @@ Phase 4 builds on Phase 3 infrastructure. Implement in this order:
 A Phase 4 conforming implementation MUST:
 
 1. Record HITL events with the correct two-phase lifecycle (the reference adapter stores them under the `AriadneHITLEvent` label; the representation is an adapter choice)
-2. Compute `context_hash`, `resolution_hash`, `node_hash` with correct domain-separated prefixes
+2. Compute `context_hash`, `resolution_hash`, `node_hash` under the §5.7.1 constructions (`HITL_CONTEXT:v2:`, `HITL_RESOLUTION:v2:`, `HITL_NODE:v2:`)
 3. Enforce G-17 (no resolution on INVOKED nodes)
 4. Enforce G-18 (crystallization blocked by pending blocking HITL)
-5. Keep resolved HITL `node_hash` values out of the spine computation (SPEC §5.6)
+5. Keep HITL `node_hash` values out of the spine computation (SPEC §5.6) and supply every concluded event's `HITL_NODE:v2:` hash to the structural manifest under `spine_algorithm_version` 2 (SPEC §5.7.1)
 6. Sign invocation with agent key and resolution with human key (using Phase 3 HKDF hierarchy)
 7. Tag segments written during advisory gates with `pending_hitl_ref`
 

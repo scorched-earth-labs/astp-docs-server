@@ -1,9 +1,9 @@
 # ASTP — AI State Tree Protocol Specification
 
-**Version:** 5.1.0
+**Version:** 5.2.0
 **Status:** Stable — ratified in Episode of Record `ce3f569c-9cdc-4a3d-913a-b9d8573d9a28` (below)
 **Authors:** Scorched Earth Labs
-**Date:** 2026-09-19
+**Date:** 2026-09-22
 **Supersedes:** [`SPEC-v4.md`](./docs/history/SPEC-v4.md) (4.5.0); earlier, [`SPEC-v3.md`](./docs/history/SPEC-v3.md) (3.5.1) and [`SPEC-v1.md`](./docs/history/SPEC-v1.md) (0.1.0-draft)
 **Change history:** [`CHANGELOG.md`](./CHANGELOG.md)
 **Versioning policy:** [`VERSIONING.md`](./VERSIONING.md)
@@ -42,7 +42,7 @@ The protocol is agnostic to both cognitive architecture and node type. A system 
 | **Dual Index** | The separation of `sequence_index` (immutable temporal position, in hash) from `tree_leaf_index` (mutable structural position, NOT in hash). The epistemological core of v2. |
 | **HITLEventNode** | A first-class node representing a human-in-the-loop decision gate. Two-phase lifecycle: INVOKED (gate raised) → RESOLVED/TIMED_OUT/ESCALATED (concluded). Its `node_hash` commits the decision (§4.6); it is not a spine leaf, and in a terminal state it is a structural-manifest member (§5.7.1). |
 | **HITL Gate** | An edge from an Episode to an HITLEventNode. Typed as BLOCKS (approval required) or FOLLOWS (advisory review). |
-| **Causal Anchor** | A node whose hash records an authorization that later Segments rely on. A resolved `HITLEventNode` is a causal anchor: its `node_hash` binds the invocation context to the human decision (§4.6), and Segments written under a pending gate reference it by ID. A causal anchor is not a spine leaf and, as of this version, is not committed into any sealed root (§5.6). |
+| **Causal Anchor** | A node whose hash records an authorization that later Segments rely on. A resolved `HITLEventNode` is a causal anchor: its `node_hash` binds the invocation context to the human decision (§4.6), and Segments written under a pending gate reference it by ID. A causal anchor is not a spine leaf. Under `spine_algorithm_version` 2 a concluded HITL event is a structural-manifest member (§5.7.1), so the anchor is committed into the Episode root; under `spine_algorithm_version` 0 and 1 no sealed root commits to it (§5.6, retained form). |
 | **Adapter** | A database-specific implementation of persistence operations. |
 | **ASI** | Adapter Service Interface. The abstract contract any conforming adapter must implement. |
 | **Governance Rule** | A protocol invariant that any conforming implementation must enforce. |
@@ -283,23 +283,26 @@ HITLEventNode {
   // Integrity
   context_hash:           string       (SHA3-256 of invocation context)
   resolution_hash:        string?      (SHA3-256 of resolution payload)
-  node_hash:              string?      (H(NODE: context_hash || resolution_hash))
+  node_hash:              string?      (see Hash computation below)
 
   // Cryptographic attestation
   invocation_signature:   string?      (Ed25519 sig over context_hash, hex-encoded)
   invocation_key_fingerprint: string?  (SHA3-256 of agent public key)
   resolution_signature:   string?      (Ed25519 sig over resolution_hash, hex-encoded)
   resolution_key_fingerprint: string?  (SHA3-256 of human public key)
+  key_derivation_version: int?         (§16.2.1: the derivation the signing keys used; 1 when absent)
 }
 ```
 
-**Hash computation:**
+**Hash computation (5.0.0).** The three constructions are those of the §5.7.1 member row, built from the field encoding of §5.1.1, each under its own prefix in the §5.1.3 registry:
 
-- `context_hash = SHA3-256("HITL_CTX:" || request_id || episode_id || gate_type || agent || invoked_at || context_json)`
-- `resolution_hash = SHA3-256("HITL_RES:" || event_id || decision || resolved_by || resolved_at || rationale)`
-- `node_hash = SHA3-256("NODE:" || context_hash || resolution_hash)`
+- `context_hash = SHA3-256("HITL_CONTEXT:v2:" ‖ STRING(hitl_request_id) ‖ UUID(episode_id) ‖ STRING(gate_type) ‖ STRING(requesting_agent) ‖ TIMESTAMP(invoked_at) ‖ STRING(context_json))`
+- `resolution_hash = SHA3-256("HITL_RESOLUTION:v2:" ‖ UUID(hitl_event_id) ‖ STRING(decision) ‖ STRING(resolved_by) ‖ TIMESTAMP(resolved_at) ‖ STRING|NULL(rationale))`
+- `node_hash = SHA3-256("HITL_NODE:v2:" ‖ HASH(context_hash) ‖ HASH(resolution_hash))`
 
-Domain separation prefixes (`HITL_CTX:`, `HITL_RES:`) prevent cross-type hash confusion.
+`node_hash` so computed is the structural-manifest member hash of a concluded event (§5.7.1). A version 2 seal computes it from the event's **stored fields** at seal time; it does not read a stored hash value, and an event stored without the fields the construction needs (its `context_json`, for one) cannot be sealed under version 2 (§15).
+
+**4.x constructions (retained).** Events written under 4.x carry `context_hash = SHA3-256("HITL_CTX:" || request_id || episode_id || gate_type || agent || invoked_at || context_json)`, `resolution_hash = SHA3-256("HITL_RES:" || event_id || decision || resolved_by || resolved_at || rationale)` and `node_hash = SHA3-256("NODE:" || context_hash || resolution_hash)`, `||` being the 4.x text concatenation. They are retained as the definitions of those stored values and are never reused (§5.1.3); `NODE:` was shared with the 4.x Merkle interior node and the version 1 Episode root, a reuse 5.0.0 removed. No 4.x seal commits to any of them (§5.6, retained form).
 
 **Two-layer signing model:**
 
@@ -317,7 +320,7 @@ A directed edge from Episode to HITLEventNode with properties:
 
 **Spine participation:**
 
-A resolved HITL event's `node_hash` is the record of the human decision. It is **not** a spine leaf: the spine is the Episode's non-ephemeral Segments and nothing else (§5.6), and resolving a gate does not change the spine root. As of this version no sealed root commits to HITL events; §5.6 states what that means for a verifier.
+A resolved HITL event's `node_hash` is the record of the human decision. It is **not** a spine leaf: the spine is the Episode's non-ephemeral Segments and nothing else (§5.6), and resolving a gate does not change the spine root. Under `spine_algorithm_version` 2 a concluded event — `RESOLVED`, `TIMED_OUT` or `ESCALATED` — is a structural-manifest member, so its `node_hash` is committed into the Episode root and removing it changes that root (§5.7.1); an event still `INVOKED` is not a member. Under `spine_algorithm_version` 0 and 1 no sealed root commits to HITL events; §5.6 (retained form) states what that means for a verifier of a 4.x seal.
 
 **Crystallization guard:**
 
@@ -379,6 +382,17 @@ implementation surface. They MUST NOT be relied upon by a verifier, and their
 absence MUST NOT affect conformance.
 
 Attaching produces an `ATTACHMENT_COMMIT` ledger entry (§12.4.1).
+
+**What the seal covers.** An AttachmentNode is not a spine leaf and is not a
+member of any Episode root component (§5.6, §5.7): it is in neither the signal
+manifest, the structural manifest nor the exclusion set. Its `content_hash`
+therefore detects **substitution** — a change to the attached bytes after the
+fact — and that is what "verifiable after the fact" means in this section. No
+sealed root detects the **addition or removal** of an AttachmentNode after the
+seal; the `ATTACHMENT_COMMIT` entry is write coordination (§12), not a
+tamper-evident chain, and does not close that gap. Binding attachments into the
+Episode root would change its preimage and is a MAJOR change
+([`VERSIONING.md`](./VERSIONING.md)); this version does not make it.
 
 ## 5. Hash Chain
 
@@ -1141,7 +1155,7 @@ A conforming adapter MUST persist rebalance events and link them to the rebalanc
 
 A conforming adapter MUST:
 
-1. Implement the `AriadneAdapter` interface
+1. Implement the `ASTPAdapter` interface
 2. Enforce all governance rules
 3. Preserve hash chain integrity — never modify leaf_hash, spine_root, or content_hash after creation
 4. Enforce the dual-index invariant: `tree_leaf_index` never in any hash preimage
@@ -1170,14 +1184,16 @@ Phase 3 adds cryptographic trust infrastructure to the `CognitiveNode` primitive
 
 #### 16.2.1 Derivation Path
 
-All node keys are derived using HKDF-SHA3-256:
+All node keys are derived using HKDF-SHA3-256. A derivation is named by its `info` string, and the string carries a **derivation version**; changing a string changes every key it derives, so a string is never edited — a new version is added and the old one retained. **Derivation version 2 (current):**
 
 ```
 Root Key Material
-    └── Workspace Key: HKDF(RKM, salt=workspace_id, info="ariadne.workspace.v1")
-            └── Node Key: HKDF(WK, salt=node_id, info="ariadne.node.v1:{node_type}")
-                    └── Seal Key: HKDF(NK, salt=spine_root_at_seal, info="ariadne.seal.v1")
+    └── Workspace Key: HKDF(RKM, salt=workspace_id, info="astp.workspace.v2")
+            └── Node Key: HKDF(WK, salt=node_id, info="astp.node.v2:{node_type}")
+                    └── Seal Key: HKDF(NK, salt=spine_root_at_seal, info="astp.seal.v2")
 ```
+
+**Derivation version 1 (retained).** Keys derived before 5.2.0 used `info="ariadne.workspace.v1"`, `"ariadne.node.v1:{node_type}"` and `"ariadne.seal.v1"`, with the same salts and the same HKDF-SHA3-256. Version 1 is retained as the definition of those keys: a record that carries a signature also carries the `derivation_version` of the key that made it (§16.2.4; `key_derivation_version` on a `HITLEventNode`, §4.6), a record that lacks it is version 1, and a verifier that re-derives a key to check a fingerprint selects the derivation the record names. An implementation MAY continue to derive under version 1 for a workspace whose keys it does not wish to rotate; a new workspace derives under 2.
 
 The `node_type` participates in the HKDF `info` string at the Node Key level. Keys derived for `node_type="episode"` are cryptographically distinct from keys derived for `node_type="signal"` or `node_type="artifact"`. New node types automatically receive distinct key spaces without protocol changes.
 
@@ -1203,6 +1219,7 @@ NodeKeyRecord {
   workspace_id:            string
   key_version:             int       (monotonically increasing — G-15)
   public_key_fingerprint:  string    (SHA3-256 of public key bytes)
+  derivation_version:      int       (§16.2.1: 1 · 2 (current); a stored record without it is 1)
   derivation_path:         string    (human-readable: "workspace/{wid}/node/{nid}")
   created_at:              datetime
 }
@@ -1515,14 +1532,16 @@ Branches create non-linear Episode graphs that must remain verifiable:
 - **Spine chain.** The spine is self-contained and verifiable without
   branch contents. The `BranchPointNode` anchors to the spine by reference
   — `source_segment_id` and `spine_merkle_snapshot` — and carries its own
-  `content_hash`; it is **not** a spine leaf, and as of this version no
-  sealed root commits to it (§5.6).
+  `content_hash`; it is **not** a spine leaf. Under `spine_algorithm_version` 2
+  it is a structural-manifest member, committed into the Episode root under
+  `BRANCH_POINT:v2:` (§5.7.1); under versions 0 and 1 no sealed root commits
+  to it (§5.6, retained form).
 - **Branch chain.** Starts at `BranchPointNode` and ends at
   `BranchTerminusNode`. Verifiable independently of the spine.
 - **Merge verification (Phase 2).** Requires three Merkle roots — see §19.3.3.
 
 **Depth constraint.** `branch_depth` maximum of 4 (soft). Exceeding it
-raises `AriadneGovernanceError`; callers may catch and record an
+raises `ASTPGovernanceError`; callers may catch and record an
 override in the audit trail.
 
 #### 19.2.4 Derived Lifecycle State
@@ -1738,7 +1757,7 @@ An aside is a channel between one human and one agent, opened from one Segment. 
 
 **G-25 (Aside Human-Initiation Invariant).** Asides are ALWAYS
 human-initiated. `initiated_by_human` is required; an attempt to create
-an aside without a human actor raises `AriadneGovernanceError`.
+an aside without a human actor raises `ASTPGovernanceError`.
 Agent-initiated internal branches are soliloquies (§19.4.2).
 
 **G-26 (Aside Return Obligation).** An aside that remains OPEN at
@@ -1771,7 +1790,7 @@ The soliloquy node binds what is true at open: who opened it (`initiated_by_agen
 
 **G-27 (Soliloquy Human Accessibility Invariant).** Humans
 ALWAYS have read access. `SoliloquyVisibilityPolicy.human_accessible`
-defaulting or being set to `false` raises `AriadneGovernanceError`.
+defaulting or being set to `false` raises `ASTPGovernanceError`.
 Deliberation content can be private to other agents, never private to
 humans.
 
@@ -2084,7 +2103,7 @@ MembershipRecord {
   record_id:             UUID
   episode_id:            EpisodeID
   group_id:              GroupID
-  group_system:          String           // "claude_project" | "notion_database" | "ariadne_native" | ...
+  group_system:          String           // "claude_project" | "notion_database" | "astp_native" | ...
   asserted_at:           Timestamp
   asserted_by:           AgentID
 
@@ -2603,7 +2622,7 @@ A second invariant governs **who** may write Layer 3:
 
 A CIA is a protocol-level role, not a specific implementation technology. The CIA for `WorkflowDeclaration` in a workspace may be:
 
-- An MCP server (as in the reference implementation — `IMPLEMENTATION-LAYER3.md` §6.4),
+- An MCP server (as in the reference deployment — its adapter guide, `IMPLEMENTATION-LAYER3.md` §6.4, ships with that adapter),
 - An in-process module of a single-process implementation,
 - A network-attached daemon with cryptographic identity,
 - Any other entity that the workspace's `ConformanceDeclaration` names.
@@ -2923,7 +2942,7 @@ Three protocol surfaces touched by this amendment are explicitly deferred to fut
 
 ### Appendix A — Reference Adapter Notes (Non-Normative)
 
-This specification does not describe any particular storage provider. One complete adapter path for Layer 3 — edge storage, suggested indexes, forensic query patterns, and how a deployment designates and enforces its Cognitive Implementation Authority — is described in [`IMPLEMENTATION-LAYER3.md`](./IMPLEMENTATION-LAYER3.md) §6. That material is non-normative: conforming implementations need not adopt any of it.
+This specification does not describe any particular storage provider. One complete adapter path for Layer 3 — edge storage, suggested indexes, forensic query patterns, and how a deployment designates and enforces its Cognitive Implementation Authority — is described in the reference deployment's adapter guide (`IMPLEMENTATION-LAYER3.md` §6), which ships with that adapter rather than with this specification. That material is non-normative: conforming implementations need not adopt any of it.
 
 ---
 

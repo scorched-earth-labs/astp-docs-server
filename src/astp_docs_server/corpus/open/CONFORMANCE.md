@@ -1,10 +1,10 @@
 # ASTP — Phase 3 Conformance Test Vectors
 
-**Version:** 2.0.0
+**Version:** 2.1.0
 **Status:** Stable
 **Authors:** Scorched Earth Labs
-**Date:** 2026-09-19
-**Applies To:** SPEC.md 5.1.0 §16 (Trust Infrastructure), G-11–G-16. The anchor and witness vectors (§3.1, §4) are the 5.0.0 constructions (`ANCHOR_COMMITMENT:v2:`, `WITNESS_COMMITMENT:v2:`), with expected values pinned in [`vectors/5.0.0/seal-constructions.json`](./vectors/5.0.0/seal-constructions.json); the 4.x forms are retained in SPEC §16.3.2 and §16.4.2 as the definitions of records already written and are not vectors here.
+**Date:** 2026-09-22
+**Applies To:** SPEC.md 5.2.0 §16 (Trust Infrastructure), G-11–G-16. The anchor and witness vectors (§3.1, §4) are the 5.0.0 constructions (`ANCHOR_COMMITMENT:v2:`, `WITNESS_COMMITMENT:v2:`), with expected values pinned in [`vectors/5.0.0/seal-constructions.json`](./vectors/5.0.0/seal-constructions.json); the 4.x forms are retained in SPEC §16.3.2 and §16.4.2 as the definitions of records already written and are not vectors here.
 **Companion:** [CONFORMANCE-BFM.md](CONFORMANCE-BFM.md) covers SPEC §19 (Branch/Fork/Merge/Aside/Soliloquy/CoherenceFingerprint).
 
 ---
@@ -32,6 +32,8 @@ All hex values are lowercase. All string fields are UTF-8 encoded unless otherwi
 
 ### 2.1 HKDF Derivation Correctness
 
+The vectors below are derivation version 2 (SPEC §16.2.1). A verifier of keys derived under the retained version 1 substitutes `"ariadne.workspace.v1"`, `"ariadne.node.v1:{node_type}"` and `"ariadne.seal.v1"` for the `hkdf_info` values; salts and lengths are unchanged (KH-006).
+
 **KH-001** — Workspace Key Derivation
 - **Class:** REQUIRED
 - **Spec Reference:** §16.2.1
@@ -41,7 +43,7 @@ All hex values are lowercase. All string fields are UTF-8 encoded unless otherwi
   root_key_material: 0000000000000000000000000000000000000000000000000000000000000000
   workspace_id: "ws-test-001"
   hkdf_salt: UTF-8("ws-test-001")
-  hkdf_info: UTF-8("ariadne.workspace.v1")
+  hkdf_info: UTF-8("astp.workspace.v2")
   hkdf_length: 32 bytes
   ```
 - **Expected Output:**
@@ -65,17 +67,17 @@ All hex values are lowercase. All string fields are UTF-8 encoded unless otherwi
 
   Derivation A:
     hkdf_salt: UTF-8("550e8400-e29b-41d4-a716-446655440000")
-    hkdf_info: UTF-8("ariadne.node.v1:episode")
+    hkdf_info: UTF-8("astp.node.v2:episode")
     hkdf_length: 32 bytes
 
   Derivation B:
     hkdf_salt: UTF-8("550e8400-e29b-41d4-a716-446655440000")
-    hkdf_info: UTF-8("ariadne.node.v1:signal")
+    hkdf_info: UTF-8("astp.node.v2:signal")
     hkdf_length: 32 bytes
 
   Derivation C:
     hkdf_salt: UTF-8("550e8400-e29b-41d4-a716-446655440000")
-    hkdf_info: UTF-8("ariadne.node.v1:artifact")
+    hkdf_info: UTF-8("astp.node.v2:artifact")
     hkdf_length: 32 bytes
   ```
 - **Expected Output:**
@@ -98,12 +100,12 @@ All hex values are lowercase. All string fields are UTF-8 encoded unless otherwi
 
   Derivation A (spine_root_1):
     hkdf_salt: hex_decode("a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2")
-    hkdf_info: UTF-8("ariadne.seal.v1")
+    hkdf_info: UTF-8("astp.seal.v2")
     hkdf_length: 32 bytes
 
   Derivation B (spine_root_2, one bit different):
     hkdf_salt: hex_decode("a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b3")
-    hkdf_info: UTF-8("ariadne.seal.v1")
+    hkdf_info: UTF-8("astp.seal.v2")
     hkdf_length: 32 bytes
   ```
 - **Expected Output:**
@@ -111,6 +113,28 @@ All hex values are lowercase. All string fields are UTF-8 encoded unless otherwi
   seal_key_A != seal_key_B
   ```
 - **Failure Condition:** Both derivations produce the same seal key. This indicates `spine_root` is not participating in the seal key derivation — the Seal Commitment Key is not bound to node state.
+
+---
+
+**KH-006** — Derivation Version Selection
+- **Class:** REQUIRED
+- **Spec Reference:** §16.2.1, §16.2.4, §4.6
+- **Description:** An implementation derives under version 2 by default and reproduces a version 1 key when a record names derivation version 1. The two derivations differ in the `info` string only.
+- **Inputs:**
+  ```
+  root_key_material: 0000000000000000000000000000000000000000000000000000000000000000
+  workspace_id: "ws-test-001"
+  derivation_version 2:  hkdf_info: UTF-8("astp.workspace.v2")
+  derivation_version 1:  hkdf_info: UTF-8("ariadne.workspace.v1")
+  ```
+- **Expected Output:**
+  ```
+  workspace_key(v2) != workspace_key(v1)
+  workspace_key(v1) == the value KH-001 pinned under CONFORMANCE.md 2.0.0
+  a record with no derivation_version is read as version 1
+  an unknown derivation_version is refused
+  ```
+- **Failure Condition:** A version 1 key cannot be reproduced (the retained derivation was edited or dropped), or a record's version is ignored and its fingerprint checked against the wrong derivation.
 
 ---
 
