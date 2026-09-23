@@ -59,7 +59,7 @@ def get_astp_docs_open_manifest() -> dict[str, Any]:
             ),
             _read_cap(
                 "astp.docs.get_governance_rule", "get_governance_rule", "Get Governance Rule",
-                "Fetch a governance rule G-1..G-36 verbatim with citation.",
+                "Fetch a governance rule G-1..G-43 verbatim with citation.",
                 {
                     "type": "object",
                     "properties": {"rule_id": {"type": "string", "description": "e.g. G-2"}},

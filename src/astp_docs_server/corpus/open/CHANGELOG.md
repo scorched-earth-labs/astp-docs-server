@@ -6,6 +6,32 @@ All notable changes to ASTP (the AI State Tree Protocol). Version numbering foll
 
 The next change-set queues here.
 
+## [6.0.0] — 2026-09-22
+
+**MAJOR.** The context commitment: a sealed Episode now proves what its agents were *given*. Ratified in Episode of Record `80e5a2dd-3d9f-45d0-abfb-6489c8caf1b8` (sealed 2026-09-22, `episode_root_hash` `45cd50c5d34c6d1ec49fa9a6fd7989036e2d91d624f66e9eb8e93c9904f27d3e`), which ratifies the amendment text at commit `4ec1de1` by content digest together with its reference vectors ([`docs/RATIFICATION-6.0.0.md`](./docs/RATIFICATION-6.0.0.md)). Every construction is new and versioned; every seal made under `spine_algorithm_version` 0, 1 or 2 is unchanged and stays reproducible. The governing invariant: **the seal proves history, not retention.**
+
+### Added
+- **§4.8 `ContextEntryNode`** — one node per provision of external content to one agent (`attachment` · `retrieval` · `external` · `tool_output`), or per attempted provision whose content was not captured; `CONTEXT_ENTRY:v1:` over thirteen fields (§5.7.3); provenance and content-plane fields outside the preimage (§4.8.6); the spine position the provision preceded (§4.8.2); two content constructions and one sealed bit — `CONTEXT_CONTENT:v1:` and `CONTEXT_CONTENT_SALTED:v1:` (§4.8.3); verifiability at seal (§4.8.4); declared-incomplete entries and append-only repair through `resolves` (§4.8.5).
+- **§5.7.3 Context manifest** — the version 2 tree over entry hashes in ascending bytewise order, bound with the capture posture and count under `CONTEXT_MANIFEST:v1:`; a function of the set; inclusion proofs over it (§9.2); the empty manifest defined.
+- **§5.7 Episode root version 3** (`EPISODE_ROOT:v3:`, six fields) selected by **`spine_algorithm_version` 3** (§5.8); the spine root is byte-identical to version 2; version 2 is retained.
+- **§4.9 Erasure** — content-plane erasure (§4.9.2), `ErasureTombstone` as a `CODICIL_APPEND` codicil under `ERASURE_TOMBSTONE:v1:` (§4.9.3), the `CodicilNode` schema block (ratified by implementation), erasure of a Segment's content (§4.9.4), known limitations (§4.9.5).
+- **G-41** capture posture and undeclared gaps; **G-42** non-reversible commitment for low-entropy personal data; **G-43** erasure is content-plane.
+- **§12.4.1** register gains `CONTEXT_COMMIT` (Tier 1). **§11** unchanged, stated. **§21** relation to `tool_output` entries stated. §2 gains eight terms.
+- **`CONFORMANCE-CONTEXT.md`** CM-001 … CM-010 (+ CC-001/002, ER3-001, G41-001) and **`vectors/6.0.0/context-commitment.json`**, generated over the ratified 5.0.0 Episode so CM-010 is shown against the ratified version 2 root. An exported proof of record for the Episode of Record is under `docs/proofs/`.
+- The 5.2.0 text is retained at `docs/history/SPEC-v5.md`; the ratified amendment draft at `docs/history/SPEC-6.0.0-DRAFT-context-commitment.md`.
+
+### Reference package (`astp` 2.0.0 — MAJOR: `PROTOCOL_VERSION` is 6.0.0)
+- **`astp.core.context_v1`** implements the 6.0.0 constructions: `ContextEntryNode` and its `CONTEXT_ENTRY:v1:` hash; the plain and salted content commitments; the `CONTEXT_MANIFEST:v1:` manifest over the version 2 tree in canonical order, with inclusion proofs; Episode root version 3 (`EPISODE_ROOT:v3:`, six fields) and `compute_episode_seal_v3` under `spine_algorithm_version` 3; `ErasureTombstone` and `apply_erasure`; G-41, G-42 and G-43 enforced at the seal and at erasure. `reproduce_episode_root` dispatches version 3. Nothing sealed under 0, 1 or 2 changes.
+- `tests/conformance/test_context_commitment_v1_vectors.py` reproduces every vector value from the library and from a `hashlib`-only implementation of the SPEC text. `__version__` 2.0.0; `PROTOCOL_VERSION` 6.0.0.
+- **Not yet in the package** (queued for 2.1.0): `InMemoryStore` / `StructuralStore` context-entry, tombstone and posture operations; `proof_of_record` learning the sixth field. The reference deployment does not yet write context entries or seal under version 3.
+
+### Reference package (`astp` 2.1.0 — the store and the operations)
+- **`StructuralStore`** gains the context-commitment contract: `write_context_entry`, `context_entry`, `context_entries_of`, `set_capture_posture`, `capture_posture`, `tombstone_context_entry` (the stored-node half of erasure in one write). `InMemoryStore` implements it.
+- **`astp.core.context_operations`**: `commit_context_entry` (refuses an Episode that admits no further provision, a duplicate, a bad `resolves`, and — G-42 — low-entropy personal data committed plain, before anything is written; ledgers `CONTEXT_COMMIT`); `set_capture_posture` (G-41; refused once sealed); `context_seal_inputs` / `episode_context_manifest_hash` (the seal-time readers, G-41 and G-42 re-applied); `erase_context_entry` (builds the tombstone over the unchanged entry hash, stores it as a `CodicilNode`, nulls the two pointers, ledgers `CODICIL_APPEND`; takes the caller's assertion that content and salt were destroyed together, and refuses without it — G-43).
+- **`proof_of_record`** learns the sixth field: a `spine_algorithm_version` 3 document carries `context_manifest_hash`, `capture_posture` and `context_entry_count`, the full profile carries the stored entries, and the verifier reproduces the manifest and the root through `compute_episode_seal_v3`; an attested document says the entry list is withheld.
+- **`IMPLEMENTATION-CONTEXT.md`** (new): what an implementer writes, when, from where; posture and the seal; the erasure sequence; verification and export; and the reference deployment's status (§7 — no seam writes entries yet).
+- `tests/unit/adapters/test_context_operations.py`: the seven ratified entries committed through the store seal to the vector root; erasure through the store leaves it unchanged; a version 3 proof of record round-trips and fails on tampering.
+
 ## [5.2.0] — 2026-09-22
 
 **MINOR.** Key derivation is versioned, and version 2 carries the protocol's name. No hash construction changes; every seal and every stored record is untouched.

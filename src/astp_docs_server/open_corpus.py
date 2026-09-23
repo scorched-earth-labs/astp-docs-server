@@ -38,10 +38,12 @@ OPEN_DOC_PATTERNS = [
 ]
 
 # Machine-readable assets served verbatim (not chunked or indexed): the pinned
-# expected digests every 5.0.0 construction reproduces to. Vendored under their
-# repository-relative path so versions never collide.
+# expected digests every construction reproduces to. One file per protocol
+# version, vendored under its repository-relative path so versions never
+# collide: 5.0.0 seal-constructions, 6.0.0 context-commitment.
 OPEN_ASSET_PATTERNS = [
     "vectors/*/seal-constructions.json",
+    "vectors/*/context-commitment.json",
 ]
 
 OPEN_DOC_EXCLUDE = [
@@ -96,7 +98,8 @@ def build_open_corpus_spec(protocol_dir: str | None = None) -> CorpusSpec:
 
 def list_test_vector_files(protocol_dir: str | None = None) -> dict[str, str]:
     """Repository-relative path -> absolute path of every vendored/available
-    test-vector file, e.g. ``{"vectors/5.0.0/seal-constructions.json": ...}``."""
+    test-vector file, e.g. ``{"vectors/5.0.0/seal-constructions.json": ...,
+    "vectors/6.0.0/context-commitment.json": ...}``."""
     import glob
 
     base = resolve_corpus_dir(protocol_dir)
@@ -119,9 +122,10 @@ def load_test_vectors(version: str | None = None, protocol_dir: str | None = Non
     if not versions:
         raise FileNotFoundError("no test-vector files in the corpus; vendor them with scripts/vendor_corpus.py")
     chosen = version or versions[-1]
-    rel = f"vectors/{chosen}/seal-constructions.json"
-    if rel not in files:
+    matches = sorted(rel for rel in files if rel.split("/")[1] == chosen)
+    if not matches:
         raise FileNotFoundError(f"no vectors for {chosen!r}; available: {versions}")
+    rel = matches[0]
     raw = open(files[rel], "rb").read()
     return {"path": rel, "version": chosen, "sha256": hashlib.sha256(raw).hexdigest(),
             "available_versions": versions, "vectors": json.loads(raw)}

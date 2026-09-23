@@ -1,0 +1,353 @@
+{
+  "status": "Ratified with SPEC 6.0.0 (Episode of Record 80e5a2dd-3d9f-45d0-abfb-6489c8caf1b8). Every value is fixed: a construction never changes in place, so a different value is a new versioned construction.",
+  "hash": "SHA3-256 (FIPS 202). Hash values are lowercase hex here; they enter every construction as 32 raw bytes.",
+  "note_on_identifiers": "entry_id, tombstone_id and the base Episode's node_id values are fixed so the vectors are reproducible. Real identifiers MUST be random.",
+  "note_on_salts": "The salt below is fixed so the salted commitment is reproducible. A real salt MUST be 32 bytes from a CSPRNG, stored in a namespace separate from the content, and destroyed with it (draft §5.3, §8.2).",
+  "base_episode": {
+    "source": "vectors/5.0.0/seal-constructions.json — the same Episode, Segments, Signals and structural members",
+    "episode_id": "550e8400-e29b-41d4-a716-446655440000",
+    "spine_root": "4420e38a22409317822ac14e3d5bc8069e6556c0fc08928290f76d23396daa01",
+    "signal_manifest_hash": "70dbc8e8f2e87b63e49187979b14ad56ba11219b42be132015c23dcad36acb43",
+    "structural_manifest_hash": "0a4b777227b87ee0d6c8efd5b2e9a5fc05c02e61d677f2460f868ab06779b537",
+    "exclusion_hash": "ddea405cc1729ebf63d93b16d723873ad02f9f64af3cc159bf86e5f999b02ce1",
+    "episode_root_v2": "f0511b4d1be172554b9f87ec64d400d24a1409f1742ad72f628bf5ab7b7d33f0"
+  },
+  "content_hashes_v1": {
+    "rule": "CONTEXT_CONTENT:v1: ‖ BYTES(content), or CONTEXT_CONTENT_SALTED:v1: ‖ BYTES(salt) ‖ BYTES(content); BYTES is the §5.1.1 length-prefixed field encoding",
+    "plain_pdf": {
+      "content_hex": "255044462d312e370a312030206f626a203c3c202f54797065202f436174616c6f67203e3e20656e646f626a0a2525454f460a",
+      "hash": "9fbce78d71635571ef48ac04c99f1f340ac5141749f62bde5a77b425192d0baf"
+    },
+    "plain_low_entropy_dob": {
+      "content_utf8": "1979-03-14",
+      "hash": "4ae9d00037107b8d1ed647f47bf2e4c97311929b4c5d6dd2a57b678fffb5c772",
+      "note": "a plain commitment to a date of birth confirms a guess at it forever — G-42 forbids it"
+    },
+    "salted_low_entropy_dob": {
+      "content_utf8": "1979-03-14",
+      "salt_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "hash": "f94cc9f2c956d78e7a1c9c17ac6ae74580da6a8cb8256d923f012afa8b0e501a"
+    },
+    "plain_rate_sheet": {
+      "content_hex": "3c68746d6c3e3c626f64793e33302d7965617220666978656420362e313235252028323032362d30312d3031293c2f626f64793e3c2f68746d6c3e",
+      "hash": "27322eb104437bfdab659d71a6a9b36c1b5adb6744daebdbd4d00546fabd36a6"
+    },
+    "plain_tool_output": {
+      "content_hex": "7b22617072223a20362e3132352c2022706f696e7473223a20302e357d",
+      "hash": "30a472cc962aec7fb49506d745a2ea775a9ee369f2f2b87f6a49dbb586d71020"
+    },
+    "plain_recovered_guidance": {
+      "content_hex": "47756964616e63652062756c6c6574696e2c2053657074656d62657220313a2076657269667920696e636f6d6520776974682074776f207061792073747562732e",
+      "hash": "0af9cd1e51569ad22de45f3acce91771444b47b7cbac4a7aaa8fdede3622a2b7"
+    },
+    "plain_guidance_bulletin": {
+      "content_utf8": "Guidance bulletin, September 1.",
+      "hash": "2a7fbee94824de448f6906cf9ab7ba4adb3acf485b6aa8736aff3399f1a80454"
+    }
+  },
+  "entry_hash_v1": {
+    "preimage_field_order": [
+      "entry_id UUID",
+      "episode_id UUID",
+      "entry_type STRING",
+      "provided_to STRING",
+      "provided_at TIMESTAMP",
+      "provided_before_sequence_index UINT|NULL",
+      "capture_state STRING",
+      "content_hash HASH|NULL",
+      "salted BOOL",
+      "verifiability_at_seal STRING|NULL",
+      "media_type STRING|NULL",
+      "source_version_hash HASH|NULL",
+      "resolves_entry_hash HASH|NULL"
+    ],
+    "side_channel_not_bound": [
+      "source_ref",
+      "content_ref",
+      "salt_ref",
+      "erasure_state",
+      "pii_classification",
+      "resolves (bound as the resolved entry's hash, not as an identifier)"
+    ],
+    "prefix": "CONTEXT_ENTRY:v1:"
+  },
+  "entries": [
+    {
+      "entry_id": "00000000-0000-4000-8000-000000000200",
+      "episode_id": "550e8400-e29b-41d4-a716-446655440000",
+      "entry_type": "attachment",
+      "provided_to": "agent-α",
+      "provided_at": "2026-01-01T00:01:00.123000Z",
+      "provided_before_sequence_index": 3,
+      "capture_state": "captured",
+      "content_hash": "9fbce78d71635571ef48ac04c99f1f340ac5141749f62bde5a77b425192d0baf",
+      "salted": false,
+      "verifiability_at_seal": "verifiable",
+      "media_type": "application/pdf",
+      "source_version_hash": null,
+      "resolves": null,
+      "schema_version": "6.0.0",
+      "source_ref": "00000000-0000-4000-8000-000000000300",
+      "content_ref": "blob://ctx/e1",
+      "salt_ref": null,
+      "erasure_state": "present",
+      "pii_classification": null,
+      "entry_hash": "b08d864e0d6d41321cecbd90483ee1396ece80368f72ca496f772dfd04f85663"
+    },
+    {
+      "entry_id": "00000000-0000-4000-8000-000000000201",
+      "episode_id": "550e8400-e29b-41d4-a716-446655440000",
+      "entry_type": "retrieval",
+      "provided_to": "agent-α",
+      "provided_at": "2026-01-01T00:02:00.123000Z",
+      "provided_before_sequence_index": 4,
+      "capture_state": "captured",
+      "content_hash": "2a7fbee94824de448f6906cf9ab7ba4adb3acf485b6aa8736aff3399f1a80454",
+      "salted": false,
+      "verifiability_at_seal": "attested",
+      "media_type": "text/markdown",
+      "source_version_hash": "362b75cc45f4e6fe4bc08cf4c60336cd6f7bfd96ba24b908a458ad70c83f703c",
+      "resolves": null,
+      "schema_version": "6.0.0",
+      "source_ref": "kn:00000000-0000-4000-8000-000000000301",
+      "content_ref": null,
+      "salt_ref": null,
+      "erasure_state": "present",
+      "pii_classification": null,
+      "entry_hash": "a4dabb6716c72fc11c6e2a3cc2569c67c807c7b4c2aa882fb0dfb7ac4ef3f885"
+    },
+    {
+      "entry_id": "00000000-0000-4000-8000-000000000202",
+      "episode_id": "550e8400-e29b-41d4-a716-446655440000",
+      "entry_type": "retrieval",
+      "provided_to": "agent-β",
+      "provided_at": "2026-01-01T00:03:00.123000Z",
+      "provided_before_sequence_index": 4,
+      "capture_state": "captured",
+      "content_hash": "f94cc9f2c956d78e7a1c9c17ac6ae74580da6a8cb8256d923f012afa8b0e501a",
+      "salted": true,
+      "verifiability_at_seal": "verifiable",
+      "media_type": "text/plain",
+      "source_version_hash": "96d68b0087c61e35af1e7cb49f15108de3771c4531edb22c22e44462a5eb0cd0",
+      "resolves": null,
+      "schema_version": "6.0.0",
+      "source_ref": "doc:borrower-4471#dob",
+      "content_ref": "blob://ctx/e3",
+      "salt_ref": "salt://ctx/e3",
+      "erasure_state": "present",
+      "pii_classification": "low_entropy_personal",
+      "entry_hash": "4f45678a1893131e24d4afddd1350fbfcc7ce3f7cb5fe4ec893c76e58ff92704"
+    },
+    {
+      "entry_id": "00000000-0000-4000-8000-000000000203",
+      "episode_id": "550e8400-e29b-41d4-a716-446655440000",
+      "entry_type": "external",
+      "provided_to": "agent-α",
+      "provided_at": "2026-01-01T00:04:00.123000Z",
+      "provided_before_sequence_index": 5,
+      "capture_state": "captured",
+      "content_hash": "27322eb104437bfdab659d71a6a9b36c1b5adb6744daebdbd4d00546fabd36a6",
+      "salted": false,
+      "verifiability_at_seal": "verifiable",
+      "media_type": "text/html",
+      "source_version_hash": null,
+      "resolves": null,
+      "schema_version": "6.0.0",
+      "source_ref": "https://rates.example/sheet?date=2026-01-01 status=200 etag=\"7f3a\"",
+      "content_ref": "blob://ctx/e4",
+      "salt_ref": null,
+      "erasure_state": "present",
+      "pii_classification": null,
+      "entry_hash": "e88d185230ffbe206d333f59f4156fb7337b5ced90083e9b704727c73dea0397"
+    },
+    {
+      "entry_id": "00000000-0000-4000-8000-000000000204",
+      "episode_id": "550e8400-e29b-41d4-a716-446655440000",
+      "entry_type": "tool_output",
+      "provided_to": "agent-α",
+      "provided_at": "2026-01-01T00:05:00.123000Z",
+      "provided_before_sequence_index": 6,
+      "capture_state": "captured",
+      "content_hash": "30a472cc962aec7fb49506d745a2ea775a9ee369f2f2b87f6a49dbb586d71020",
+      "salted": false,
+      "verifiability_at_seal": "verifiable",
+      "media_type": "application/json",
+      "source_version_hash": "f6d40102b002eadf0b1b01b4a3b51c2b72c381c44c9ae852c372a7b23e20b8f2",
+      "resolves": null,
+      "schema_version": "6.0.0",
+      "source_ref": "00000000-0000-4000-8000-000000000310",
+      "content_ref": "blob://ctx/e5",
+      "salt_ref": null,
+      "erasure_state": "present",
+      "pii_classification": null,
+      "entry_hash": "956432ad9964673fced63541a9e1e6c3bf864ac5452a3d9f393bf60c6b8a5572"
+    },
+    {
+      "entry_id": "00000000-0000-4000-8000-000000000205",
+      "episode_id": "550e8400-e29b-41d4-a716-446655440000",
+      "entry_type": "retrieval",
+      "provided_to": "agent-β",
+      "provided_at": "2026-01-01T00:06:00.123000Z",
+      "provided_before_sequence_index": null,
+      "capture_state": "declared_incomplete",
+      "content_hash": null,
+      "salted": false,
+      "verifiability_at_seal": null,
+      "media_type": null,
+      "source_version_hash": null,
+      "resolves": null,
+      "schema_version": "6.0.0",
+      "source_ref": "index:query=income verification guidance;results=1",
+      "content_ref": null,
+      "salt_ref": null,
+      "erasure_state": "present",
+      "pii_classification": null,
+      "entry_hash": "0dbaaff8a22a5d772c49350bb94fc6fa825a635660fb128c2420bdff070d4cc3"
+    },
+    {
+      "entry_id": "00000000-0000-4000-8000-000000000206",
+      "episode_id": "550e8400-e29b-41d4-a716-446655440000",
+      "entry_type": "retrieval",
+      "provided_to": "agent-β",
+      "provided_at": "2026-01-01T00:07:00.123000Z",
+      "provided_before_sequence_index": null,
+      "capture_state": "captured",
+      "content_hash": "0af9cd1e51569ad22de45f3acce91771444b47b7cbac4a7aaa8fdede3622a2b7",
+      "salted": false,
+      "verifiability_at_seal": "verifiable",
+      "media_type": "text/plain",
+      "source_version_hash": "abfcdac1dd9d62664c924d7acaa13f7cbc88468a0c40e05b272ea43dd9d7f0e4",
+      "resolves": "00000000-0000-4000-8000-000000000205",
+      "schema_version": "6.0.0",
+      "source_ref": "index:doc=guidance-2026-09-01",
+      "content_ref": "blob://ctx/e7",
+      "salt_ref": null,
+      "erasure_state": "present",
+      "pii_classification": null,
+      "entry_hash": "eb174452baa2d2eb6ba47329dec7af36150cc07c669cd3fc92c5cb696102a643"
+    }
+  ],
+  "context_tree_v1": {
+    "rule": "the §5.4 version 2 tree (TREE_LEAF:v2:, TREE_NODE:v2:, raw bytes) over entry hashes sorted ascending bytewise; undefined for zero entries",
+    "sorted_leaf_order_entry_ids": [
+      "00000000-0000-4000-8000-000000000205",
+      "00000000-0000-4000-8000-000000000202",
+      "00000000-0000-4000-8000-000000000204",
+      "00000000-0000-4000-8000-000000000201",
+      "00000000-0000-4000-8000-000000000200",
+      "00000000-0000-4000-8000-000000000203",
+      "00000000-0000-4000-8000-000000000206"
+    ],
+    "root_seven_entries": "e730a2153f39eb61b27888528000ffdc0b88a94a24f3daf29300126a9d42acc1"
+  },
+  "context_manifest_v1": {
+    "rule": "CONTEXT_MANIFEST:v1: ‖ STRING(capture_posture) ‖ UINT(n) ‖ HASH|NULL(context_tree_root)",
+    "declared_only_seven": "94e7681209cb0315427622aee9b22abf832e5e35ba653cf7e692faa413e75df7",
+    "declared_only_seven_entries_in_reverse_insertion_order": "94e7681209cb0315427622aee9b22abf832e5e35ba653cf7e692faa413e75df7",
+    "all_external_seven": "68c1bc568cd1b4967dc8214a450dbb2e8a185841cddd76c5472451dfa70dcf92",
+    "declared_only_without_the_attested_retrieval": "54a733a5c6592d150f5374cb1327a44a72e2fd45a67ca20d07bda2a4cb4d5004",
+    "empty_none": "66be9e2d4febffe1afb2afb2e388aec945777f4f8b1ef58c1a5a234ea9eedb5d",
+    "empty_declared_only": "0bcf1339549cd0673d1776d198b856dba92987798b0ba9c9838ee1a936076e7d"
+  },
+  "episode_root_v3": {
+    "inputs": [
+      "base_episode.episode_id",
+      "base_episode.spine_root",
+      "base_episode.signal_manifest_hash",
+      "base_episode.structural_manifest_hash",
+      "base_episode.exclusion_hash",
+      "context_manifest_v1.declared_only_seven"
+    ],
+    "seven_entries_declared_only": "22675041b1af6243fe8c72f318ca853a6e775073355c718116c9ac0d19fe0e88",
+    "empty_manifest_posture_none": "490fb1f566a5ef75640f54d6d5550bd7706073809902d18348a870f188fd6882",
+    "seal_record": {
+      "episode_id": "550e8400-e29b-41d4-a716-446655440000",
+      "spine_root": "4420e38a22409317822ac14e3d5bc8069e6556c0fc08928290f76d23396daa01",
+      "signal_manifest_hash": "70dbc8e8f2e87b63e49187979b14ad56ba11219b42be132015c23dcad36acb43",
+      "structural_manifest_hash": "0a4b777227b87ee0d6c8efd5b2e9a5fc05c02e61d677f2460f868ab06779b537",
+      "exclusion_hash": "ddea405cc1729ebf63d93b16d723873ad02f9f64af3cc159bf86e5f999b02ce1",
+      "context_manifest_hash": "94e7681209cb0315427622aee9b22abf832e5e35ba653cf7e692faa413e75df7",
+      "capture_posture": "declared_only",
+      "context_entry_count": 7,
+      "episode_root_hash": "22675041b1af6243fe8c72f318ca853a6e775073355c718116c9ac0d19fe0e88",
+      "leaf_count": 7,
+      "spine_algorithm_version": 3,
+      "ordering_version": 2,
+      "hash_version": 2
+    }
+  },
+  "cm10_version_2_seal_is_unchanged_by_context_entries": {
+    "episode_root_v2_of_the_same_episode": "f0511b4d1be172554b9f87ec64d400d24a1409f1742ad72f628bf5ab7b7d33f0",
+    "equals_5.0.0_vector": true,
+    "rule": "context entries are not members of a version 2 root; a version 2 seal of this Episode reproduces to the ratified value whether or not entries exist"
+  },
+  "inclusion_proof_v1": {
+    "rule": "leaf_index is the entry's position in the sorted leaf list; the proof reproduces context_tree_root, then the manifest hash from posture and count, then the Episode root",
+    "entry_id": "00000000-0000-4000-8000-000000000202",
+    "proof": {
+      "leaf_index": 1,
+      "leaf_count": 7,
+      "entry_hash": "4f45678a1893131e24d4afddd1350fbfcc7ce3f7cb5fe4ec893c76e58ff92704",
+      "siblings": [
+        "5c2e34164e93e1de4d62b5b498cb1c6cfb5e456627f26cae21e1ad0140228ae9",
+        "f6d2ee6739f138deff2724d247ae8ceb5e70b112f1b74bbd5d929af5cff06429",
+        "d5c030cda42f4363eac47a200e2055334f4507f42de83ca1fb3b1373c6cc2f08"
+      ],
+      "context_tree_root": "e730a2153f39eb61b27888528000ffdc0b88a94a24f3daf29300126a9d42acc1"
+    },
+    "capture_posture": "declared_only",
+    "entry_count": 7,
+    "context_manifest_hash": "94e7681209cb0315427622aee9b22abf832e5e35ba653cf7e692faa413e75df7",
+    "episode_root_v3": "22675041b1af6243fe8c72f318ca853a6e775073355c718116c9ac0d19fe0e88"
+  },
+  "resolves": {
+    "declared_incomplete_entry_id": "00000000-0000-4000-8000-000000000205",
+    "declared_incomplete_entry_hash": "0dbaaff8a22a5d772c49350bb94fc6fa825a635660fb128c2420bdff070d4cc3",
+    "resolving_entry_id": "00000000-0000-4000-8000-000000000206",
+    "resolving_entry_hash": "eb174452baa2d2eb6ba47329dec7af36150cc07c669cd3fc92c5cb696102a643",
+    "rule": "the resolving entry's preimage binds the resolved entry's hash; the resolved entry is never mutated"
+  },
+  "erasure_v1": {
+    "entry_id": "00000000-0000-4000-8000-000000000202",
+    "before": {
+      "content_ref": "blob://ctx/e3",
+      "salt_ref": "salt://ctx/e3",
+      "erasure_state": "present"
+    },
+    "after": {
+      "content_ref": null,
+      "salt_ref": null,
+      "erasure_state": "tombstoned"
+    },
+    "entry_hash_unchanged": "4f45678a1893131e24d4afddd1350fbfcc7ce3f7cb5fe4ec893c76e58ff92704",
+    "tombstone": {
+      "tombstone_id": "00000000-0000-4000-8000-000000000400",
+      "episode_id": "550e8400-e29b-41d4-a716-446655440000",
+      "entry_id": "00000000-0000-4000-8000-000000000202",
+      "entry_hash": "4f45678a1893131e24d4afddd1350fbfcc7ce3f7cb5fe4ec893c76e58ff92704",
+      "erased_at": "2026-01-01T01:00:00.123000Z",
+      "erasure_authority": "GDPR-Art17",
+      "erasure_request_id": "dsr-2026-0142",
+      "erased_by": "privacy-officer",
+      "tombstone_hash": "05dac249ff0fcbd8f9022f3e57e173821541b20f0b2af54d1f65d168276ef384"
+    },
+    "tombstone_preimage_field_order": [
+      "tombstone_id UUID",
+      "episode_id UUID",
+      "entry_id UUID",
+      "entry_hash HASH",
+      "erased_at TIMESTAMP",
+      "erasure_authority STRING",
+      "erasure_request_id STRING",
+      "erased_by STRING"
+    ],
+    "context_manifest_hash_unchanged": "94e7681209cb0315427622aee9b22abf832e5e35ba653cf7e692faa413e75df7",
+    "episode_root_v3_unchanged": "22675041b1af6243fe8c72f318ca853a6e775073355c718116c9ac0d19fe0e88"
+  },
+  "external_entry_provenance_is_outside_the_preimage": {
+    "entry_id": "00000000-0000-4000-8000-000000000203",
+    "entry_hash": "e88d185230ffbe206d333f59f4156fb7337b5ced90083e9b704727c73dea0397",
+    "source_ref_changed_to": "https://rates.example/sheet?date=2026-01-02 status=404",
+    "entry_hash_after": "e88d185230ffbe206d333f59f4156fb7337b5ced90083e9b704727c73dea0397"
+  }
+}

@@ -5,7 +5,7 @@
 **Authors:** Scorched Earth Labs
 **Date:** 2026-09-18
 **Applies To:** SPEC.md 5.0.0 — §5.1 Canonical Field Encoding, §5.2 Leaf Hash, §5.6 Episode Spine Leaf Set, §5.7 Episode Root, §5.8 Algorithm and Ordering Versions, §9.2 Inclusion Proof, §9.3 Reproducibility Obligation, G-1, G-40. RP-001 … RP-008 exercise the retained `spine_algorithm_version` 0 and 1 constructions, which every verifier of a 4.x seal must implement; RP-009 … RP-011 exercise `spine_algorithm_version` 2.
-**Companions:** [CONFORMANCE.md](CONFORMANCE.md) (§16 trust infrastructure), [CONFORMANCE-BFM.md](CONFORMANCE-BFM.md), [CONFORMANCE-LAYER3.md](CONFORMANCE-LAYER3.md), [CONFORMANCE-CROSS-EPISODE-LINKING.md](CONFORMANCE-CROSS-EPISODE-LINKING.md)
+**Companions:** [CONFORMANCE-CONTEXT.md](CONFORMANCE-CONTEXT.md) (`spine_algorithm_version` 3 — the spine root is byte-identical to version 2, so RP-009 … RP-011 apply to a version 3 seal unchanged; the sixth root field, `context_manifest_hash`, is exercised by CM-001 … CM-010), [CONFORMANCE.md](CONFORMANCE.md) (§16 trust infrastructure), [CONFORMANCE-BFM.md](CONFORMANCE-BFM.md), [CONFORMANCE-LAYER3.md](CONFORMANCE-LAYER3.md), [CONFORMANCE-CROSS-EPISODE-LINKING.md](CONFORMANCE-CROSS-EPISODE-LINKING.md)
 
 ---
 
