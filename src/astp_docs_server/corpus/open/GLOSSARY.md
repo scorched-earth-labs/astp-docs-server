@@ -1,9 +1,9 @@
 # Glossary of Terms
 
-**Version:** none of its own — versioned with [`SPEC.md`](./SPEC.md); reconciled with SPEC 5.1.0
+**Version:** none of its own — versioned with [`SPEC.md`](./SPEC.md); reconciled with SPEC 6.0.0
 **Status:** Current
 **Authors:** Scorched Earth Labs
-**Date:** 2026-09-19
+**Date:** 2026-09-22
 **Applies To:** `SPEC.md`, the `CONFORMANCE*.md` and `IMPLEMENTATION-*.md` documents, and the `astp` Python package
 
 ---
@@ -511,6 +511,35 @@ A normative change, taken through the process in `GOVERNANCE.md` (proposal → d
 
 ---
 
+## 18. Context Commitment (SPEC §4.8, §4.9, §5.7.3)
+
+### Context Entry
+A stored node (`ContextEntryNode`, SPEC §4.8) recording that external content was provided to an agent's context during the Episode, or that a provision was attempted and its content not captured. Kind is a property: `entry_type` is `attachment`, `retrieval`, `external` or `tool_output`. Its hash (`CONTEXT_ENTRY:v1:`, §5.7.3) binds its claims; `source_ref`, `content_ref`, `salt_ref` and `erasure_state` are side-channel.
+
+### Provided
+Content is *provided* when it enters the context window of an agent whose reasoning is recorded as Segments in the Episode. What a retriever or fetcher returned but did not place before such an agent is not provided; it stays in the §11.1 audit. The claim of a context entry is "what the agent was given," never "what it relied on."
+
+### Context Manifest
+The Episode-root component (§5.7.3) committing the Episode's context entries: the version 2 Merkle tree over their entry hashes in ascending bytewise order, bound with the capture posture and the entry count under `CONTEXT_MANIFEST:v1:`. A function of the set; the sixth field of Episode root version 3 (§5.7, `spine_algorithm_version` 3).
+
+### Capture Posture
+The Episode's sealed declaration of what it undertook to capture — `all_external`, `declared_only` or `none` (§5.7.3, G-41). It bounds what the absence of an entry may be read to mean.
+
+### Verifiability at Seal
+Of a captured entry: `verifiable` — a retained copy of the provided bytes existed at seal and re-hashes to `content_hash`; `attested` — the commitment exists but no retained copy did (§4.8.4). Fixed at seal; a later erasure is recorded by tombstone, not by changing it.
+
+### Declared Incomplete
+A context entry whose provision was attempted and whose content was not captured (§4.8.5). A positive member of the manifest: a gap that cannot be stripped. Never mutated; repaired only by a new entry that `resolves` it.
+
+### Salted Commitment
+The `CONTEXT_CONTENT_SALTED:v1:` construction (§4.8.3): a per-entry 32-byte CSPRNG salt, stored separately from the content, hashed with it. Required for low-entropy personal data (G-42); destroying the salt with the content leaves a commitment that confirms no guess.
+
+### Erasure Tombstone
+The §12.4.1 codicil that witnesses the erasure of a context entry's content (`ErasureTombstone`, §4.9.3, `ERASURE_TOMBSTONE:v1:`). It binds the erased entry's unchanged hash; the erasure moves no sealed value (G-43).
+
+### Content Plane / Integrity Plane
+Content lives behind `content_ref` and `salt_ref` (content plane). Hashes, entries, manifests and roots (integrity plane) never bind content, only its commitment. Right-to-delete acts on the content plane alone — *the seal proves history, not retention.*
+
 ## Alphabetical Index
 
 - **Adapter Failure Contract** — §16
@@ -523,6 +552,7 @@ A normative change, taken through the process in `GOVERNANCE.md` (proposal → d
 - **Branch / BranchPoint / BranchTerminus** — §11
 - **Canonical Field Encoding** — §3
 - **Canonical JSON** — §3
+- **Capture Posture** — §18
 - **Chain Key** — §9
 - **Chain Proof** — §13
 - **Chain Verification** — §9
@@ -535,10 +565,14 @@ A normative change, taken through the process in `GOVERNANCE.md` (proposal → d
 - **Conformance Tiers** — §14
 - **ConformanceDeclaration** — §14
 - **Consultation / ConsultationNode** — §2, §10
+- **Content Plane / Integrity Plane** — §18
 - **`content_hash`** — §3
 - **`content_ref`** — §3
+- **Context Entry / `ContextEntryNode`** — §18
+- **Context Manifest** — §18
 - **Crystallization** — §7
 - **CrystallizationDeltaNode** — §2
+- **Declared Incomplete** — §18
 - **Departure Fork / DepartureForkPoint / ForkReturn** — §11
 - **Design Episode** — §17
 - **Domain Prefix** — §3
@@ -550,6 +584,7 @@ A normative change, taken through the process in `GOVERNANCE.md` (proposal → d
 - **`episode_root_hash`** — §3
 - **EpisodeLink** — §14
 - **EpisodeNode** — §2
+- **Erasure Tombstone** — §18
 - **ExchangeEntry** — §2
 - **Exclusion Set** — §5
 - **ExecutionNode** — §15
@@ -576,6 +611,7 @@ A normative change, taken through the process in `GOVERNANCE.md` (proposal → d
 - **Outermost Sealed Commitment** — §5
 - **`parent_node_id`** — §3
 - **Proof of Record** — §16
+- **Provided** — §18
 - **Rebalance Event** — §5
 - **Reference Implementation** — §16
 - **Reparenting Prohibition** — §12
@@ -583,6 +619,7 @@ A normative change, taken through the process in `GOVERNANCE.md` (proposal → d
 - **Resolved Signal Order** — §5
 - **Resumption Isolation Rule** — §14
 - **Retrieval Audit Record** — §9
+- **Salted Commitment** — §18
 - **Schema Version / `schema_version`** — §3, §17
 - **Seal** — §5
 - **Sealed (property)** — §6
@@ -597,6 +634,7 @@ A normative change, taken through the process in `GOVERNANCE.md` (proposal → d
 - **Spine Tip Cache** — §5
 - **`spine_root` / `sealed_chain_root`** — §3
 - **Structural Manifest** — §5
+- **Verifiability at Seal** — §18
 - **Version Identifiers** — §5
 - **Versioning Policy** — §17
 - **WIL — Write Intent Log** — §8

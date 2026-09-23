@@ -14,11 +14,11 @@ dependencies = [
 [project.optional-dependencies]
 # The MCP transport (FastMCP), for adopters' coding agents. Kept out of the base
 # deps so the web head can deploy without the MCP SDK.
-mcp = ["mcp>=1.0.0"]
+mcp = ["mcp>=1.0.0,<2"]
 # The web-chat head. anthropic powers the default Claude generator; the endpoint
 # also runs keyless via the extractive fallback.
 web = ["fastapi>=0.110", "uvicorn>=0.27", "anthropic>=0.40"]
-dev = ["pytest>=7.0.0", "httpx>=0.27", "mcp>=1.0.0"]
+dev = ["pytest>=7.0.0", "httpx>=0.27", "mcp>=1.0.0,<2"]
 
 [project.scripts]
 astp-docs-open = "astp_docs_server.mcp_server:run"

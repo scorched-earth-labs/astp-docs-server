@@ -14,7 +14,7 @@ produces non-conforming adapters).
 
 - Prefer the **ASTP Docs MCP server** for exact lookups — it returns
   governance rules, conformance vectors, sections, and hash preimages verbatim
-  with citations: `search_spec`, `get_governance_rule` (G-1..G-40),
+  with citations: `search_spec`, `get_governance_rule` (G-1..G-43),
   `get_conformance_vectors` (e.g. RP-009 or a family like RP), `get_section`,
   `get_hash_preimage`, `get_test_vectors` (the machine-readable expected digests),
   `corpus_info`.
@@ -24,11 +24,12 @@ produces non-conforming adapters).
 
 ## Normative documents (open corpus)
 
-- SPEC.md — the canonical protocol specification, 5.2.0 (§1–§22; governance G-1..G-40)
+- SPEC.md — the canonical protocol specification, 6.0.0 (§1–§22; governance G-1..G-43)
 - CONFORMANCE-REPRODUCIBILITY.md — seal constructions and reproducibility (RP-*), with vectors/5.0.0/seal-constructions.json
 - GLOSSARY.md — every term, reconciled with the SPEC
 - GOVERNANCE.md / VERSIONING.md — how the protocol changes; Episodes of Record
-- docs/RATIFICATION-5.0.0.md — the 5.0.0 Episode of Record statement
+- CONFORMANCE-CONTEXT.md — §4.8–§4.9, §5.7.3 context commitment and erasure (CM-*), with vectors/6.0.0/context-commitment.json; IMPLEMENTATION-CONTEXT.md is its implementation guide
+- docs/RATIFICATION-5.0.0.md / docs/RATIFICATION-6.0.0.md — the 5.0.0 and 6.0.0 Episode of Record statements
 - CONFORMANCE-BFM.md — §19 branch/fork/merge, asides, soliloquies
 - CONFORMANCE-CROSS-EPISODE-LINKING.md — §20 cross-episode linking and grouping
 - CONFORMANCE-LAYER3.md — §21 Workflow & Execution DAG

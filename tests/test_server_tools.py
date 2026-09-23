@@ -79,9 +79,27 @@ def test_get_test_vectors_returns_the_vendored_file_with_its_digest():
     if not files:
         pytest.skip("no vendored test vectors (run scripts/vendor_corpus.py)")
     out = load_test_vectors()
-    assert out["path"].startswith("vectors/") and out["path"].endswith("seal-constructions.json")
-    assert len(out["sha256"]) == 64 and out["version"] in out["available_versions"]
-    v = out["vectors"]
+    assert out["path"].startswith("vectors/") and out["path"].endswith(".json")
+    assert len(out["sha256"]) == 64 and out["version"] == out["available_versions"][-1]
+    five = load_test_vectors("5.0.0")
+    assert five["path"] == "vectors/5.0.0/seal-constructions.json"
+    v = five["vectors"]
     assert "episode_root_v2" in v and "witness_and_anchor_v2" in v and "audit_records_v2" in v
+    if "6.0.0" in out["available_versions"]:
+        six = load_test_vectors("6.0.0")
+        assert six["path"] == "vectors/6.0.0/context-commitment.json"
+        assert "context_manifest_v1" in six["vectors"] and "episode_root_v3" in six["vectors"]
     with pytest.raises(FileNotFoundError, match="available"):
         load_test_vectors("0.0.1")
+
+
+def test_mcp_entry_point_imports():
+    """The `astp-docs-open` console script is `astp_docs_server.mcp_server:run`.
+    Nothing else here imports that module, so an incompatible `mcp` SDK (2.x
+    renamed FastMCP) left the suite green while the server itself would not
+    start. Importing it is the whole test."""
+    pytest.importorskip("mcp")
+    from astp_docs_server import mcp_server
+
+    assert callable(mcp_server.run)
+    assert callable(mcp_server.get_test_vectors)
