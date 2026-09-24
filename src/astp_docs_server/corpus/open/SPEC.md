@@ -1,9 +1,9 @@
 # ASTP — AI State Tree Protocol Specification
 
-**Version:** 6.0.0
+**Version:** 6.0.1
 **Status:** Stable — ratified in Episode of Record `80e5a2dd-3d9f-45d0-abfb-6489c8caf1b8` (below)
 **Authors:** Scorched Earth Labs
-**Date:** 2026-09-22
+**Date:** 2026-09-24
 **Supersedes:** [`SPEC-v5.md`](./docs/history/SPEC-v5.md) (5.2.0); earlier, [`SPEC-v4.md`](./docs/history/SPEC-v4.md) (4.5.0), [`SPEC-v3.md`](./docs/history/SPEC-v3.md) (3.5.1) and [`SPEC-v1.md`](./docs/history/SPEC-v1.md) (0.1.0-draft)
 **Change history:** [`CHANGELOG.md`](./CHANGELOG.md)
 **Versioning policy:** [`VERSIONING.md`](./VERSIONING.md)
@@ -709,6 +709,8 @@ Members, each under its own prefix (so the set needs no per-member type tag):
 | HITL event in a terminal state — `RESOLVED`, `TIMED_OUT` or `ESCALATED` | `HITL_NODE:v2:` | HASH `context_hash`, HASH `resolution_hash` — where `context_hash` = `HITL_CONTEXT:v2:` over STRING `hitl_request_id`, UUID `episode_id`, STRING `gate_type`, STRING `requesting_agent`, TIMESTAMP `invoked_at`, STRING `context_json`; and `resolution_hash` = `HITL_RESOLUTION:v2:` over UUID `hitl_event_id`, STRING `decision`, STRING `resolved_by`, TIMESTAMP `resolved_at`, STRING\|NULL `rationale` |
 
 Relative to the 4.x node hashes the lists add `spine_merkle_snapshot` and `merge_type` and drop `initiated_by`, `initiator`, `returned_by` and `synthesis_summary`; the remaining fields keep their 4.x order. `parent_hash` is NULL at the head of a chain (4.x used the text `GENESIS`). A HITL event still `INVOKED` is not a member. `ESCALATED` is terminal: escalation concludes *this* gate — its resolution is the escalation decision — and any further deliberation happens at a distinct gate raised with the higher authority; `ESCALATED` and `RESOLVED` MUST remain distinguishable (§4.6). Removing any member changes `structural_manifest_hash` and therefore the Episode root. This is the anchoring path for human decisions: a concluded HITL event is not a spine leaf, and it is committed.
+
+**Spine-state fields.** `spine_merkle_snapshot`, a MergePoint's `source_merkle_root` and `target_merkle_root_pre`, and a BranchTerminus's `final_merkle_root` bind the spine as it stood when the node was created — normally before the Episode is sealed, when no stored spine root exists yet. Each is the Episode's **live spine root** at that moment: the `spine_algorithm_version` 2 Merkle root (§5.4) over the `hash_version` 2 leaves (§5.2) of the Episode's non-ephemeral Segments (§5.6) in `sequence_index` order — for a BranchPoint, through its `source_segment_id` inclusive; for the others, all of them. Over the same Segments it equals the `spine_root` the seal computes. It is bound, not recomputed: a verifier checks the member hash over the stored value. A node whose non-nullable spine-state field is not a 32-byte hash cannot be a version 2 member, and an Episode holding one cannot seal under version 2 or 3.
 
 **A structural node created after a seal.** A sealed Episode root is immutable, so a node created after a seal is never a member of that seal's manifest. It is committed by the Episode's **next** crystallization — deltas chain — and it MUST carry a reference to the earlier seal it post-dates (its `episode_root_hash` and `sealed_at`). It is a member of the later root that *references* the earlier one, never of the earlier one, and the two MUST NOT be conflated. A structural node that is never committed into any root is not permitted: it would assert structure while bound to nothing. This governs the one retroactive write of §19.3.7.
 
