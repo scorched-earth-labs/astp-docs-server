@@ -96,6 +96,54 @@ def build_open_corpus_spec(protocol_dir: str | None = None) -> CorpusSpec:
     return CorpusSpec(name="astp-open", visibility=Visibility.OPEN, docs=docs)
 
 
+def open_corpus_fingerprint(protocol_dir: str | None = None) -> str:
+    """SHA-256 over the relative path and content of every file the open corpus
+    serves — the documents the retriever indexes and the test-vector files.
+
+    Changes iff a freshly built retriever (or the vectors tool) would serve
+    something different. A long-running process that built its retriever at
+    startup (the Discord bot) compares this to decide when to rebuild — it had
+    served SPEC 5.1.0 for days after 6.0.0 was vendored."""
+    import hashlib
+
+    from .vendor_manifest import file_digest
+
+    base = resolve_corpus_dir(protocol_dir)
+    paths = {d.path for d in docrefs_from_dir(base, OPEN_DOC_PATTERNS, exclude=OPEN_DOC_EXCLUDE)}
+    paths.update(list_test_vector_files(base).values())
+    h = hashlib.sha256()
+    for path in sorted(paths):
+        rel = os.path.relpath(path, base).replace(os.sep, "/")
+        h.update(f"{rel}\0{file_digest(path)}\n".encode())
+    return h.hexdigest()
+
+
+def served_corpus_info(protocol_dir: str | None = None) -> dict:
+    """What is being served: SPEC version, source commit, where from.
+
+    From the vendor manifest for a vendored snapshot; for a live checkout
+    (``ARIADNE_PROTOCOL_DIR``), from its SPEC.md and git HEAD. Reported on
+    ``/healthz`` so a deployed server's freshness can be checked from outside."""
+    import subprocess
+
+    from .vendor_manifest import parse_spec_version, read_manifest
+
+    base = resolve_corpus_dir(protocol_dir)
+    manifest = read_manifest(base) or {}
+    commit = manifest.get("source_commit")
+    if not commit:
+        try:
+            commit = subprocess.check_output(["git", "-C", base, "rev-parse", "HEAD"], text=True,
+                                             stderr=subprocess.DEVNULL).strip()
+        except Exception:
+            commit = None
+    return {
+        "spec_version": manifest.get("spec_version") or parse_spec_version(os.path.join(base, "SPEC.md")),
+        "source_commit": commit,
+        "vendored": bool(manifest),
+    }
+
+
 def list_test_vector_files(protocol_dir: str | None = None) -> dict[str, str]:
     """Repository-relative path -> absolute path of every vendored/available
     test-vector file, e.g. ``{"vectors/5.0.0/seal-constructions.json": ...,
