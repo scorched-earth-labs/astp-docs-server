@@ -33,7 +33,8 @@ Once `astp-docs-core` is published to PyPI (or made public), drop the
 
 | Var | Default (image) | Purpose |
 |---|---|---|
-| `ARIADNE_CHAT_MODE` | `extractive` | `extractive` = keyless (no LLM). `claude` = synthesize with Claude. `ollama` = synthesize with a local Ollama model (keyless, $0/call). |
+| `ARIADNE_WEB_ENABLE_CHAT` | `false` | **`POST /chat` is not mounted unless this is `true`.** A public deployment should normally leave it off and serve `/search` + the MCP tools only; the Discord heads run the answerer in-process on the host that owns the model and do not use this endpoint. `/healthz` reports `chat`. |
+| `ARIADNE_CHAT_MODE` | `extractive` | Only matters when chat is enabled. `extractive` (or unset) = keyless (no LLM). `claude` = synthesize with Claude — the **only** paid option, and only when asked for. `ollama` = synthesize with a local Ollama model (keyless, $0/call) — never point `ARIADNE_OLLAMA_URL` at a private host from a public deployment. |
 | `ANTHROPIC_API_KEY` | — | Required when `ARIADNE_CHAT_MODE=claude`. |
 | `ARIADNE_CHAT_MODEL` | `claude-opus-4-8` | Generation model (cost/quality knob) when mode is `claude`. |
 | `ARIADNE_OLLAMA_URL` | `http://localhost:11434` | Ollama endpoint when mode is `ollama`. |
@@ -42,10 +43,20 @@ Once `astp-docs-core` is published to PyPI (or made public), drop the
 | `ARIADNE_PROTOCOL_DIR` | — | Override the vendored corpus with a live checkout (dev only). |
 | `ARIADNE_WEB_HOST` / `ARIADNE_WEB_PORT` | `0.0.0.0` / `8080` | Bind address. |
 
-Enable real answers with a locked-down origin:
+The public default — search + MCP only, no chat, nothing that can spend:
 
 ```bash
 docker run -p 8080:8080 \
+  -e ARIADNE_CORS_ORIGINS=https://docs.example.com \
+  astp-docs-server
+```
+
+Opting in to chat with Claude (paid — put a spend cap on the key's workspace
+and rate-limit in front of it before exposing this publicly):
+
+```bash
+docker run -p 8080:8080 \
+  -e ARIADNE_WEB_ENABLE_CHAT=true \
   -e ARIADNE_CHAT_MODE=claude \
   -e ANTHROPIC_API_KEY=sk-ant-... \
   -e ARIADNE_CORS_ORIGINS=https://docs.example.com \

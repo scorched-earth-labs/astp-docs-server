@@ -215,16 +215,17 @@ class OllamaAnswerer(Answerer):
 
 
 def default_answerer() -> Answerer:
-    """Pick a generator from the environment: ``ARIADNE_CHAT_MODE`` =
-    ``extractive`` (keyless, no LLM) or ``ollama`` (keyless, local model);
-    otherwise Claude when the anthropic SDK is importable, else extractive."""
-    mode = os.environ.get("ARIADNE_CHAT_MODE", "").lower()
-    if mode == "extractive":
-        return ExtractiveAnswerer()
+    """Pick a generator from ``ARIADNE_CHAT_MODE``: ``claude`` (paid — must be
+    asked for), ``ollama`` (keyless, local model), or anything else / unset →
+    ``extractive`` (keyless, no LLM).
+
+    Unset used to mean Claude whenever the anthropic SDK was importable — and
+    the ``[web]`` extra the image installs includes it, so a deployment that set
+    nothing would spend a provider's credits. A paid generator is now opt-in,
+    matching DEPLOY.md."""
+    mode = os.environ.get("ARIADNE_CHAT_MODE", "").strip().lower()
+    if mode == "claude":
+        return ClaudeAnswerer()
     if mode == "ollama":
         return OllamaAnswerer()
-    try:
-        import anthropic  # noqa: F401
-    except ImportError:
-        return ExtractiveAnswerer()
-    return ClaudeAnswerer()
+    return ExtractiveAnswerer()

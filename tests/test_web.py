@@ -117,7 +117,7 @@ def client():
     from astp_docs_server.web.app import create_app
 
     retriever = Retriever.from_spec(_spec) if _spec else Retriever(DocIndex(chunk_corpus([MINI])))
-    app = create_app(retriever=retriever, answerer=ExtractiveAnswerer())
+    app = create_app(retriever=retriever, answerer=ExtractiveAnswerer(), enable_chat=True)
     return TestClient(app)
 
 

@@ -2,8 +2,14 @@
 
 Endpoints:
   POST /chat    {query, k}  → doc-grounded, cited answer (LLM or extractive)
+                              OFF unless ARIADNE_WEB_ENABLE_CHAT=true (see below)
   GET  /search  ?q=&k=      → pure retrieval, no LLM (a docs search box)
-  GET  /healthz             → liveness + what's being served
+  GET  /healthz             → liveness + what's being served (SPEC version, source commit)
+
+/chat is off by default. On a public host it can spend a model provider's
+credits for anyone who finds it (it uses Claude whenever the SDK and a key are
+present), so a deployment must opt in. The Discord heads don't use this
+endpoint — they run the answerer in-process on the host that owns the model.
 
 Serves ONLY the open corpus. The generator is pluggable (see answerer.py); the
 retriever is the same core the MCP server uses, so both heads cite identical
@@ -20,7 +26,7 @@ from pydantic import BaseModel, Field
 
 from astp_docs.core import Retriever
 from astp_docs.toolkit import anchored_search
-from ..open_corpus import build_open_corpus_spec
+from ..open_corpus import build_open_corpus_spec, served_corpus_info
 from .answerer import Answerer, default_answerer
 
 
@@ -29,7 +35,16 @@ class ChatRequest(BaseModel):
     k: int = Field(default=5, ge=1, le=20)
 
 
-def create_app(retriever: Retriever | None = None, answerer: Answerer | None = None) -> FastAPI:
+def chat_enabled_from_env() -> bool:
+    return os.environ.get("ARIADNE_WEB_ENABLE_CHAT", "false").strip().lower() in ("1", "true", "yes")
+
+
+def create_app(retriever: Retriever | None = None, answerer: Answerer | None = None,
+               enable_chat: bool | None = None) -> FastAPI:
+    """``enable_chat`` defaults to ``ARIADNE_WEB_ENABLE_CHAT`` (off). When off,
+    ``/chat`` is not mounted and no answerer is ever built."""
+    if enable_chat is None:
+        enable_chat = chat_enabled_from_env()
     app = FastAPI(title="ASTP Docs Assistant", version="0.1.0")
 
     # Public read-only docs assistant: permissive CORS by default so the widget
@@ -39,7 +54,7 @@ def create_app(retriever: Retriever | None = None, answerer: Answerer | None = N
     app.add_middleware(
         CORSMiddleware,
         allow_origins=[o.strip() for o in origins],
-        allow_methods=["GET", "POST"],
+        allow_methods=["GET", "POST"] if enable_chat else ["GET"],
         allow_headers=["*"],
     )
 
@@ -58,8 +73,9 @@ def create_app(retriever: Retriever | None = None, answerer: Answerer | None = N
     @app.get("/healthz")
     def healthz() -> dict:
         r = get_retriever()
-        return {"status": "ok", "corpus": r.corpus_name,
-                "embedder": r.embedder_name, "generator": get_answerer().name}
+        return {"status": "ok", "corpus": r.corpus_name, "embedder": r.embedder_name,
+                "chat": enable_chat, "generator": get_answerer().name if enable_chat else None,
+                **served_corpus_info()}
 
     @app.get("/search")
     def search(q: str, k: int = 5) -> dict:
@@ -67,17 +83,18 @@ def create_app(retriever: Retriever | None = None, answerer: Answerer | None = N
         return {"query": q, "count": len(results),
                 "results": [res.to_dict() for res in results]}
 
-    @app.post("/chat")
-    def chat(req: ChatRequest) -> dict:
-        # Exact anchors named in the question resolve first (G-2, WF-001, §5.2),
-        # vector search fills the rest — see astp_docs.toolkit.anchored_search.
-        results = anchored_search(get_retriever(), req.query, k=req.k)
-        out = get_answerer().answer(req.query, results)
-        return {"query": req.query, **out}
+    if enable_chat:
+        @app.post("/chat")
+        def chat(req: ChatRequest) -> dict:
+            # Exact anchors named in the question resolve first (G-2, WF-001, §5.2),
+            # vector search fills the rest — see astp_docs.toolkit.anchored_search.
+            results = anchored_search(get_retriever(), req.query, k=req.k)
+            out = get_answerer().answer(req.query, results)
+            return {"query": req.query, **out}
 
     @app.get("/", response_class=HTMLResponse)
     def demo() -> str:
-        return _DEMO_HTML
+        return _DEMO_HTML.replace("__CHAT_ENABLED__", "true" if enable_chat else "false")
 
     return app
 
@@ -98,10 +115,17 @@ _DEMO_HTML = """<!doctype html><html><head><meta charset="utf-8">
 <button onclick="ask()">Ask</button>
 <div id="a"></div><div class="cite" id="c"></div>
 <script>
+const CHAT=__CHAT_ENABLED__;
 async function ask(){
+ const q=document.getElementById('q').value;
  document.getElementById('a').textContent='…';
+ if(!CHAT){  // chat is off on this deployment: show the retrieval results instead
+  const r=await fetch('/search?k=5&q='+encodeURIComponent(q)); const j=await r.json();
+  document.getElementById('a').textContent=(j.results||[]).map((x,i)=>'['+(i+1)+'] '+(x.citation||x.doc_id||'')+'\n'+(x.text||'').slice(0,400)).join('\n\n');
+  document.getElementById('c').textContent='(search only — chat is not enabled on this server)'; return;
+ }
  const r=await fetch('/chat',{method:'POST',headers:{'content-type':'application/json'},
-   body:JSON.stringify({query:document.getElementById('q').value,k:5})});
+   body:JSON.stringify({query:q,k:5})});
  const j=await r.json();
  document.getElementById('a').textContent=j.answer;
  document.getElementById('c').textContent=(j.citations||[]).map(c=>'['+c.n+'] '+c.citation).join('   ');
