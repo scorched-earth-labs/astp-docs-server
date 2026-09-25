@@ -6,6 +6,20 @@ All notable changes to ASTP (the AI State Tree Protocol). Version numbering foll
 
 The next change-set queues here.
 
+## [6.0.1] — 2026-09-24
+
+**PATCH.** Clarification: what a spine-state field holds for a live Episode.
+
+### Fixed
+- **§5.7.1 Spine-state fields.** `spine_merkle_snapshot`, a MergePoint's `source_merkle_root` / `target_merkle_root_pre` and a BranchTerminus's `final_merkle_root` are the Episode's **live spine root** when the node is created: the `spine_algorithm_version` 2 root over the `hash_version` 2 leaves of its non-ephemeral Segments (through the `source_segment_id` for a BranchPoint), which equals the seal's `spine_root` over the same Segments. The 6.0.0 text bound `spine_merkle_snapshot` as a non-nullable HASH but did not say what it is before the seal, when no stored spine root exists — and the reference package read the (absent) stored root, so every branch of a live Episode held `""`, its `BRANCH_POINT:v2:` member could not be hashed, and the Episode could not seal under version 2 or 3. No preimage, field list or vector changes.
+
+### Reference package (`astp` 2.2.0 — `PROTOCOL_VERSION` 6.0.1)
+- **`StructuralStore.spine_segments(episode_id)`** — the Episode's spine leaves as `SegmentSealInput` (non-ephemeral, content-hashed, `parent_node_id` = the Episode). A deployment MUST return exactly what its seal reads. `InMemoryStore` implements it.
+- **`astp.core.branch_operations.live_spine_root(store, episode_id, through_segment_id=None)`** — the §5.7.1 live root; None when there is no leaf.
+- **`astp.core.seal_v2.spine_leaf_hashes_v2`** — the leaf construction `compute_episode_seal_v2` already used, factored out so the seal and the live root share one implementation. Seal output is unchanged (every vector reproduces).
+- `create_branch` binds the live root through the source Segment; `abandon_branch` / termination binds the live root as `final_merkle_root`; `execute_merge` binds the source's and target's live roots (it refused every merge of two live Episodes, whose stored roots were empty).
+- `tests/unit/protocol/test_live_spine_root.py`: the live root of a whole Episode equals the seal's `spine_root`; prefix and ephemeral handling; `create_branch` → a 64-hex snapshot whose `BRANCH_POINT:v2:` member hashes.
+
 ## [6.0.0] — 2026-09-22
 
 **MAJOR.** The context commitment: a sealed Episode now proves what its agents were *given*. Ratified in Episode of Record `80e5a2dd-3d9f-45d0-abfb-6489c8caf1b8` (sealed 2026-09-22, `episode_root_hash` `45cd50c5d34c6d1ec49fa9a6fd7989036e2d91d624f66e9eb8e93c9904f27d3e`), which ratifies the amendment text at commit `4ec1de1` by content digest together with its reference vectors ([`docs/RATIFICATION-6.0.0.md`](./docs/RATIFICATION-6.0.0.md)). Every construction is new and versioned; every seal made under `spine_algorithm_version` 0, 1 or 2 is unchanged and stays reproducible. The governing invariant: **the seal proves history, not retention.**
