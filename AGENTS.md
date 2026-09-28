@@ -17,6 +17,9 @@ the AI State Tree Protocol, read this first.
    - `get_hash_preimage("witness commitment")` — which fields a hash binds, in order
    - `get_test_vectors()` — the machine-readable vector file with every expected digest
    - `search_spec("…")` — semantic search when you don't know the anchor
+   - `get_license_terms()` — LICENSE.txt, NOTICE and PATENTS.md, whole. Answer
+     "may we use this" from their text, not from "it's Apache 2.0": the patent
+     pledge and the protocol-name policy are separate documents
 3. **Reproduce the vectors, from the text.** Every 5.0.0 seal construction has
    a pinned expected value in `vectors/5.0.0/seal-constructions.json`, and every
    6.0.0 context-commitment construction in `vectors/6.0.0/context-commitment.json`. Implement

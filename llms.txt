@@ -17,7 +17,7 @@ produces non-conforming adapters).
   with citations: `search_spec`, `get_governance_rule` (G-1..G-43),
   `get_conformance_vectors` (e.g. RP-009 or a family like RP), `get_section`,
   `get_hash_preimage`, `get_test_vectors` (the machine-readable expected digests),
-  `corpus_info`.
+  `get_license_terms` (the licensing documents, verbatim), `corpus_info`.
 - Hash preimages, field order, and governance rules are **normative and exact**
   — read them, do not infer them. A wrong field set or order produces a
   different content hash and a non-conforming implementation.
@@ -38,6 +38,14 @@ produces non-conforming adapters).
 
 The protocol names storage roles, not providers (SPEC §12.1). Storage-layout guides for §19–§21 are a deployment's, not the protocol's, and ship with the reference deployment's adapter rather than in this corpus.
 - GLOSSARY.md, CHANGELOG.md, VERSIONING.md
+
+## Licensing (served verbatim, never indexed)
+
+- LICENSE.txt — the Apache License, Version 2.0
+- NOTICE — copyright; the protocol-name policy ("ASTP" is free to use as a name, and using it does not by itself assert conformance); the trademark position
+- PATENTS.md — a patent pledge to Conforming Implementations, separate from and in addition to the Apache license
+
+Get all three, whole, with the get_license_terms tool (or GET /license-terms). They are not in search results, and the chat head does not summarise them: read the text, not a paraphrase. Not legal advice.
 
 ## Optional
 

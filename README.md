@@ -17,9 +17,10 @@ the proprietary corpus is a separate, private server.
 src/astp_docs_server/
   open_corpus.py     # the OPEN CorpusSpec (points at the astp protocol docs)
   mcp_server.py      # FastMCP transport — search_spec / get_governance_rule /
-                     #   get_conformance_vectors / get_section / get_hash_preimage / corpus_info
+                     #   get_conformance_vectors / get_section / get_hash_preimage /
+                     #   get_test_vectors / get_license_terms / corpus_info
   atlas_manifest.py  # Atlas registration (read-only)
-  web/               # HTTP transport: /chat, /search, /healthz + a reference demo
+  web/               # HTTP transport: /chat, /search, /license-terms, /healthz + a reference demo
 ```
 
 The retrieval engine, chunker, index, vector search, and the shared tool logic

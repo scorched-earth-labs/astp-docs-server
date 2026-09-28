@@ -4,6 +4,7 @@ Endpoints:
   POST /chat    {query, k}  → doc-grounded, cited answer (LLM or extractive)
                               OFF unless ARIADNE_WEB_ENABLE_CHAT=true (see below)
   GET  /search  ?q=&k=      → pure retrieval, no LLM (a docs search box)
+  GET  /license-terms       → the licensing documents, verbatim (never indexed or generated)
   GET  /healthz             → liveness + what's being served (SPEC version, source commit)
 
 /chat is off by default. On a public host it can spend a model provider's
@@ -26,7 +27,7 @@ from pydantic import BaseModel, Field
 
 from astp_docs.core import Retriever
 from astp_docs.toolkit import anchored_search
-from ..open_corpus import build_open_corpus_spec, served_corpus_info
+from ..open_corpus import build_open_corpus_spec, load_license_terms, served_corpus_info
 from .answerer import Answerer, default_answerer
 
 
@@ -82,6 +83,10 @@ def create_app(retriever: Retriever | None = None, answerer: Answerer | None = N
         results = get_retriever().search(q, k=max(1, min(k, 20)))
         return {"query": q, "count": len(results),
                 "results": [res.to_dict() for res in results]}
+
+    @app.get("/license-terms")
+    def license_terms() -> dict:
+        return load_license_terms()
 
     if enable_chat:
         @app.post("/chat")

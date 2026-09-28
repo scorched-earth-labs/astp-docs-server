@@ -28,6 +28,7 @@ from astp_docs_server.open_corpus import (
     OPEN_ASSET_PATTERNS,
     OPEN_DOC_EXCLUDE,
     OPEN_DOC_PATTERNS,
+    OPEN_VERBATIM_FILES,
 )
 from astp_docs_server.vendor_manifest import (
     MANIFEST_NAME,
@@ -52,7 +53,7 @@ def _source_dir() -> str | None:
 
 
 def _source_files(src: str) -> dict[str, str]:
-    """The documents the vendor script would copy, by name -> digest."""
+    """The files the vendor script would copy, by name -> digest."""
     excluded = set()
     for pat in OPEN_DOC_EXCLUDE:
         excluded.update(glob.glob(os.path.join(src, pat)))
@@ -67,6 +68,10 @@ def _source_files(src: str) -> dict[str, str]:
     for pat in OPEN_ASSET_PATTERNS:
         for path in sorted(glob.glob(os.path.join(src, pat))):
             found[os.path.relpath(path, src).replace(os.sep, "/")] = file_digest(path)
+    for name in OPEN_VERBATIM_FILES:
+        path = os.path.join(src, name)
+        if os.path.isfile(path):
+            found[name] = file_digest(path)
     return found
 
 
@@ -141,3 +146,9 @@ class TestFreshnessAgainstSource:
         assert vendored == upstream, (
             f"serving SPEC {vendored}, upstream is {upstream} — {REVENDOR}"
         )
+
+    def test_licensing_documents_are_checked_for_freshness(self):
+        """LICENSE.txt, NOTICE and PATENTS.md are not indexed, but a stale copy
+        of the patent pledge is as wrong as a stale SPEC."""
+        src = _require_source()
+        assert set(OPEN_VERBATIM_FILES) <= set(_source_files(src))
