@@ -24,7 +24,7 @@ BFM is organized into the following phases (the reference deployment's adapter g
 | 3 | Aside / Soliloquy (social & internal primitives) | `AS-` / `SL-` |
 | 4 | Coherence fingerprint write-time branch detection | `CF-` |
 
-Vector format matches `CONFORMANCE.md` (Phase 3 Trust Infrastructure §16): ID, spec reference, class, description, inputs, expected output, failure condition. All hex values lowercase. All string fields UTF-8.
+Vector format matches `CONFORMANCE-TRUST.md` (Phase 3 Trust Infrastructure §16): ID, spec reference, class, description, inputs, expected output, failure condition. All hex values lowercase. All string fields UTF-8.
 
 > **v1.1.0 reconciliation note.** This vector set was realigned to SPEC v3.2.1: §19 subsection references and governance rule numbers were corrected to the consolidated §19 / G-19–G-29 numbering (the v1.0.0-draft predated it), and the Phase D `DF-` set was added. Branch-phase governance (depth limit, access policy, abandonment reason) is enforced at the implementation layer — it has no numbered SPEC §19 governance rule — so those vectors cite the `IMPLEMENTATION-BFM.md` enforcement function rather than a G-number.
 >
@@ -422,7 +422,7 @@ Level 1 plus all **RECOMMENDED** vectors and the advisory checks in IMPLEMENTATI
 
 - **SPEC.md §19** — normative protocol surface (v3.3.0)
 - **IMPLEMENTATION-BFM.md** — the reference deployment's adapter guide (non-normative; shipped with that adapter, not with the protocol)
-- **CONFORMANCE.md** — Phase 3 Trust Infrastructure vectors (§16)
+- **CONFORMANCE-TRUST.md** — Phase 3 Trust Infrastructure vectors (§16)
 
 ---
 
