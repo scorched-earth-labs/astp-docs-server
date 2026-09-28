@@ -130,7 +130,7 @@ The vectors below are derivation version 2 (SPEC §16.2.1). A verifier of keys d
 - **Expected Output:**
   ```
   workspace_key(v2) != workspace_key(v1)
-  workspace_key(v1) == the value KH-001 pinned under CONFORMANCE.md 2.0.0
+  workspace_key(v1) == the value KH-001 pinned under version 2.0.0 of this document
   a record with no derivation_version is read as version 1
   an unknown derivation_version is refused
   ```

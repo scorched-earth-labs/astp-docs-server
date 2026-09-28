@@ -6,6 +6,23 @@ All notable changes to ASTP (the AI State Tree Protocol). Version numbering foll
 
 The next change-set queues here.
 
+## [6.0.2] — 2026-09-26
+
+**PATCH.** Correction: the governance-rule bound of the protocol surface.
+
+### Fixed
+- **§2.5.2 Protocol surface.** The governance row read "G-1 through G-40", so as written the non-negotiable surface left out G-41, G-42 and G-43, which 6.0.0 added — both erasure rules among them. It now names the rules by where they are defined (§6, §12.4, §19, §21) rather than by a numeric range that goes stale with each new rule, and points to [`PROTOCOL-CONFORMANCE.md`](./PROTOCOL-CONFORMANCE.md) for which of them a given implementation must enforce. No rule, preimage or vector changes. The reference package is unchanged (`PROTOCOL_VERSION` stays 6.0.1: a PATCH carries no new constant).
+
+### Added (companion documents, not normative protocol text)
+- **[`PROTOCOL-CONFORMANCE.md`](./PROTOCOL-CONFORMANCE.md) 1.0.0-draft** — the single definition of a Conforming Implementation: two required profiles (Core, Context Commitment) and five optional ones, each with its governance rules; optional to support is not optional to commit, and retrieval (§10) and rebalance (§14) bind only an implementation that does them (§3.8); how conformance is demonstrated and claimed; and what it neither requires nor establishes. A claim states the implementation's G-42 classification policy, because the record shows which construction an entry used but not the classification behind it (§5.1). Pending ratification in an Episode of Record.
+- **[`PATENTS.md`](./PATENTS.md)** — the patent policy and pledge to Conforming Implementations, separate from the Apache license; it identifies the pledged text by the SHA3-256 digest of `SPEC.md`. **[`NOTICE`](./NOTICE)** — copyright, patent, protocol-name and trademark notices.
+- **Developer Certificate of Origin.** [`DCO.txt`](./DCO.txt); `CONTRIBUTING.md` gains *Certificate of origin*; CI refuses a pull request with a commit its author has not signed off.
+- `tests/unit/protocol/test_spec_digest.py` — a `SPEC.md` digest published for the current version is of `SPEC.md` as it stands.
+
+### Changed
+- `CONFORMANCE.md` is renamed **`CONFORMANCE-TRUST.md`**: it is scoped to §16, and its unqualified name implied general conformance. References updated; its content and version are unchanged.
+- `GLOSSARY.md` defines *Conforming Implementation* and *Conformance Profile*, and its governance table gains G-41–G-43.
+
 ## [6.0.1] — 2026-09-24
 
 **PATCH.** Clarification: what a spine-state field holds for a live Episode.

@@ -1,9 +1,9 @@
 # ASTP — AI State Tree Protocol Specification
 
-**Version:** 6.0.1
+**Version:** 6.0.2
 **Status:** Stable — ratified in Episode of Record `80e5a2dd-3d9f-45d0-abfb-6489c8caf1b8` (below)
 **Authors:** Scorched Earth Labs
-**Date:** 2026-09-24
+**Date:** 2026-09-26
 **Supersedes:** [`SPEC-v5.md`](./docs/history/SPEC-v5.md) (5.2.0); earlier, [`SPEC-v4.md`](./docs/history/SPEC-v4.md) (4.5.0), [`SPEC-v3.md`](./docs/history/SPEC-v3.md) (3.5.1) and [`SPEC-v1.md`](./docs/history/SPEC-v1.md) (0.1.0-draft)
 **Change history:** [`CHANGELOG.md`](./CHANGELOG.md)
 **Versioning policy:** [`VERSIONING.md`](./VERSIONING.md)
@@ -80,7 +80,7 @@ The protocol surface is the set of primitives, invariants, and interfaces where 
 | Spine Merkle algorithm | SHA3-256 binary Merkle tree with per-version domain prefixes (§5.3) and deterministic leaf ordering by `sequence_index`, selected by `spine_algorithm_version`. |
 | `spine_root` semantics | The Merkle root of the Episode's non-ephemeral Segments' leaf hashes in `sequence_index` order (§5.6). |
 | `ContentDelta` / `StructuralDelta` structure | Core fields (`pre_root`, `post_root`, `delta_type`) are fixed. |
-| Governance rules G-1 through G-40 | All conforming implementations enforce all protocol-mandatory governance rules. |
+| Governance rules — every rule defined in §6, §12.4, §19 and §21 | All conforming implementations enforce all protocol-mandatory governance rules. Which rules are mandatory for a given implementation follows from the conformance profiles it claims ([`PROTOCOL-CONFORMANCE.md`](./PROTOCOL-CONFORMANCE.md) §3, §5). |
 | Dual Index semantics | `sequence_index` is immutable and in the leaf hash. `tree_leaf_index` is mutable and NOT in the leaf hash. |
 | Namespace Firewall | Protocol layer never imports from node-type layers. |
 

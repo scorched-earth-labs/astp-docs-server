@@ -253,7 +253,7 @@ anchor_commitment = SHA3-256( "ANCHOR_COMMITMENT:v2:"
     ‖ UINT(crystallization_sequence) ‖ UINT(logical_clock) ‖ TIMESTAMP(anchored_at) )
 ```
 
-under the canonical field encoding of SPEC §5.1.1 — typed, self-delimiting fields behind one domain prefix; a hash enters as its 32 raw bytes, a timestamp as UTC milliseconds. There is no JSON and no field-order or whitespace question to get wrong. Expected value for the reference fixture: CONFORMANCE.md TL-001. The 4.x form (sorted JSON carrying a `protocol_version` literal and a second-truncated timestamp) is retained in SPEC §16.3.2 only as the definition of receipts already issued.
+under the canonical field encoding of SPEC §5.1.1 — typed, self-delimiting fields behind one domain prefix; a hash enters as its 32 raw bytes, a timestamp as UTC milliseconds. There is no JSON and no field-order or whitespace question to get wrong. Expected value for the reference fixture: CONFORMANCE-TRUST.md TL-001. The 4.x form (sorted JSON carrying a `protocol_version` literal and a second-truncated timestamp) is retained in SPEC §16.3.2 only as the definition of receipts already issued.
 
 ### 4.5 Wiring Anchoring to Crystallization (G-14)
 
@@ -376,7 +376,7 @@ enforce_witness_threshold_v2(valid_records, node_author=node.authored_by,
                              min_counter_signatures=policy.min_counter_signatures[node.node_type])
 ```
 
-**Common implementation mistakes:** counting rows; deduplicating names only (a keyholder registers twice); deduplicating keys only (one identity with two keys double-counts); a greedy pass (A/k₁, A/k₂, B/k₁ admit two witnesses — A/k₂ and B/k₁ — and greedy finds one). CONFORMANCE.md WS-008 pins the cases.
+**Common implementation mistakes:** counting rows; deduplicating names only (a keyholder registers twice); deduplicating keys only (one identity with two keys double-counts); a greedy pass (A/k₁, A/k₂, B/k₁ admit two witnesses — A/k₂ and B/k₁ — and greedy finds one). CONFORMANCE-TRUST.md WS-008 pins the cases.
 
 ### 5.6 Witness Roles
 

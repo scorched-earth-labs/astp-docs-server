@@ -29,6 +29,7 @@ OPEN_DOC_PATTERNS = [
     "SPEC.md",
     "IMPLEMENTATION-*.md",
     "CONFORMANCE*.md",
+    "PROTOCOL-CONFORMANCE.md",  # the definition of a Conforming Implementation (6.0.2)
     "GLOSSARY.md",
     "CHANGELOG.md",
     "VERSIONING.md",

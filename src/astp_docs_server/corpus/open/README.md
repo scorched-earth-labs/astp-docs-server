@@ -187,9 +187,11 @@ The protocol is one normative document (`SPEC.md`) plus, per feature surface, a 
 | Cross-Episode Linking & Grouping | §20 | — | [`CONFORMANCE-CROSS-EPISODE-LINKING.md`](./CONFORMANCE-CROSS-EPISODE-LINKING.md) |
 | Layer 3 — Workflow & Execution DAG | §21 | — | [`CONFORMANCE-LAYER3.md`](./CONFORMANCE-LAYER3.md) |
 | Reproducibility — spine leaf set, episode root, version identifiers | §5.6–§5.8, §9.3, G-1 | — | [`CONFORMANCE-REPRODUCIBILITY.md`](./CONFORMANCE-REPRODUCIBILITY.md) |
-| Trust Infrastructure — keys, anchoring, witnesses, chain proofs | §16 | [`IMPLEMENTATION-PHASE3.md`](./IMPLEMENTATION-PHASE3.md) | [`CONFORMANCE.md`](./CONFORMANCE.md) |
+| Trust Infrastructure — keys, anchoring, witnesses, chain proofs | §16 | [`IMPLEMENTATION-PHASE3.md`](./IMPLEMENTATION-PHASE3.md) | [`CONFORMANCE-TRUST.md`](./CONFORMANCE-TRUST.md) |
 | Seal constructions — encoding, leaf hash, spine, manifests, Episode root, inclusion proofs | §5, §9.2 | — | [`CONFORMANCE-REPRODUCIBILITY.md`](./CONFORMANCE-REPRODUCIBILITY.md) RP-009–011, [`vectors/5.0.0/`](./vectors/5.0.0/) |
 | Context commitment — context entries, content commitments, context manifest, Episode root version 3, erasure | §4.8, §4.9, §5.7.3, G-41–G-43 | [`IMPLEMENTATION-CONTEXT.md`](./IMPLEMENTATION-CONTEXT.md) | [`CONFORMANCE-CONTEXT.md`](./CONFORMANCE-CONTEXT.md) CM-001–010, [`vectors/6.0.0/`](./vectors/6.0.0/) |
+
+What a Conforming Implementation is — the profiles, the governance rules each carries, and how conformance is demonstrated and claimed: [`PROTOCOL-CONFORMANCE.md`](./PROTOCOL-CONFORMANCE.md) (draft, pending ratification).
 
 Supporting: [`VERSIONING.md`](./VERSIONING.md) (canonical version policy), [`GLOSSARY.md`](./GLOSSARY.md), [`CHANGELOG.md`](./CHANGELOG.md).
 
@@ -217,7 +219,9 @@ Apache-2.0. Copyright 2026 Scorched Earth Labs, LLC.
 
 The specification text and the code in this repository are both licensed under Apache-2.0; see [`LICENSE.txt`](./LICENSE.txt).
 
-The Apache license was chosen deliberately for its explicit grant terms.
+The Apache license was chosen deliberately for its explicit grant terms. Attribution notices are in [`NOTICE`](./NOTICE).
+
+A patent pledge to Conforming Implementations, separate from the Apache license, is set out in [`PATENTS.md`](./PATENTS.md); that document, not this summary, states its terms. Contributions are made under the Developer Certificate of Origin ([`CONTRIBUTING.md`](./CONTRIBUTING.md#certificate-of-origin)).
 
 ---
 
