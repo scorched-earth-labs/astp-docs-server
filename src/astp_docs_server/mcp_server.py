@@ -109,6 +109,23 @@ def get_test_vectors(version: str | None = None) -> dict:
 
 
 @mcp.tool()
+def get_license_terms() -> dict:
+    """The text of the ASTP project's own licensing documents, verbatim and in
+    full: LICENSE.txt (Apache License 2.0), NOTICE (copyright, the
+    protocol-name policy, the trademark position) and PATENTS.md (a patent
+    pledge to Conforming Implementations, separate from and in addition to the
+    Apache license). Each comes whole — never an excerpt — with its SHA-256.
+
+    This is not legal advice. Read the text itself rather than relying on a
+    summary of it, and do not answer "may we use this" from the Apache license
+    alone: the patent pledge and the NOTICE are separate documents.
+    """
+    from astp_docs_server.open_corpus import load_license_terms
+
+    return load_license_terms(os.environ.get("ARIADNE_PROTOCOL_DIR"))
+
+
+@mcp.tool()
 def corpus_info() -> dict:
     """Report what this server serves: doc count, governance rules, vector families."""
     return tools.corpus_info(retriever())

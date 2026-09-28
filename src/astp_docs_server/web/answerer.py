@@ -11,6 +11,7 @@ told. This module only *generates*; retrieval is the shared core.
 """
 from __future__ import annotations
 
+import dataclasses
 import os
 import re
 from abc import ABC, abstractmethod
@@ -38,8 +39,71 @@ governance rules, or conformance vectors.
 by G-2 [1]." Prefer exact anchors (governance rule ids, conformance vector ids, \
 section numbers) when the passages give them.
 - Be concise and precise. This is a specification; exactness matters more than prose.
-- Stay on the ASTP protocol. Decline unrelated requests briefly.\
+- Stay on the ASTP protocol. Decline unrelated requests briefly.
+- Never state, summarise or paraphrase licensing, patent or trademark terms. The \
+project's licensing documents are served verbatim by the get_license_terms tool; \
+point there instead.\
 """
+
+# Licensing is answered by the documents themselves, never by a generator. A
+# paraphrase of a patent grant can be wrong in exactly the way that matters, and
+# "it's Apache 2.0" — the best a retriever-fed model can assemble — misses the
+# separate patent pledge. Enforced in Answerer.answer, not only in the prompt,
+# because a head may bring its own system prompt.
+LICENSING_REDIRECT = (
+    "I don't answer licensing questions: a summary of legal terms can be wrong "
+    "in exactly the way that matters. Read the terms themselves — LICENSE.txt "
+    "(Apache License 2.0), NOTICE (the protocol-name policy and trademark "
+    "position) and PATENTS.md (a patent pledge to Conforming Implementations, "
+    "separate from the Apache license). The docs server serves all three "
+    "verbatim: the get_license_terms MCP tool, or GET /license-terms. "
+    "This is not legal advice."
+)
+
+# Asked about licensing. Over-matching is the safe direction: a false positive
+# costs one redirect; a false negative is a generated legal summary.
+_LICENSING_QUESTION_RE = re.compile(
+    r"licen[cs]|patent|royalt|trademark|copyright|apache|pledge|infring|indemn"
+    r"|(?-i:\bNOTICE\b)|\blegal|open[- ]?source|closed[- ]?source|commercial"
+    # Permission phrasing counts only when its object is the protocol or its
+    # code — "can we use SHA-256 here?" is a protocol question.
+    r"|\b(?:may|can|could)\s+(?:we|i|you|they|one|anyone|companies)\s+"
+    r"(?:use|ship|sell|fork|embed|redistribute|build on|implement)\s+"
+    r"(?:astp|ariadne|this|it\b|the\s+(?:protocol|spec|specification|reference|code|software|package))"
+    r"|\b(?:allowed|permitted|permission|free)\s+to\s+(?:use|ship|sell|implement|build|fork)",
+    re.I,
+)
+
+# Licensing language inside a retrieved passage. The paragraph is withheld from
+# the generator, so it has nothing to paraphrase. Narrower than the question
+# pattern: "copyright" in SPEC §4.8.4 is about retaining fetched content, not
+# about this project's terms.
+_LICENSING_TEXT_RE = re.compile(
+    r"patent|royalt|trademark|\blicen[cs](?:e|es|ed|ing|or|ee)\b|sublicens|(?-i:\bNOTICE\b)|PATENTS\.md",
+    re.I,
+)
+_REDACTED = ("[Licensing text withheld. Read LICENSE.txt, NOTICE and PATENTS.md "
+             "verbatim via get_license_terms.]")
+
+
+def is_licensing_question(query: str) -> bool:
+    return bool(_LICENSING_QUESTION_RE.search(query))
+
+
+def withhold_licensing_text(results: list[Result]) -> list[Result]:
+    """Copies of ``results`` with every paragraph that speaks to licensing
+    replaced by a pointer to the verbatim terms. The retriever's chunks are not
+    modified."""
+    out = []
+    for r in results:
+        paras = r.chunk.text.split("\n\n")
+        kept = [_REDACTED if _LICENSING_TEXT_RE.search(p) else p for p in paras]
+        if kept == paras:
+            out.append(r)
+        else:
+            chunk = dataclasses.replace(r.chunk, text="\n\n".join(kept))
+            out.append(dataclasses.replace(r, chunk=chunk))
+    return out
 
 
 def build_context(results: list[Result]) -> str:
@@ -78,9 +142,20 @@ def _citations(results: list[Result]) -> list[dict]:
 class Answerer(ABC):
     name: str = "answerer"
 
-    @abstractmethod
     def answer(self, query: str, results: list[Result]) -> dict:
-        """Return {answer, citations, generator, grounded}."""
+        """Return {answer, citations, generator, grounded}.
+
+        Licensing never reaches a generator: a licensing question gets a fixed
+        pointer to the verbatim terms, and licensing paragraphs are withheld
+        from the passages any other question is answered from."""
+        if is_licensing_question(query):
+            return {"answer": LICENSING_REDIRECT, "citations": [],
+                    "generator": self.name, "grounded": False}
+        return self._answer(query, withhold_licensing_text(results))
+
+    @abstractmethod
+    def _answer(self, query: str, results: list[Result]) -> dict:
+        """Generate from passages already cleared of licensing text."""
 
 
 class ExtractiveAnswerer(Answerer):
@@ -93,7 +168,7 @@ class ExtractiveAnswerer(Answerer):
 
     name = "extractive"
 
-    def answer(self, query: str, results: list[Result]) -> dict:
+    def _answer(self, query: str, results: list[Result]) -> dict:
         if not results:
             return {"answer": "Nothing in the ASTP docs matches that query.",
                     "citations": [], "generator": self.name, "grounded": False}
@@ -124,7 +199,7 @@ class ClaudeAnswerer(Answerer):
             self._client = Anthropic()
         return self._client
 
-    def answer(self, query: str, results: list[Result]) -> dict:
+    def _answer(self, query: str, results: list[Result]) -> dict:
         resp = self._get_client().messages.create(
             model=self.model,
             max_tokens=2048,
@@ -202,7 +277,7 @@ class OllamaAnswerer(Answerer):
             ],
         }
 
-    def answer(self, query: str, results: list[Result]) -> dict:
+    def _answer(self, query: str, results: list[Result]) -> dict:
         data = self._post(self.build_payload(query, results))
         text = (data.get("message") or {}).get("content") or ""
         text = _THINK_BLOCK_RE.sub("", text).strip()

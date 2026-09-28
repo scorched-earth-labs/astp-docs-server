@@ -25,6 +25,7 @@ from astp_docs_server.open_corpus import (  # noqa: E402
     OPEN_DOC_EXCLUDE,
     OPEN_ASSET_PATTERNS,
     OPEN_DOC_PATTERNS,
+    OPEN_VERBATIM_FILES,
 )
 
 from astp_docs_server.vendor_manifest import (  # noqa: E402
@@ -70,6 +71,16 @@ def main() -> int:
             os.makedirs(os.path.dirname(os.path.join(DEST, rel)), exist_ok=True)
             shutil.copy2(path, os.path.join(DEST, rel))
             copied.append(rel)
+    # Licensing documents: copied whole, never indexed. All or none — a
+    # snapshot with the Apache license but not the patent pledge would serve
+    # an incomplete answer to "may we use this".
+    missing = [n for n in OPEN_VERBATIM_FILES if not os.path.isfile(os.path.join(src, n))]
+    if missing:
+        print(f"ERROR: licensing documents missing from {src!r}: {missing}", file=sys.stderr)
+        return 1
+    for name in OPEN_VERBATIM_FILES:
+        shutil.copy2(os.path.join(src, name), os.path.join(DEST, name))
+        copied.append(name)
 
     if not copied:
         print(f"ERROR: no docs matched under {src!r}", file=sys.stderr)

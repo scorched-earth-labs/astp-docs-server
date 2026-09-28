@@ -24,7 +24,7 @@ docker build --build-context core=../astp-docs-core -t astp-docs-server .
 docker run -p 8080:8080 astp-docs-server        # http://localhost:8080
 ```
 
-`GET /healthz`, `GET /search?q=…`, `POST /chat {query,k}`, and a demo widget at `/`.
+`GET /healthz`, `GET /search?q=…`, `GET /license-terms`, `POST /chat {query,k}`, and a demo widget at `/`.
 
 Once `astp-docs-core` is published to PyPI (or made public), drop the
 `--build-context` line and install straight from the index in the Dockerfile.

@@ -47,6 +47,22 @@ OPEN_ASSET_PATTERNS = [
     "vectors/*/context-commitment.json",
 ]
 
+# The project's licensing documents, served verbatim by get_license_terms and
+# never chunked or indexed. Legal text chunks badly, and a partial retrieval
+# about a patent grant is worse than no answer — so none of these may ever
+# appear in OPEN_DOC_PATTERNS. Exact names, not globs: NOTICE has no extension.
+OPEN_VERBATIM_FILES = [
+    "LICENSE.txt",   # Apache License 2.0
+    "NOTICE",        # copyright, the protocol-name policy, the trademark position
+    "PATENTS.md",    # the patent pledge to Conforming Implementations
+]
+
+LICENSE_TERMS_NOTICE = (
+    "These are the full texts of the ASTP project's own licensing documents, "
+    "exactly as published. This is not legal advice. Read the text itself "
+    "rather than relying on a summary of it — including one you write."
+)
+
 OPEN_DOC_EXCLUDE = [
     "SPEC-v1.md",   # superseded by SPEC.md
     "VISION.md",    # narrative, not normative
@@ -99,7 +115,8 @@ def build_open_corpus_spec(protocol_dir: str | None = None) -> CorpusSpec:
 
 def open_corpus_fingerprint(protocol_dir: str | None = None) -> str:
     """SHA-256 over the relative path and content of every file the open corpus
-    serves — the documents the retriever indexes and the test-vector files.
+    serves — the documents the retriever indexes, the test-vector files and the
+    verbatim licensing documents.
 
     Changes iff a freshly built retriever (or the vectors tool) would serve
     something different. A long-running process that built its retriever at
@@ -112,6 +129,7 @@ def open_corpus_fingerprint(protocol_dir: str | None = None) -> str:
     base = resolve_corpus_dir(protocol_dir)
     paths = {d.path for d in docrefs_from_dir(base, OPEN_DOC_PATTERNS, exclude=OPEN_DOC_EXCLUDE)}
     paths.update(list_test_vector_files(base).values())
+    paths.update(list_verbatim_files(base).values())
     h = hashlib.sha256()
     for path in sorted(paths):
         rel = os.path.relpath(path, base).replace(os.sep, "/")
@@ -178,3 +196,39 @@ def load_test_vectors(version: str | None = None, protocol_dir: str | None = Non
     raw = open(files[rel], "rb").read()
     return {"path": rel, "version": chosen, "sha256": hashlib.sha256(raw).hexdigest(),
             "available_versions": versions, "vectors": json.loads(raw)}
+
+
+def list_verbatim_files(protocol_dir: str | None = None) -> dict[str, str]:
+    """Name -> absolute path of each licensing document present, in
+    ``OPEN_VERBATIM_FILES`` order."""
+    base = resolve_corpus_dir(protocol_dir)
+    found: dict[str, str] = {}
+    for name in OPEN_VERBATIM_FILES:
+        path = os.path.join(base, name)
+        if os.path.isfile(path):
+            found[name] = path
+    return found
+
+
+def load_license_terms(protocol_dir: str | None = None) -> dict:
+    """Every licensing document, whole and unaltered, with its SHA-256.
+
+    All or nothing: if any one is missing this raises ``FileNotFoundError``
+    rather than serve the rest. "Apache 2.0" without the patent pledge is true
+    and materially incomplete — worse than no answer."""
+    import hashlib
+
+    files = list_verbatim_files(protocol_dir)
+    missing = [name for name in OPEN_VERBATIM_FILES if name not in files]
+    if missing:
+        raise FileNotFoundError(
+            f"licensing documents missing from the corpus: {missing}; "
+            f"vendor them with scripts/vendor_corpus.py"
+        )
+    documents = []
+    for name, path in files.items():
+        raw = open(path, "rb").read()
+        documents.append({"path": name, "sha256": hashlib.sha256(raw).hexdigest(),
+                          "text": raw.decode("utf-8")})
+    return {"notice": LICENSE_TERMS_NOTICE, "documents": documents,
+            "source_commit": served_corpus_info(protocol_dir)["source_commit"]}
