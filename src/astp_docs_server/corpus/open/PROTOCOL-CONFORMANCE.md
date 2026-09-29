@@ -3,7 +3,7 @@
 **Version:** 1.0.0-draft
 **Status:** DRAFT — pending ratification in an Episode of Record. No open item blocks it; see §11.
 **Authors:** Scorched Earth Labs
-**Date:** 2026-09-26
+**Date:** 2026-09-29
 **Applies To:** [`SPEC.md`](./SPEC.md) 6.0.2
 **Companions:** the per-surface conformance vector documents listed in §4.
 
@@ -26,30 +26,46 @@ It is **normative as to the definition of conformance** and non-normative as to
 everything else: where this document and `SPEC.md` disagree about a protocol
 requirement, `SPEC.md` governs and this document is in error.
 
-> **This document carries legal weight.**
-> [`PATENTS.md`](./PATENTS.md) §4.2 grants a royalty-free patent license to a
-> Conforming Implementation and defines that term by reference to this document.
-> A change here changes the scope of that grant. This document is therefore
-> governed by [`VERSIONING.md`](./VERSIONING.md) and ratified in an Episode of
-> Record like any other normative change, and `PATENTS.md` §15 applies to it:
-> a later narrowing does not withdraw a license already granted.
+This document is the technical referent for the term "Conforming
+Implementation" used in [`PATENTS.md`](./PATENTS.md) §4.2. `PATENTS.md` governs
+the patent license itself; this document defines the technical requirements for
+conformance for each Specification Version. Because the patent license is tied
+to a particular Specification Version, a later revision of this document does
+not retroactively change whether an implementation qualified under an earlier
+Specification Version or terminate or diminish a patent license previously
+granted with respect to that implementation. This document is therefore governed
+by [`VERSIONING.md`](./VERSIONING.md) and ratified in an Episode of Record like
+any other normative change.
 
 ---
 
 ## 2. Definition
 
 A **Conforming Implementation** is a software or hardware/software system,
-service, or library that:
+service, or library that implements a particular Specification Version and that:
 
 1. implements every **REQUIRED** provision of the conformance profile it claims
-   (§3), as those provisions are stated in `SPEC.md` at the version it claims
-   (§7);
+   (§3), as those provisions are stated in `SPEC.md` for the particular
+   Specification Version it claims (§7);
 2. enforces every governance rule in force for that profile (§5);
 3. reproduces the pinned digests for every construction its profile exercises
    (§6);
-4. states which profile and which Specification version it claims (§8); and
+4. states which profile and Specification Version it claims (§8); and
 5. does not represent OPTIONAL, RECOMMENDED, or non-normative material as
    REQUIRED, and does not represent a lower profile as a higher one.
+
+For purposes of [`PATENTS.md`](./PATENTS.md) §4.2, the conformance requirements
+applicable to an implementation are those in effect for the specific
+Specification Version claimed by that implementation. A later Specification
+Version or later revision of this document does not retroactively alter whether
+an implementation qualified as a Conforming Implementation under an earlier
+Specification Version.
+
+An implementation that qualifies under an earlier Specification Version does not
+lose that status solely because a later version changes, narrows, supplements,
+or replaces the conformance requirements. Any patent license previously granted
+under `PATENTS.md` §4.2 remains governed by the Specification Version and
+conformance requirements under which that license was granted.
 
 Conformance does **not** require use of the reference implementation, and an
 implementation may be proprietary, closed-source, commercial, hosted, or
@@ -299,12 +315,40 @@ conforms. It verifies one record; it does not audit a system.
 
 ## 7. Versioned conformance
 
-Conformance is always to a stated version of `SPEC.md`. That file's `Version:`
-field is the protocol version; it is restated nowhere else so it cannot drift.
+Conformance is always to a stated Specification Version and the corresponding
+version of this document. This document's `Version:` field identifies the
+conformance-definition version; the `Applies To` field identifies the
+Specification Version to which it applies. A later revision may define
+conformance for a later Specification Version, but does not silently replace the
+requirements applicable to an earlier Specification Version.
 
-The binding identification of the text conformed to is the **SHA3-256 digest of
-`SPEC.md`**, which any party can compute and which `PATENTS.md` §4.1 pledges
-against:
+The binding identification of the protocol text conformed to is the **SHA3-256
+digest of `SPEC.md`**, which any party can compute and which `PATENTS.md` §4.1
+pledges against. For the conformance requirements themselves, the binding
+identification is this document's `Version:` field together with the
+Specification Version identified in the `Applies To` field. Where an Episode of
+Record records a conformance version, the recorded document digest may
+additionally be used to identify the exact conformance text.
+
+### 7.1 Effect of later revisions
+
+Scorched Earth Labs may modify, clarify, supplement, or replace the technical
+conformance requirements through publication and ratification of a new
+Specification Version or corresponding conformance version. Such changes apply
+prospectively. They do not retroactively make an implementation non-conforming
+under an earlier Specification Version, and they do not retroactively terminate
+or diminish a patent license previously granted with respect to an
+implementation that qualified under that earlier version.
+
+### 7.2 No implied expansion
+
+A later Specification Version or later revision of this document does not, by
+itself, expand the scope of a patent license previously granted under
+`PATENTS.md` §4.2. An implementation of a later Specification Version receives
+only the patent license applicable to that later version and only to the extent
+provided by `PATENTS.md`.
+
+### 7.3 Pinned versions
 
 ```bash
 python3 -c "import hashlib,sys; print(hashlib.sha3_256(open(sys.argv[1],'rb').read()).hexdigest())" SPEC.md
@@ -332,7 +376,8 @@ An implementation claiming conformance states, in documentation a relying party
 can read:
 
 - the **profiles** claimed (§3) — at minimum Core and Context Commitment;
-- the **Specification version and digest** conformed to (§7);
+- the **Specification Version and conformance-document version** to which it
+  conforms (§7);
 - the `spine_algorithm_version`, `ordering_version` and `hash_version` it
   **writes** under, and those it can **read and verify**;
 - its **G-42 classification policy**, stated as §5.1 requires;

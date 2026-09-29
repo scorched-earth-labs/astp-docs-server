@@ -482,7 +482,7 @@ SPEC §15 item 7 as restated in 5.1.0: a writer or reader that cannot complete *
 
 ### Conforming Implementation
 
-An implementation that implements every REQUIRED provision of the *Conformance Profiles* it claims, enforces the governance rules in force for them, reproduces the pinned digests of the constructions they exercise, and states the profiles and the `SPEC.md` version and digest it claims. Defined in [`PROTOCOL-CONFORMANCE.md`](./PROTOCOL-CONFORMANCE.md) §2, which is the single referent for the term — including for [`PATENTS.md`](./PATENTS.md). It need not use the *Reference Implementation* and need not be open source.
+An implementation that implements every REQUIRED provision of the *Conformance Profiles* it claims, enforces the governance rules in force for them, reproduces the pinned digests of the constructions they exercise, and states the profiles, the *Specification Version* and the conformance-document version it claims. Defined in [`PROTOCOL-CONFORMANCE.md`](./PROTOCOL-CONFORMANCE.md) §2, which is the single referent for the term — including for [`PATENTS.md`](./PATENTS.md). It need not use the *Reference Implementation* and need not be open source.
 
 ### Conformance Profile
 
@@ -507,6 +507,10 @@ The ASTP Episode, opened and sealed by the maintainers, in which a MAJOR change 
 ### Design Episode
 
 An Episode in which a change is deliberated before its Episode of Record — the 5.0.0 units were ruled, one by one, in `4b9a779e-be46-4d61-872e-fd76545aa901`. Provenance, not ratification.
+
+### Specification Version
+
+A version of `SPEC.md`, named by its `**Version:**` field and identified bindingly by the SHA3-256 digest of its text ([`PATENTS.md`](./PATENTS.md) §4.1; [`PROTOCOL-CONFORMANCE.md`](./PROTOCOL-CONFORMANCE.md) §7). Conformance, and the patent license tied to it, is to a particular Specification Version; a later version does not retroactively change either (`PATENTS.md` §14, `PROTOCOL-CONFORMANCE.md` §7.1).
 
 ### Schema Version
 
@@ -641,6 +645,7 @@ Content lives behind `content_ref` and `salt_ref` (content plane). Hashes, entri
 - **SignalNode** — §2
 - **SkillInvocation** — §15
 - **Soliloquy** — §11
+- **Specification Version** — §17
 - **Spine** — §5
 - **Spine Isolation (L3-I1)** — §15
 - **Spine Leaf Set** — §5
