@@ -1,6 +1,6 @@
 {
   "files": {
-    "CHANGELOG.md": "ef7af08e01272425ace25d146c47930869d270e26a5183975881d0406ad965d0",
+    "CHANGELOG.md": "9c22b70b1f5f769d199cfb1073f66b85e20fe46352a910ca32b71fd9860df7f0",
     "CONFORMANCE-BFM.md": "570b92aefbc420f8e9254a39f0a2ceff36bf71889c2673213348aeeb853e0145",
     "CONFORMANCE-CONTEXT.md": "17d95782276a33ab4e361007c113759590bbf290c959631c0ecd90abcb7efeac",
     "CONFORMANCE-CROSS-EPISODE-LINKING.md": "5297cc5ef7c334625fb5a4cca385f72110322ef67bd7caf4ccfd7b01c3851f86",
@@ -19,10 +19,10 @@
     "RATIFICATION-6.0.0.md": "2c03a2e634d17dca9891f5ee3e78ef0ea1d60651225d18dfa04bf9b9b7d73fa8",
     "README.md": "c81e713286ba7e41b9dafb803e69797fa021bae5a74924d487613c082d7bf6b6",
     "SPEC.md": "ad487c75eff88e750fe076034186d983df802f833484862b1fb4b43707dc10a5",
-    "VERSIONING.md": "3c5045593a3cb6ba8774a005caecb587d851cc4790aef8401bd3c6cbcdc80a3b",
+    "VERSIONING.md": "f124b4c34aad80ce06804314b1318827146b1c21dd7fccb3c6fa5ada1cdd771f",
     "vectors/5.0.0/seal-constructions.json": "71d0e8b7af9b16f0033b71a49ada8f3cb4ee3269d1a5a0ea981f33e6bbf60056",
     "vectors/6.0.0/context-commitment.json": "54d597aeca1b69fe9d39d9433123cc6a2961d7798cf6681559e765f5096a5cf2"
   },
-  "source_commit": "a07234174b351f23e7a03c2c656fc5896d3224f2",
+  "source_commit": "d225083c98455cd8fe99798e1769d7146ec6edb4",
   "spec_version": "6.0.2"
 }
