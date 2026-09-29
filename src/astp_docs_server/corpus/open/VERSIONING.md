@@ -3,7 +3,7 @@
 **Version:** none of its own — this policy is versioned with [`SPEC.md`](./SPEC.md) (see "Where versions are declared")
 **Status:** Stable
 **Authors:** Scorched Earth Labs
-**Date:** 2026-09-17
+**Date:** 2026-09-29
 **Applies To:** every version of `SPEC.md` and its companion documents
 
 ---
@@ -23,7 +23,20 @@ That's the policy. Everything else (compatibility expectations, deprecation, wha
 `SPEC.md` is the canonical version source. The `**Version:**` field at the top of that file IS the protocol version.
 
 - `docs/history/SPEC-v{MAJOR}.md` retains prior major-version specs for historical reference (e.g., [`docs/history/SPEC-v1.md`](./docs/history/SPEC-v1.md) is the original `0.1.0-draft`, superseded by the v2.x line in `SPEC.md`; [`docs/history/SPEC-v3.md`](./docs/history/SPEC-v3.md) is the 3.x line at 3.5.1; [`docs/history/SPEC-v4.md`](./docs/history/SPEC-v4.md) is the 4.x line at 4.5.0; [`docs/history/SPEC-v5.md`](./docs/history/SPEC-v5.md) is the 5.x line at 5.2.0). The 2.x line has no retained file. The former standalone amendment documents are kept in the same directory, for provenance only.
-- Implementation Guides (`IMPLEMENTATION-*.md`), Conformance documents (`CONFORMANCE*.md`), and any other artifacts are versioned-against, not versioned-independently. They describe behavior at a specific protocol version (e.g. "this guide applies to ASTP v3.4.0"); they do not carry their own independent version numbers.
+- Implementation Guides (`IMPLEMENTATION-*.md`) and the per-surface conformance
+  vector documents (`CONFORMANCE-*.md`) are versioned-against, not
+  versioned-independently. They describe behavior at a specific protocol version
+  (e.g. "this guide applies to ASTP v3.4.0"); they do not carry their own
+  independent version numbers.
+- [`PROTOCOL-CONFORMANCE.md`](./PROTOCOL-CONFORMANCE.md) is the exception, and
+  carries its own `Version:` field alongside the `Applies To` Specification
+  Version. It is not a description of behavior at a protocol version: it defines
+  "Conforming Implementation", the term [`PATENTS.md`](./PATENTS.md) §4.2 grants
+  a patent license against. A licensee's requirements must stay identifiable and
+  unchanged for the Specification Version they implemented, which needs an
+  identifier of its own — a conformance revision may be issued against a
+  Specification Version that has not itself changed. It is ratified in an
+  Episode of Record like any other normative change.
 
 ## Current version
 
