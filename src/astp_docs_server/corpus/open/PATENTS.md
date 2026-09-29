@@ -258,14 +258,39 @@ Necessary Claims are subject to the patent pledge.
 ## 14. Relationship to Conformance Documentation
 
 [`PROTOCOL-CONFORMANCE.md`](./PROTOCOL-CONFORMANCE.md) defines "Conforming
-Implementation" for the purposes of §4.2 of this policy. A change to that
-definition changes the scope of the license granted under §3.
+Implementation" for the purposes of §4.2 of this policy. Conformance is
+determined with respect to a particular Specification Version and the
+conformance requirements applicable to that Specification Version, as set forth
+in `PROTOCOL-CONFORMANCE.md` and the corresponding normative Specification and
+conformance documents.
 
-Accordingly, that document is governed by [`VERSIONING.md`](./VERSIONING.md) and
-is ratified in an Episode of Record in the same manner as any other normative
-change to the Protocol. §15 applies to it as it applies to the Specification: a
-change to the definition of conformance does not retroactively withdraw a patent
-license already granted to a Conforming Implementation under an earlier version.
+For purposes of this patent pledge, the conformance requirements applicable to
+an implementation are those in effect for the specific Specification Version
+under which the implementation qualifies as a Conforming Implementation. A later
+revision of `PROTOCOL-CONFORMANCE.md`, the Specification, or another normative
+conformance document does not retroactively change whether an implementation
+qualified as a Conforming Implementation under an earlier Specification Version.
+
+`PROTOCOL-CONFORMANCE.md` and the corresponding normative conformance documents
+are governed by [`VERSIONING.md`](./VERSIONING.md) and are ratified in an Episode
+of Record in the same manner as other normative protocol changes. Scorched Earth
+Labs may modify, clarify, supplement, or replace technical conformance
+requirements through publication of a new Specification Version, but any such
+change applies prospectively to implementations claiming conformance to the new
+or revised Specification Version.
+
+A patent license previously granted under this policy with respect to a
+Conforming Implementation shall not be retroactively terminated, diminished, or
+otherwise altered by a later change to `PROTOCOL-CONFORMANCE.md`, the
+Specification, or another normative conformance document, except as expressly
+provided by the terms of the patent pledge applicable to that previously granted
+license.
+
+A later Specification Version does not, by itself, expand the scope of a patent
+license previously granted with respect to an earlier Specification Version. An
+implementation claiming conformance to a later Specification Version is subject
+to the patent rights, if any, applicable to that later Specification Version
+under this policy.
 
 ## 15. Changes to This Policy
 

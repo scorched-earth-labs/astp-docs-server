@@ -4,7 +4,12 @@ All notable changes to ASTP (the AI State Tree Protocol). Version numbering foll
 
 ## [Unreleased]
 
-The next change-set queues here.
+### Changed (companion documents, not normative protocol text)
+- **Counsel review, revision 1** of the licensing and conformance documents. `SPEC.md` is unchanged, so the digest `PATENTS.md` §4.1 pledges against still holds.
+  - [`PATENTS.md`](./PATENTS.md) §14: conformance, and the patent license tied to it, is determined per Specification Version. A later revision of `PROTOCOL-CONFORMANCE.md`, the Specification or another conformance document applies prospectively. It neither retroactively withdraws a license already granted nor, by itself, expands one.
+  - [`PROTOCOL-CONFORMANCE.md`](./PROTOCOL-CONFORMANCE.md) 1.0.0-draft: §1 states that `PATENTS.md` governs the license and this document the technical requirements. §2 ties the definition to a particular Specification Version. §7 identifies the conformance requirements by this document's `Version:` and `Applies To` fields, and adds §7.1 (effect of later revisions), §7.2 (no implied expansion) and §7.3 (pinned versions). §8 has a claim state the conformance-document version.
+  - [`CONTRIBUTING.md`](./CONTRIBUTING.md) gains *Specification contributions and patent disclosure*: the DCO requirement, what a normative change must disclose, that a disclosure neither warrants nor licenses, what maintainers may do before merging, employer rights, and the Apache License's continued application.
+- `GLOSSARY.md` defines *Specification Version*, and *Conforming Implementation* states the conformance-document version a claim names.
 
 ## [6.0.2] — 2026-09-26
 
