@@ -37,6 +37,15 @@ That's the policy. Everything else (compatibility expectations, deprecation, wha
   identifier of its own — a conformance revision may be issued against a
   Specification Version that has not itself changed. It is ratified in an
   Episode of Record like any other normative change.
+- [`PATENTS.md`](./PATENTS.md) also carries its own `Version:` field. It is the
+  document a patent license is read from, and its §15 bars an amendment from
+  retroactively withdrawing a license already granted. A licensee can rely on
+  that only if the exact policy text in force when they relied on it is
+  identifiable. It does not describe behavior at a protocol version — it names
+  the Specification versions it covers (§4.1) — so it has no `Applies To` field.
+  Each version is ratified in an Episode of Record, as `PROTOCOL-CONFORMANCE.md`'s
+  are. Its first version is 1.0.0; the unversioned texts published before it
+  (#80, #81, #88) remain in the repository's history.
 
 ## Current version
 

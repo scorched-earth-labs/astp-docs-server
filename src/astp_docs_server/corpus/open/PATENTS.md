@@ -1,5 +1,8 @@
 # Patent Policy and Patent Pledge
 
+**Version:** 1.0.0
+**Status:** Stable — ratified in Episode of Record `df3434bd-6936-441c-a896-254149f2bd48` ([`docs/RATIFICATION-PATENTS-1.0.0.md`](./docs/RATIFICATION-PATENTS-1.0.0.md))
+**Date:** 2026-10-01
 **Protocol:** ASTP — the AI State Tree Protocol
 **Maintainer:** Scorched Earth Labs, LLC
 **License:** Apache License, Version 2.0
@@ -67,13 +70,19 @@ pledged. Any party may verify it:
 python3 -c "import hashlib,sys; print(hashlib.sha3_256(open(sys.argv[1],'rb').read()).hexdigest())" SPEC.md
 ```
 
-The 6.0.0 Episode of Record ratified the *amendment draft*
-(`docs/history/SPEC-6.0.0-DRAFT-context-commitment.md`) as proposed text, not
-`SPEC.md` as a whole document. The digest above is therefore a direct content
-digest of the published file rather than a ratified one. A ratified digest of
-the whole specification would require `SPEC.md` to have its own Episode of
-Record; that is a protocol-governance decision, not a requirement of this
-policy.
+`SPEC.md` 6.0.2 is ratified as a whole document in Episode of Record
+`46490010-e8a7-4d79-8092-a1a82de3c93f`
+([`docs/RATIFICATION-SPEC-6.0.2.md`](./docs/RATIFICATION-SPEC-6.0.2.md)). The
+digest above is therefore the ratified digest, the published digest and the
+pledged digest, which are one value. An exported proof of record is published
+under [`docs/proofs/`](./docs/proofs/) and verifies with the reference package
+alone.
+
+Before 6.0.2, whole-document ratification did not apply to `SPEC.md`: the 6.0.0
+Episode of Record ratified the amendment draft
+(`docs/history/SPEC-6.0.0-DRAFT-context-commitment.md`) as proposed text rather
+than the published file. That history is retained in the ratification records
+and does not affect the identification above.
 
 The Specification is `SPEC.md` alone. The non-normative implementation guides
 (`IMPLEMENTATION-*.md`), the historical documents retained under `docs/history/`
@@ -99,6 +108,11 @@ enforces the governance rules in force for that profile, reproduces the pinned
 digests for the constructions that profile exercises, states the profile and
 Specification version it claims, and does not represent optional or
 non-normative material as required.
+
+The applicable version of that document is ratified in an Episode of Record and
+identified there by content digest, so the definition this pledge grants against
+is fixed in a sealed record rather than only in a published file. Which version
+applies, and how it is identified, is stated in `PROTOCOL-CONFORMANCE.md` §7.
 
 An implementation may be proprietary, closed-source, commercial, hosted,
 embedded, or otherwise non-open-source and may nevertheless qualify as a

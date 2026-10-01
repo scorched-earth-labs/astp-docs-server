@@ -113,6 +113,26 @@ class TestSnapshotIntegrity:
     def test_corpus_is_not_empty(self):
         assert corpus_files(CORPUS_DIR), "vendored corpus is empty"
 
+    def test_every_vendored_document_is_served(self):
+        """Every Markdown document the vendor script copies must be indexed by
+        the loader reading the vendored snapshot. The script flattens
+        ``docs/RATIFICATION-*.md`` into the corpus root while the loader once
+        looked for them only under ``docs/``, so a deployed server served no
+        ratification record at all, and nothing reported it. The licensing
+        documents are the deliberate exception: served verbatim, never indexed."""
+        from astp_docs_server.open_corpus import build_open_corpus_spec
+
+        served = {d.doc_id for d in build_open_corpus_spec(CORPUS_DIR).docs}
+        vendored = {
+            os.path.splitext(name)[0]
+            for name in os.listdir(CORPUS_DIR)
+            if name.endswith(".md") and name not in OPEN_VERBATIM_FILES
+        }
+        assert sorted(vendored - served) == [], (
+            "vendored but never indexed — the loader's OPEN_DOC_PATTERNS do not "
+            "match the snapshot's layout"
+        )
+
 
 class TestFreshnessAgainstSource:
     """Skips without a protocol checkout; strict when the pipeline demands it."""

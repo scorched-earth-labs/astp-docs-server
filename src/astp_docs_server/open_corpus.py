@@ -35,7 +35,8 @@ OPEN_DOC_PATTERNS = [
     "VERSIONING.md",
     "GOVERNANCE.md",
     "README.md",
-    "docs/RATIFICATION-*.md",   # Episode of Record statements (5.0.0 onward)
+    "docs/RATIFICATION-*.md",   # Episode of Record statements (5.0.0 onward), in a checkout
+    "RATIFICATION-*.md",        # the same, as vendored: scripts/vendor_corpus.py flattens docs/ into the corpus root
 ]
 
 # Machine-readable assets served verbatim (not chunked or indexed): the pinned
