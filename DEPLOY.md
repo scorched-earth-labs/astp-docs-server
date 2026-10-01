@@ -36,6 +36,14 @@ docker run -p 8080:8080 astp-docs-server        # http://localhost:8080
 Once `astp-docs-core` is published to PyPI (or made public), drop the
 `--build-context` line and install straight from the index in the Dockerfile.
 
+## Before every deploy
+
+```bash
+scripts/check_image_current.sh astp-docs-server:latest   # refuses unless current
+```
+
+The build checks the corpus against the protocol checkout you passed, and records that commit in `/app/CORPUS-FRESHNESS`. This check closes the one gap left: an image built against a stale checkout. It refuses unless the recorded commit **is** astp `main`'s current head. It also refuses an image without the marker (not built through the gate) and refuses when `main` can't be read. Exact equality is deliberate. An image checked against an older commit is refused even if the later commits didn't touch the corpus, and the fix is a rebuild. Wire this line into whatever deploy step the chosen host uses, before the image is pushed or started.
+
 ## Configuration (env vars)
 
 | Var | Default (image) | Purpose |
