@@ -27,7 +27,7 @@ marker="$(docker run --rm --entrypoint cat "$image" /app/CORPUS-FRESHNESS 2>/dev
 recorded="$(grep -oE '[0-9a-f]{40}' <<<"$marker" | head -1)"
 [[ -n "$recorded" ]] || { echo "REFUSE: no commit in $image's marker: $marker" >&2; exit 1; }
 
-main="${ASTP_MAIN_COMMIT:-$(git ls-remote "$repo" refs/heads/main | cut -f1)}"
+main="${ASTP_MAIN_COMMIT:-$(git ls-remote "$repo" refs/heads/main 2>/dev/null | cut -f1 || true)}"
 [[ -n "$main" ]] || { echo "REFUSE: could not read astp main from $repo" >&2; exit 1; }
 
 if [[ "$recorded" != "$main" ]]; then
