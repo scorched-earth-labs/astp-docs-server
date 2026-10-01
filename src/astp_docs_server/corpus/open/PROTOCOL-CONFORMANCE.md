@@ -1,9 +1,9 @@
 # ASTP — Protocol Conformance
 
-**Version:** 1.0.0-draft
-**Status:** DRAFT — pending ratification in an Episode of Record. No open item blocks it; see §11.
+**Version:** 1.0.1
+**Status:** Stable — 1.0.1 ratified in Episode of Record `46490010-e8a7-4d79-8092-a1a82de3c93f` ([`docs/RATIFICATION-SPEC-6.0.2.md`](./docs/RATIFICATION-SPEC-6.0.2.md)), an editorial revision of 1.0.0 (Episode of Record `19d4390f-ac46-4840-bc9a-f419c6626fb4`, [`docs/RATIFICATION-PROTOCOL-CONFORMANCE-1.0.0.md`](./docs/RATIFICATION-PROTOCOL-CONFORMANCE-1.0.0.md)) that changes nothing conformance requires
 **Authors:** Scorched Earth Labs
-**Date:** 2026-09-29
+**Date:** 2026-10-01
 **Applies To:** [`SPEC.md`](./SPEC.md) 6.0.2
 **Companions:** the per-surface conformance vector documents listed in §4.
 
@@ -356,17 +356,17 @@ python3 -c "import hashlib,sys; print(hashlib.sha3_256(open(sys.argv[1],'rb').re
 
 | Protocol version | SHA3-256 digest of `SPEC.md` | Episode of Record |
 |---|---|---|
-| 6.0.2 | `fc0a205ad4b7a0a04e1b5f2583ebc02184d3e33885915aef62bed1ec1d38e0cb` | 6.0.0: `80e5a2dd-3d9f-45d0-abfb-6489c8caf1b8` ([`docs/RATIFICATION-6.0.0.md`](./docs/RATIFICATION-6.0.0.md)) |
+| 6.0.2 | `fc0a205ad4b7a0a04e1b5f2583ebc02184d3e33885915aef62bed1ec1d38e0cb` | `46490010-e8a7-4d79-8092-a1a82de3c93f` ([`docs/RATIFICATION-SPEC-6.0.2.md`](./docs/RATIFICATION-SPEC-6.0.2.md)); the 6.0.0 amendment: `80e5a2dd-3d9f-45d0-abfb-6489c8caf1b8` ([`docs/RATIFICATION-6.0.0.md`](./docs/RATIFICATION-6.0.0.md)) |
 | 5.0.0 | see [`docs/RATIFICATION-5.0.0.md`](./docs/RATIFICATION-5.0.0.md) | `ce3f569c-9cdc-4a3d-913a-b9d8573d9a28` |
 
-> **What the 6.0.0 Episode of Record ratified.** It ratified the amendment draft
-> (`docs/history/SPEC-6.0.0-DRAFT-context-commitment.md`) by content digest, as
-> proposed text for `SPEC.md`. It did not seal a digest of `SPEC.md` as a whole
-> document, as the 5.0.0 Episode did. The digest above is therefore a direct
-> content digest of the published file, verifiable by anyone, rather than a
-> ratified one. Both are sound identifications of a text; they differ in whether
-> the protocol's own ratification machinery sealed them. If a ratified digest of
-> the whole specification is wanted, `SPEC.md` needs its own Episode of Record.
+> **The 6.0.2 digest is a ratified digest.** Episode of Record
+> `46490010-e8a7-4d79-8092-a1a82de3c93f` ratified `SPEC.md` 6.0.2 as a whole document by the
+> digest above, and `SPEC.md` was not edited after the seal: the ratified
+> digest, the digest of the published file and the digest `PATENTS.md` §4.1
+> pledges against are the same. The 6.0.0 Episode of Record ratified the
+> amendment draft (`docs/history/SPEC-6.0.0-DRAFT-context-commitment.md`) as
+> proposed text, not `SPEC.md` as a whole document; until the 6.0.2 Episode the
+> digest above was a direct content digest only.
 
 ---
 
