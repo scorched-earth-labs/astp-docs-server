@@ -7,15 +7,40 @@
 # The core library (astp-docs-core) is a private sibling repo, not yet on PyPI,
 # so it's pulled in as a named build context. Build from THIS repo dir:
 #
-#   python scripts/vendor_corpus.py            # refresh the packaged docs first
-#   docker build --build-context core=../astp-docs-core -t astp-docs-server .
+#   python scripts/vendor_corpus.py ../ariadne-protocol   # refresh the packaged docs first
+#   docker build --build-context core=../astp-docs-core \
+#                --build-context protocol=../ariadne-protocol -t astp-docs-server .
 #   docker run -p 8080:8080 astp-docs-server   # -> http://localhost:8080
+#
+# The build REFUSES to produce an image from a stale corpus. The `freshness`
+# stage runs tests/test_vendor_freshness.py against the protocol checkout passed
+# as the `protocol` context, with ASTP_REQUIRE_CORPUS_FRESHNESS=1, so a missing
+# or out-of-date source fails the build instead of skipping. The final image
+# copies a marker out of that stage, so BuildKit cannot skip it. Pass a checkout
+# of astp's main, clean and up to date: freshness is checked against whatever
+# you pass.
 #
 # (Once astp-docs-core is published to PyPI / made public, drop the build-context
 # line and install straight from the index.)
+# -- freshness gate (I6) --------------------------------------------------------
+FROM python:3.12-slim AS freshness
+COPY --from=core . /opt/astp-docs-core
+COPY . /opt/astp-docs-server
+COPY --from=protocol . /opt/astp-protocol
+RUN pip install --no-cache-dir "/opt/astp-docs-core" "/opt/astp-docs-server" "pytest>=7.0.0" \
+ && cd /opt/astp-docs-server \
+ && ARIADNE_PROTOCOL_DIR=/opt/astp-protocol ASTP_REQUIRE_CORPUS_FRESHNESS=1 \
+    python -m pytest tests/test_vendor_freshness.py -q -p no:cacheprovider \
+ && python -c "import json; m=json.load(open('src/astp_docs_server/corpus/open/vendor_manifest.json')); print('corpus fresh: SPEC', m['spec_version'], 'from', m['source_commit'])" \
+      > /corpus-fresh
+
+# -- the image ------------------------------------------------------------------
 FROM python:3.12-slim
 
 WORKDIR /app
+
+# Depend on the gate: without this COPY, BuildKit would skip the freshness stage.
+COPY --from=freshness /corpus-fresh /app/CORPUS-FRESHNESS
 
 # Core library (from the named build context) then this server's WEB extra only
 # — no `mcp` SDK in the web image (the MCP transport is a separate, distributed

@@ -4,6 +4,8 @@
 *.py[cod]
 .pytest_cache/
 tests/
+# ...except the freshness guard, which the Dockerfile's freshness stage runs (I6).
+!tests/test_vendor_freshness.py
 dist/
 build/
 *.egg-info/
