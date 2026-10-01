@@ -17,12 +17,19 @@ sibling checkout, no runtime corpus mount, boots with zero secrets.
 python scripts/vendor_corpus.py /path/to/ariadne-protocol
 
 # 2. Build. astp-docs-core is a private sibling repo (not yet on PyPI), so it's
-#    pulled in as a named build context:
-docker build --build-context core=../astp-docs-core -t astp-docs-server .
+#    pulled in as a named build context. The protocol checkout is a second
+#    context: the build's `freshness` stage checks the vendored corpus against it
+#    and FAILS if the corpus is stale (ASTP_REQUIRE_CORPUS_FRESHNESS=1). Pass a
+#    clean checkout of astp's main, up to date. Freshness is checked against
+#    whatever you pass.
+docker build --build-context core=../astp-docs-core \
+             --build-context protocol=../ariadne-protocol -t astp-docs-server .
 
 # 3. Run
 docker run -p 8080:8080 astp-docs-server        # http://localhost:8080
 ```
+
+**If the build fails in the `freshness` stage,** the vendored corpus doesn't match the protocol checkout you passed: re-run step 1 and commit the result. **If it fails with `pull access denied` for `protocol`,** you left out the `protocol` build context; Docker is trying to pull an image by that name. Both failures are deliberate. A stale corpus is the worst failure this server has, so it never becomes an image. The built image records what it was checked against in `/app/CORPUS-FRESHNESS`.
 
 `GET /healthz`, `GET /search?q=…`, `GET /license-terms`, `POST /chat {query,k}`, and a demo widget at `/`.
 
