@@ -1,6 +1,6 @@
 {
   "files": {
-    "CHANGELOG.md": "22bf5836f8d75612ac124762bb429e5caafa445ff55cf44bd3c44ec3efe167ec",
+    "CHANGELOG.md": "83591984c8da368cd50e6065781bc365e61781f50da67e92b3d948a51ee0c8a2",
     "CONFORMANCE-BFM.md": "570b92aefbc420f8e9254a39f0a2ceff36bf71889c2673213348aeeb853e0145",
     "CONFORMANCE-CONTEXT.md": "17d95782276a33ab4e361007c113759590bbf290c959631c0ecd90abcb7efeac",
     "CONFORMANCE-CROSS-EPISODE-LINKING.md": "5297cc5ef7c334625fb5a4cca385f72110322ef67bd7caf4ccfd7b01c3851f86",
@@ -26,6 +26,6 @@
     "vectors/5.0.0/seal-constructions.json": "71d0e8b7af9b16f0033b71a49ada8f3cb4ee3269d1a5a0ea981f33e6bbf60056",
     "vectors/6.0.0/context-commitment.json": "54d597aeca1b69fe9d39d9433123cc6a2961d7798cf6681559e765f5096a5cf2"
   },
-  "source_commit": "e74f16a075f88b965d1a38b1588a076f401b9519",
+  "source_commit": "9a35e0442339257335d7a1439f46a0ca139ecf88",
   "spec_version": "6.0.2"
 }
