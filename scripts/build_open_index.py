@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Build the open-corpus index against the real ariadne-protocol docs and
+"""Build the open-corpus index against the real astp docs and
 print stats + a few sample exact lookups. This is the slice-1 verification
 harness: run it after any chunker change to confirm the engine still matches
 the live spec.
 
     python scripts/build_open_index.py
-    ARIADNE_PROTOCOL_DIR=/path/to/ariadne-protocol python scripts/build_open_index.py
+    ASTP_PROTOCOL_DIR=/path/to/astp python scripts/build_open_index.py
 """
 from __future__ import annotations
 

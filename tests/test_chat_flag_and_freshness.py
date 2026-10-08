@@ -2,7 +2,7 @@
 
 On a public host /chat can spend a model provider's credits for anyone (it
 uses Claude whenever the SDK and a key are present), so it is off unless
-ARIADNE_WEB_ENABLE_CHAT=true. /healthz reports the SPEC version and source
+ASTP_WEB_ENABLE_CHAT=true. /healthz reports the SPEC version and source
 commit being served, and open_corpus_fingerprint lets a long-running process
 (the Discord bot) notice the corpus changed — it served SPEC 5.1.0 for days
 after 6.0.0 was vendored.
@@ -31,7 +31,7 @@ def _retriever():
 
 
 def test_chat_is_off_by_default(monkeypatch):
-    monkeypatch.delenv("ARIADNE_WEB_ENABLE_CHAT", raising=False)
+    monkeypatch.delenv("ASTP_WEB_ENABLE_CHAT", raising=False)
     c = TestClient(create_app(retriever=_retriever(), answerer=_NeverBuilt()))
     assert c.post("/chat", json={"query": "leaf hash"}).status_code in (404, 405)
     h = c.get("/healthz").json()
@@ -41,7 +41,7 @@ def test_chat_is_off_by_default(monkeypatch):
 
 
 def test_env_opts_in(monkeypatch):
-    monkeypatch.setenv("ARIADNE_WEB_ENABLE_CHAT", "true")
+    monkeypatch.setenv("ASTP_WEB_ENABLE_CHAT", "true")
     from astp_docs_server.web.answerer import ExtractiveAnswerer
     c = TestClient(create_app(retriever=_retriever(), answerer=ExtractiveAnswerer()))
     assert c.post("/chat", json={"query": "leaf hash", "k": 1}).status_code == 200
@@ -49,7 +49,7 @@ def test_env_opts_in(monkeypatch):
 
 
 def test_healthz_reports_what_is_served(monkeypatch):
-    monkeypatch.delenv("ARIADNE_WEB_ENABLE_CHAT", raising=False)
+    monkeypatch.delenv("ASTP_WEB_ENABLE_CHAT", raising=False)
     h = TestClient(create_app(retriever=_retriever(), answerer=_NeverBuilt())).get("/healthz").json()
     info = served_corpus_info()
     assert h["spec_version"] == info["spec_version"] and h["source_commit"] == info["source_commit"]
@@ -83,16 +83,16 @@ def test_served_info_for_a_live_checkout_reads_spec_md(corpus_copy):
                                            ("extractive", "ExtractiveAnswerer"), ("ollama", "OllamaAnswerer")])
 def test_a_paid_generator_is_opt_in(monkeypatch, mode, expected):
     """Unset used to mean Claude whenever the anthropic SDK was installed (it is,
-    in the image). Only ARIADNE_CHAT_MODE=claude selects it now."""
+    in the image). Only ASTP_CHAT_MODE=claude selects it now."""
     from astp_docs_server.web.answerer import default_answerer
     if mode is None:
-        monkeypatch.delenv("ARIADNE_CHAT_MODE", raising=False)
+        monkeypatch.delenv("ASTP_CHAT_MODE", raising=False)
     else:
-        monkeypatch.setenv("ARIADNE_CHAT_MODE", mode)
+        monkeypatch.setenv("ASTP_CHAT_MODE", mode)
     assert type(default_answerer()).__name__ == expected
 
 
 def test_claude_only_when_asked(monkeypatch):
     from astp_docs_server.web.answerer import ClaudeAnswerer, default_answerer
-    monkeypatch.setenv("ARIADNE_CHAT_MODE", "claude")
+    monkeypatch.setenv("ASTP_CHAT_MODE", "claude")
     assert isinstance(default_answerer(), ClaudeAnswerer)

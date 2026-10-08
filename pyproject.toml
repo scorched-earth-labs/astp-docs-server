@@ -1,9 +1,26 @@
 [project]
 name = "astp-docs-server"
 version = "0.1.0"
-description = "Open documentation server for ASTP (AI State Tree Protocol) — MCP transport for coding agents + web-chat head (Clotho-lite), over the public protocol corpus. Built on the astp-docs core."
+description = "Open documentation server for ASTP (AI State Tree Protocol) — MCP transport for coding agents + web-chat head, over the public protocol corpus"
 readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE.txt", "NOTICE"]
 requires-python = ">=3.10"
+authors = [
+    { name = "Scorched Earth Labs", email = "dev@scorchedearthlabs.com" },
+]
+keywords = ["astp", "mcp", "documentation", "specification", "protocol", "retrieval"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Documentation",
+]
+
 dependencies = [
     # The retrieval engine + shared tool logic. [embeddings] pulls numpy for
     # vector search, which every transport uses.
@@ -33,3 +50,10 @@ build-backend = "hatchling.build"
 # automatically as package data — it lives inside the package dir. Populate it
 # with `python scripts/vendor_corpus.py` before building the wheel/Docker image.
 packages = ["src/astp_docs_server"]
+
+[project.urls]
+Homepage = "https://github.com/scorched-earth-labs/astp-docs-server"
+Repository = "https://github.com/scorched-earth-labs/astp-docs-server"
+Issues = "https://github.com/scorched-earth-labs/astp-docs-server/issues"
+"ASTP protocol" = "https://github.com/scorched-earth-labs/astp"
+"Retrieval core" = "https://github.com/scorched-earth-labs/astp-docs-core"

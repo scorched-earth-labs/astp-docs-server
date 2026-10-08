@@ -1,4 +1,4 @@
-"""Integration test against the real ariadne-protocol open corpus.
+"""Integration test against the real astp open corpus.
 
 Skipped automatically when the sibling repo isn't resolvable, so unit tests
 still run anywhere. This is the guard that the engine keeps matching the live
@@ -16,7 +16,7 @@ except FileNotFoundError:
     _spec = None
 
 pytestmark = pytest.mark.skipif(
-    _spec is None, reason="ariadne-protocol open docs not resolvable (set ARIADNE_PROTOCOL_DIR)"
+    _spec is None, reason="astp open docs not resolvable (set ASTP_PROTOCOL_DIR)"
 )
 
 

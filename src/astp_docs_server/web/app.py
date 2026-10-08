@@ -2,7 +2,7 @@
 
 Endpoints:
   POST /chat    {query, k}  → doc-grounded, cited answer (LLM or extractive)
-                              OFF unless ARIADNE_WEB_ENABLE_CHAT=true (see below)
+                              OFF unless ASTP_WEB_ENABLE_CHAT=true (see below)
   GET  /search  ?q=&k=      → pure retrieval, no LLM (a docs search box)
   GET  /license-terms       → the licensing documents, verbatim (never indexed or generated)
   GET  /healthz             → liveness + what's being served (SPEC version, source commit)
@@ -37,21 +37,21 @@ class ChatRequest(BaseModel):
 
 
 def chat_enabled_from_env() -> bool:
-    return os.environ.get("ARIADNE_WEB_ENABLE_CHAT", "false").strip().lower() in ("1", "true", "yes")
+    return os.environ.get("ASTP_WEB_ENABLE_CHAT", "false").strip().lower() in ("1", "true", "yes")
 
 
 def create_app(retriever: Retriever | None = None, answerer: Answerer | None = None,
                enable_chat: bool | None = None) -> FastAPI:
-    """``enable_chat`` defaults to ``ARIADNE_WEB_ENABLE_CHAT`` (off). When off,
+    """``enable_chat`` defaults to ``ASTP_WEB_ENABLE_CHAT`` (off). When off,
     ``/chat`` is not mounted and no answerer is ever built."""
     if enable_chat is None:
         enable_chat = chat_enabled_from_env()
     app = FastAPI(title="ASTP Docs Assistant", version="0.1.0")
 
     # Public read-only docs assistant: permissive CORS by default so the widget
-    # can be embedded on the docs site. Lock down via ARIADNE_CORS_ORIGINS
+    # can be embedded on the docs site. Lock down via ASTP_CORS_ORIGINS
     # (comma-separated) in production. Credentials are never used.
-    origins = os.environ.get("ARIADNE_CORS_ORIGINS", "*").split(",")
+    origins = os.environ.get("ASTP_CORS_ORIGINS", "*").split(",")
     app.add_middleware(
         CORSMiddleware,
         allow_origins=[o.strip() for o in origins],
@@ -142,8 +142,8 @@ def main() -> None:
     import uvicorn
 
     app = create_app()
-    host = os.environ.get("ARIADNE_WEB_HOST", "127.0.0.1")
-    port = int(os.environ.get("ARIADNE_WEB_PORT", "8080"))
+    host = os.environ.get("ASTP_WEB_HOST", "127.0.0.1")
+    port = int(os.environ.get("ASTP_WEB_PORT", "8080"))
     uvicorn.run(app, host=host, port=port)
 
 

@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """Copy the open protocol docs into the packaged corpus, so the built server is
-self-contained — no sibling `ariadne-protocol` checkout needed at deploy time.
+self-contained — no sibling `astp` checkout needed at deploy time.
 
 Run this before building the wheel or Docker image (and whenever the protocol
 docs change). Uses the same include/exclude patterns as the corpus loader, so
 the vendored snapshot matches what the server serves.
 
-    python scripts/vendor_corpus.py                      # from ARIADNE_PROTOCOL_DIR or ~/projects/ariadne-protocol
-    python scripts/vendor_corpus.py /path/to/ariadne-protocol
+    python scripts/vendor_corpus.py                      # from ASTP_PROTOCOL_DIR or ~/projects/astp
+    python scripts/vendor_corpus.py /path/to/astp
 """
 from __future__ import annotations
 
@@ -40,7 +40,7 @@ DEST = os.path.join(_HERE, "..", "src", "astp_docs_server", "corpus", "open")
 
 def main() -> int:
     src = sys.argv[1] if len(sys.argv) > 1 else (
-        os.environ.get("ARIADNE_PROTOCOL_DIR") or DEFAULT_PROTOCOL_DIR
+        os.environ.get("ASTP_PROTOCOL_DIR") or DEFAULT_PROTOCOL_DIR
     )
     src = os.path.abspath(os.path.expanduser(src))
     if not os.path.isdir(src):

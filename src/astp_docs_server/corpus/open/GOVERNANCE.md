@@ -36,6 +36,8 @@ An Episode of Record may also ratify `SPEC.md` as a whole document at a version 
 
 A release is a git tag `vMAJOR.MINOR.PATCH` on the commit whose `SPEC.md` carries that version. The reference package `astp` is versioned separately from the protocol; the protocol version a given package implements is exposed as `astp.PROTOCOL_VERSION`.
 
+A change confined to the package — packaging metadata, CI, non-normative documentation, or `astp.__version__` itself — is a package release, not a protocol release. It carries no `vMAJOR.MINOR.PATCH` tag and needs no Episode of Record, provided `SPEC.md` and `astp.PROTOCOL_VERSION` are unchanged.
+
 ## Changing this document
 
 By pull request, decided by the maintainers, with the same open review as any other change.

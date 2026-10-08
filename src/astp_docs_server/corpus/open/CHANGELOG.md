@@ -4,6 +4,15 @@ All notable changes to ASTP (the AI State Tree Protocol). Version numbering foll
 
 ## [Unreleased]
 
+### Reference package (`astp` 2.2.3 — `PROTOCOL_VERSION` 6.0.2)
+- `README.md` links are absolute GitHub URLs. The README is the package's PyPI description, and PyPI resolved its 43 relative links (`./SPEC.md` and the rest) against `pypi.org/project/astp/`, where they were dead. `tests/unit/protocol/test_readme_links.py` keeps them absolute and checks each names a file that exists. No code change and no protocol change; `SPEC.md` is untouched, and this carries no tag (`GOVERNANCE.md` §Releases).
+
+### Reference package (`astp` 2.2.2 — `PROTOCOL_VERSION` 6.0.2)
+- Distribution metadata only; no code change and no protocol change. `SPEC.md` is untouched, so the digest `PATENTS.md` §4.1 pledges against is unchanged, and this carries no tag (`GOVERNANCE.md` §Releases).
+- `NOTICE` is added to `license-files`, so the wheel carries it alongside `LICENSE.txt`. `MANIFEST.in` governs the sdist only; a redistributor working from the wheel previously had no copy of the `NOTICE` contents Apache-2.0 §4(d) obliges them to carry.
+- Development status is `4 - Beta` rather than `3 - Alpha`.
+- The package summary names the protocol version implemented.
+
 ## [6.0.2] — 2026-09-26 (ratified and released 2026-10-02)
 
 **PATCH.** Correction: the governance-rule bound of the protocol surface. Released as tag `v6.0.2` once `SPEC.md` 6.0.2 was ratified as a whole document in Episode of Record `46490010-e8a7-4d79-8092-a1a82de3c93f`, with `PROTOCOL-CONFORMANCE.md` 1.0.1 and `PATENTS.md` 1.0.0. 6.0.1 was not released under its own tag; its erratum is ruled in the same Episode.

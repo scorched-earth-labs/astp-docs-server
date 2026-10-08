@@ -18,16 +18,17 @@ from abc import ABC, abstractmethod
 
 from astp_docs.core.models import Result
 
-# Default generation model. Per Anthropic guidance the default is Opus 4.8;
-# override with ARIADNE_CHAT_MODEL (e.g. a cheaper tier) — that's a deployment
-# cost decision, made explicitly, not silently downgraded here.
-DEFAULT_CHAT_MODEL = "claude-opus-4-8"
+# Default generation model: Sonnet 5.5, the maintainers' choice for a docs
+# chat head (scoped, grounded, latency-sensitive). Override with
+# ASTP_CHAT_MODEL — which model a deployment pays for is its own decision.
+DEFAULT_CHAT_MODEL = "claude-sonnet-5-5"
 
 SYSTEM_PROMPT = """\
 You are Clotho-lite, the documentation assistant for ASTP, the AI State Tree \
 Protocol — an open protocol for cognitive persistence and verifiable cognition in \
-multi-agent systems. ASTP was developed internally as Project Ariadne, and the \
-documents still use that name in places; they are the same protocol. Call it ASTP.
+multi-agent systems. Some wire constants in the documents carry a historical \
+`ariadne` prefix (for example `ariadne.seal.v…`); they are part of ASTP. Call the \
+protocol ASTP.
 
 Answer questions about ASTP using ONLY the numbered context \
 passages provided in the user message. Each passage carries a citation like \
@@ -185,7 +186,7 @@ class ClaudeAnswerer(Answerer):
 
     def __init__(self, model: str | None = None, client=None,
                  system_prompt: str | None = None):
-        self.model = model or os.environ.get("ARIADNE_CHAT_MODEL", DEFAULT_CHAT_MODEL)
+        self.model = model or os.environ.get("ASTP_CHAT_MODEL", DEFAULT_CHAT_MODEL)
         self.name = f"claude:{self.model}"
         self._client = client  # injected for tests; else built lazily
         # Another head (e.g. a differently-named community bot over a different
@@ -240,8 +241,8 @@ class OllamaAnswerer(Answerer):
                  system_prompt: str | None = None, transport=None,
                  timeout: float = 120.0, num_predict: int = 700,
                  keep_alive: str = "30m"):
-        self.model = model or os.environ.get("ARIADNE_OLLAMA_MODEL", DEFAULT_OLLAMA_MODEL)
-        self.base_url = (base_url or os.environ.get("ARIADNE_OLLAMA_URL", DEFAULT_OLLAMA_URL)).rstrip("/")
+        self.model = model or os.environ.get("ASTP_OLLAMA_MODEL", DEFAULT_OLLAMA_MODEL)
+        self.base_url = (base_url or os.environ.get("ASTP_OLLAMA_URL", DEFAULT_OLLAMA_URL)).rstrip("/")
         self.system_prompt = system_prompt or SYSTEM_PROMPT
         self.name = f"ollama:{self.model}"
         self._transport = transport
@@ -290,7 +291,7 @@ class OllamaAnswerer(Answerer):
 
 
 def default_answerer() -> Answerer:
-    """Pick a generator from ``ARIADNE_CHAT_MODE``: ``claude`` (paid — must be
+    """Pick a generator from ``ASTP_CHAT_MODE``: ``claude`` (paid — must be
     asked for), ``ollama`` (keyless, local model), or anything else / unset →
     ``extractive`` (keyless, no LLM).
 
@@ -298,7 +299,7 @@ def default_answerer() -> Answerer:
     the ``[web]`` extra the image installs includes it, so a deployment that set
     nothing would spend a provider's credits. A paid generator is now opt-in,
     matching DEPLOY.md."""
-    mode = os.environ.get("ARIADNE_CHAT_MODE", "").strip().lower()
+    mode = os.environ.get("ASTP_CHAT_MODE", "").strip().lower()
     if mode == "claude":
         return ClaudeAnswerer()
     if mode == "ollama":

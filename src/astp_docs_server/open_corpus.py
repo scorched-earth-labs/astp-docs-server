@@ -14,7 +14,7 @@ import os
 from astp_docs.core.corpus import CorpusSpec, Visibility, docrefs_from_dir
 
 # Dev fallback: a local checkout of the protocol repo.
-DEFAULT_PROTOCOL_DIR = os.path.expanduser("~/projects/ariadne-protocol")
+DEFAULT_PROTOCOL_DIR = os.path.expanduser("~/projects/astp")
 
 # Normative + reference documents that make up the open corpus. Glob patterns
 # keep new companion docs picked up automatically; historical/marketing docs
@@ -89,13 +89,13 @@ def resolve_corpus_dir(protocol_dir: str | None = None) -> str:
     """Where the open docs come from, in precedence order:
 
     1. an explicit ``protocol_dir`` argument,
-    2. ``ARIADNE_PROTOCOL_DIR`` — dev override to serve a live checkout,
+    2. ``ASTP_PROTOCOL_DIR`` — dev override to serve a live checkout,
     3. the vendored corpus packaged into the server — the deploy default,
-    4. ``~/projects/ariadne-protocol`` — dev fallback.
+    4. ``~/projects/astp`` — dev fallback.
     """
     base = (
         protocol_dir
-        or os.environ.get("ARIADNE_PROTOCOL_DIR")
+        or os.environ.get("ASTP_PROTOCOL_DIR")
         or _vendored_corpus_dir()
         or DEFAULT_PROTOCOL_DIR
     )
@@ -108,8 +108,8 @@ def build_open_corpus_spec(protocol_dir: str | None = None) -> CorpusSpec:
     if not docs:
         raise FileNotFoundError(
             f"No open protocol docs found under {base!r}. Vendor them "
-            f"(python scripts/vendor_corpus.py) or set ARIADNE_PROTOCOL_DIR to a "
-            f"checkout of the ariadne-protocol repo."
+            f"(python scripts/vendor_corpus.py) or set ASTP_PROTOCOL_DIR to a "
+            f"checkout of the astp repository."
         )
     return CorpusSpec(name="astp-open", visibility=Visibility.OPEN, docs=docs)
 
@@ -142,7 +142,7 @@ def served_corpus_info(protocol_dir: str | None = None) -> dict:
     """What is being served: SPEC version, source commit, where from.
 
     From the vendor manifest for a vendored snapshot; for a live checkout
-    (``ARIADNE_PROTOCOL_DIR``), from its SPEC.md and git HEAD. Reported on
+    (``ASTP_PROTOCOL_DIR``), from its SPEC.md and git HEAD. Reported on
     ``/healthz`` so a deployed server's freshness can be checked from outside."""
     import subprocess
 

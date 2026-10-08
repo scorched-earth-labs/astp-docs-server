@@ -15,7 +15,7 @@ except FileNotFoundError:
     _spec = None
 
 pytestmark = pytest.mark.skipif(
-    _spec is None, reason="ariadne-protocol open docs not resolvable (set ARIADNE_PROTOCOL_DIR)"
+    _spec is None, reason="astp open docs not resolvable (set ASTP_PROTOCOL_DIR)"
 )
 
 

@@ -7,7 +7,7 @@ transports on one substrate, over the public protocol corpus:
   at to implement the protocol from its normative text, and
 - a **web-chat head** ("Clotho-lite") backing a docs-site assistant.
 
-Both consume the shared [`astp-docs`](../astp-docs) core and cite identical
+Both consume the shared [`astp-docs`](https://github.com/scorched-earth-labs/astp-docs-core) core and cite identical
 chunks, so the two heads can't drift. This repo serves **only** the open corpus;
 the proprietary corpus is a separate, private server.
 
@@ -33,8 +33,8 @@ are **separate extras**, so the web head deploys without the MCP SDK and vice-ve
 The open docs are copied into the package (`src/astp_docs_server/corpus/open/`) by
 `scripts/vendor_corpus.py`, and ship in the wheel/image — so a built server is
 **self-contained** (no sibling protocol checkout at runtime). Corpus
-resolution precedence: explicit arg → `ARIADNE_PROTOCOL_DIR` (dev override) →
-vendored package corpus → `~/projects/ariadne-protocol` (dev fallback; the local checkout of `scorched-earth-labs/astp`).
+resolution precedence: explicit arg → `ASTP_PROTOCOL_DIR` (dev override) →
+vendored package corpus → `~/projects/astp` (dev fallback; a local checkout of `scorched-earth-labs/astp`).
 
 Refresh the snapshot when the protocol docs change:
 ```bash
@@ -49,17 +49,17 @@ pip install -e '.[mcp,web,dev]'           # this server + both transports
 
 python -m astp_docs_server                # MCP server (stdio)  [needs .[mcp]]
 python -m astp_docs_server.web            # web-chat head (http://127.0.0.1:8080)  [needs .[web]]
-ARIADNE_CHAT_MODE=extractive python -m astp_docs_server.web   # keyless (no LLM)
+ASTP_CHAT_MODE=extractive python -m astp_docs_server.web   # keyless (no LLM)
 python -m pytest tests/ -q                # self-contained (runs off the vendored corpus)
 ```
 
 The web head answers with Claude by default (`ANTHROPIC_API_KEY` or an
-`ant auth login` profile; model via `ARIADNE_CHAT_MODEL`, default `claude-opus-4-8`);
-`ARIADNE_CHAT_MODE=extractive` runs without an LLM.
+`ant auth login` profile; model via `ASTP_CHAT_MODEL`, default `claude-sonnet-5-5`);
+`ASTP_CHAT_MODE=extractive` runs without an LLM.
 
 ## Deploy
 
-The web head containerizes — see **[DEPLOY.md](DEPLOY.md)**. Short version:
+The web head containerizes — see **[DEPLOY.md](https://github.com/scorched-earth-labs/astp-docs-server/blob/main/DEPLOY.md)**. Short version:
 ```bash
 python scripts/vendor_corpus.py /path/to/astp
 docker build --build-context core=../astp-docs-core -t astp-docs-server .

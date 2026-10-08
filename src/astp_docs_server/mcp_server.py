@@ -29,7 +29,7 @@ def retriever() -> Retriever:
     """Lazily build the open-corpus retriever (once per process)."""
     global _retriever
     if _retriever is None:
-        protocol_dir = os.environ.get("ARIADNE_PROTOCOL_DIR")
+        protocol_dir = os.environ.get("ASTP_PROTOCOL_DIR")
         _retriever = Retriever.from_spec(build_open_corpus_spec(protocol_dir))
         logger.info("Open corpus loaded: %s", _retriever.stats())
     return _retriever
@@ -105,7 +105,7 @@ def get_test_vectors(version: str | None = None) -> dict:
     """
     from astp_docs_server.open_corpus import load_test_vectors
 
-    return load_test_vectors(version, os.environ.get("ARIADNE_PROTOCOL_DIR"))
+    return load_test_vectors(version, os.environ.get("ASTP_PROTOCOL_DIR"))
 
 
 @mcp.tool()
@@ -122,7 +122,7 @@ def get_license_terms() -> dict:
     """
     from astp_docs_server.open_corpus import load_license_terms
 
-    return load_license_terms(os.environ.get("ARIADNE_PROTOCOL_DIR"))
+    return load_license_terms(os.environ.get("ASTP_PROTOCOL_DIR"))
 
 
 @mcp.tool()
