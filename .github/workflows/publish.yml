@@ -1,0 +1,93 @@
+name: publish
+
+# Publishes astp-docs-server to PyPI through Trusted Publishing: no stored
+# token. PyPI trusts this workflow file in this repository, in the `pypi`
+# environment, and nothing else.
+#
+# Started by hand from main. The upload waits for the `pypi` environment's
+# required reviewers.
+#
+# This package depends on astp-docs, so astp-docs must already be on PyPI.
+#
+# The corpus-freshness gate is the point of this workflow. The server ships a
+# vendored snapshot of the protocol documents, and a stale snapshot is a fully
+# valid corpus: the server answers confidently out of superseded normative text
+# and nothing reports a problem. ASTP_REQUIRE_CORPUS_FRESHNESS=1 turns the
+# "no source checkout, skipping" case into a failure, so this job cannot pass
+# by not looking.
+
+on:
+  workflow_dispatch:
+    inputs:
+      protocol_ref:
+        description: "ref of scorched-earth-labs/astp to check the vendored corpus against"
+        required: false
+        default: main
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check out the protocol repository
+        uses: actions/checkout@v4
+        with:
+          repository: scorched-earth-labs/astp
+          ref: ${{ inputs.protocol_ref || 'main' }}
+          path: .protocol
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: pip install -e ".[mcp,web,dev]" build twine
+      - name: Full suite, with the vendored corpus checked against the protocol repo
+        env:
+          ASTP_REQUIRE_CORPUS_FRESHNESS: "1"
+          ARIADNE_PROTOCOL_DIR: ${{ github.workspace }}/.protocol
+        run: pytest -q tests/test_vendor_freshness.py
+      - name: Full suite
+        run: pytest -q
+      - name: Build
+        run: python -m build
+      - name: Check
+        run: |
+          twine check dist/*
+          version=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")
+          whl=dist/astp_docs_server-"$version"-py3-none-any.whl
+          python -c "import zipfile,sys; n=zipfile.ZipFile(sys.argv[1]).namelist(); sys.exit(not all(any(x.endswith('dist-info/licenses/'+f) for x in n) for f in ('LICENSE.txt','NOTICE')))" "$whl" \
+            || { echo "::error::the wheel does not carry LICENSE.txt and NOTICE"; exit 1; }
+          python -c "import zipfile,sys; n=zipfile.ZipFile(sys.argv[1]).namelist(); sys.exit(not any(x.endswith('corpus/open/vendor_manifest.json') for x in n))" "$whl" \
+            || { echo "::error::the wheel does not carry the vendored corpus"; exit 1; }
+          python - "$whl" <<'PY'
+          import json, sys, zipfile
+          z = zipfile.ZipFile(sys.argv[1])
+          name = next(n for n in z.namelist() if n.endswith("corpus/open/vendor_manifest.json"))
+          m = json.loads(z.read(name))
+          print(f"corpus: SPEC {m['spec_version']} from {m['source_commit'][:12]}, {len(m['files'])} files")
+          PY
+          status=$(curl -s -o /dev/null -w '%{http_code}' "https://pypi.org/pypi/astp-docs-server/$version/json")
+          test "$status" = 404 \
+            || { echo "::error::astp-docs-server $version is already on PyPI (HTTP $status); bump the package version"; exit 1; }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/astp-docs-server/
+    permissions:
+      id-token: write  # the OIDC token PyPI exchanges for a short-lived upload token
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1
