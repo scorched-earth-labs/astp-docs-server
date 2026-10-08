@@ -7,9 +7,9 @@
 # The core library (astp-docs-core) is a private sibling repo, not yet on PyPI,
 # so it's pulled in as a named build context. Build from THIS repo dir:
 #
-#   python scripts/vendor_corpus.py ../ariadne-protocol   # refresh the packaged docs first
+#   python scripts/vendor_corpus.py ../astp   # refresh the packaged docs first
 #   docker build --build-context core=../astp-docs-core \
-#                --build-context protocol=../ariadne-protocol -t astp-docs-server .
+#                --build-context protocol=../astp -t astp-docs-server .
 #   docker run -p 8080:8080 astp-docs-server   # -> http://localhost:8080
 #
 # The build REFUSES to produce an image from a stale corpus. The `freshness`
@@ -29,7 +29,7 @@ COPY . /opt/astp-docs-server
 COPY --from=protocol . /opt/astp-protocol
 RUN pip install --no-cache-dir "/opt/astp-docs-core" "/opt/astp-docs-server" "pytest>=7.0.0" \
  && cd /opt/astp-docs-server \
- && ARIADNE_PROTOCOL_DIR=/opt/astp-protocol ASTP_REQUIRE_CORPUS_FRESHNESS=1 \
+ && ASTP_PROTOCOL_DIR=/opt/astp-protocol ASTP_REQUIRE_CORPUS_FRESHNESS=1 \
     python -m pytest tests/test_vendor_freshness.py -q -p no:cacheprovider \
  && python -c "import json; m=json.load(open('src/astp_docs_server/corpus/open/vendor_manifest.json')); print('corpus fresh: SPEC', m['spec_version'], 'from', m['source_commit'])" \
       > /corpus-fresh
@@ -52,10 +52,10 @@ RUN pip install --no-cache-dir "/opt/astp-docs-core[embeddings]" \
 
 # Bind to all interfaces inside the container. Default to the keyless extractive
 # generator so the container boots with ZERO secrets; enable Claude answers by
-# setting ANTHROPIC_API_KEY and ARIADNE_CHAT_MODE=claude at run time.
-ENV ARIADNE_WEB_HOST=0.0.0.0 \
-    ARIADNE_WEB_PORT=8080 \
-    ARIADNE_CHAT_MODE=extractive
+# setting ANTHROPIC_API_KEY and ASTP_CHAT_MODE=claude at run time.
+ENV ASTP_WEB_HOST=0.0.0.0 \
+    ASTP_WEB_PORT=8080 \
+    ASTP_CHAT_MODE=extractive
 
 EXPOSE 8080
 

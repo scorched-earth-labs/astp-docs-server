@@ -47,7 +47,7 @@ jobs:
       - name: Full suite, with the vendored corpus checked against the protocol repo
         env:
           ASTP_REQUIRE_CORPUS_FRESHNESS: "1"
-          ARIADNE_PROTOCOL_DIR: ${{ github.workspace }}/.protocol
+          ASTP_PROTOCOL_DIR: ${{ github.workspace }}/.protocol
         run: pytest -q tests/test_vendor_freshness.py
       - name: Full suite
         run: pytest -q

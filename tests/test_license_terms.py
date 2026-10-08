@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import fnmatch
 import re
+import os
 import shutil
 
 import pytest
@@ -24,7 +25,6 @@ from astp_docs_server.open_corpus import (
     list_verbatim_files,
     load_license_terms,
     open_corpus_fingerprint,
-    resolve_corpus_dir,
 )
 from astp_docs_server.vendor_manifest import file_digest, read_manifest, verify
 from astp_docs_server.web.answerer import (
@@ -36,11 +36,18 @@ from astp_docs_server.web.answerer import (
 )
 from astp_docs_server.web.app import create_app
 
+# The vendored snapshot, not resolve_corpus_dir(): with ASTP_PROTOCOL_DIR set,
+# that resolves to a source checkout, which has no vendor_manifest.json.
+VENDORED_CORPUS_DIR = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    "..", "src", "astp_docs_server", "corpus", "open",
+)
+
 
 @pytest.fixture
 def corpus_copy(tmp_path):
     dst = tmp_path / "corpus"
-    shutil.copytree(resolve_corpus_dir(), dst)
+    shutil.copytree(VENDORED_CORPUS_DIR, dst)
     return dst
 
 
@@ -82,7 +89,7 @@ def test_a_missing_licensing_file_serves_none_of_them(corpus_copy):
 # --- manifest and fingerprint ------------------------------------------------
 
 def test_manifest_records_each_licensing_file():
-    recorded = (read_manifest(resolve_corpus_dir()) or {}).get("files", {})
+    recorded = (read_manifest(VENDORED_CORPUS_DIR) or {}).get("files", {})
     for name, path in list_verbatim_files().items():
         assert recorded.get(name) == file_digest(path), name
     assert set(list_verbatim_files()) == set(OPEN_VERBATIM_FILES)

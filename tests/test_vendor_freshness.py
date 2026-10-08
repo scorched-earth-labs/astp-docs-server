@@ -47,7 +47,7 @@ REVENDOR = "re-run `python scripts/vendor_corpus.py` and commit the result"
 
 
 def _source_dir() -> str | None:
-    src = os.environ.get("ARIADNE_PROTOCOL_DIR") or DEFAULT_PROTOCOL_DIR
+    src = os.environ.get("ASTP_PROTOCOL_DIR") or DEFAULT_PROTOCOL_DIR
     src = os.path.abspath(os.path.expanduser(src))
     return src if os.path.isdir(src) else None
 
@@ -80,7 +80,7 @@ def _require_source() -> str:
     if src:
         return src
     reason = (
-        "no protocol checkout found (set ARIADNE_PROTOCOL_DIR); freshness "
+        "no protocol checkout found (set ASTP_PROTOCOL_DIR); freshness "
         "cannot be checked from this repo alone"
     )
     if os.environ.get("ASTP_REQUIRE_CORPUS_FRESHNESS") == "1":

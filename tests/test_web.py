@@ -76,8 +76,8 @@ def test_claude_answerer_builds_correct_request():
     out = ans.answer("How is the leaf hash built?", _results())
 
     assert out["answer"] == "Grounded answer [1]."
-    assert out["generator"] == "claude:claude-opus-4-8"
-    assert captured["model"] == "claude-opus-4-8"
+    assert out["generator"] == "claude:claude-sonnet-5-5"
+    assert captured["model"] == "claude-sonnet-5-5"
     assert captured["thinking"] == {"type": "adaptive"}
     assert "temperature" not in captured and "top_p" not in captured
     assert captured["system"].startswith("You are Clotho-lite")
@@ -197,9 +197,9 @@ def test_ollama_answerer_empty_completion_is_ungrounded():
 def test_default_answerer_ollama_mode(monkeypatch):
     from astp_docs_server.web.answerer import default_answerer
 
-    monkeypatch.setenv("ARIADNE_CHAT_MODE", "ollama")
-    monkeypatch.setenv("ARIADNE_OLLAMA_MODEL", "phi3:3.8b")
-    monkeypatch.setenv("ARIADNE_OLLAMA_URL", "http://gpu-box:11434/")
+    monkeypatch.setenv("ASTP_CHAT_MODE", "ollama")
+    monkeypatch.setenv("ASTP_OLLAMA_MODEL", "phi3:3.8b")
+    monkeypatch.setenv("ASTP_OLLAMA_URL", "http://gpu-box:11434/")
     a = default_answerer()
     assert isinstance(a, OllamaAnswerer)
     assert a.model == "phi3:3.8b" and a.base_url == "http://gpu-box:11434"

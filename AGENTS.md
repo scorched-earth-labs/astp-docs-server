@@ -40,9 +40,10 @@ the AI State Tree Protocol, read this first.
   agent reasons — bring your own architecture (ReAct, BDI, CoT, …).
 - Storage is an adapter concern: the protocol names storage *roles*, never
   providers. Conform to the protocol, not to the reference adapter.
-- The protocol was developed under the internal name *Ariadne*; wire constants
-  (`Ariadne*` graph labels, `ariadne.` HKDF info strings) keep that prefix
-  because they feed derived keys and name stored data. Call the protocol ASTP.
+- Some wire constants (`Ariadne*` graph labels, `ariadne.` HKDF info strings)
+  carry a historical prefix. The prefix is part of their value — it feeds
+  derived keys and names stored data — so it does not change within a major
+  version. Call the protocol ASTP.
 
 ## Where to start
 

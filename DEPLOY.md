@@ -14,7 +14,7 @@ sibling checkout, no runtime corpus mount, boots with zero secrets.
 
 ```bash
 # 1. Refresh the vendored open docs from a protocol checkout (only when they change)
-python scripts/vendor_corpus.py /path/to/ariadne-protocol
+python scripts/vendor_corpus.py /path/to/astp
 
 # 2. Build. astp-docs-core is a private sibling repo (not yet on PyPI), so it's
 #    pulled in as a named build context. The protocol checkout is a second
@@ -23,7 +23,7 @@ python scripts/vendor_corpus.py /path/to/ariadne-protocol
 #    clean checkout of astp's main, up to date. Freshness is checked against
 #    whatever you pass.
 docker build --build-context core=../astp-docs-core \
-             --build-context protocol=../ariadne-protocol -t astp-docs-server .
+             --build-context protocol=../astp -t astp-docs-server .
 
 # 3. Run
 docker run -p 8080:8080 astp-docs-server        # http://localhost:8080
@@ -48,21 +48,21 @@ The build checks the corpus against the protocol checkout you passed, and record
 
 | Var | Default (image) | Purpose |
 |---|---|---|
-| `ARIADNE_WEB_ENABLE_CHAT` | `false` | **`POST /chat` is not mounted unless this is `true`.** A public deployment should normally leave it off and serve `/search` + the MCP tools only; the Discord heads run the answerer in-process on the host that owns the model and do not use this endpoint. `/healthz` reports `chat`. |
-| `ARIADNE_CHAT_MODE` | `extractive` | Only matters when chat is enabled. `extractive` (or unset) = keyless (no LLM). `claude` = synthesize with Claude — the **only** paid option, and only when asked for. `ollama` = synthesize with a local Ollama model (keyless, $0/call) — never point `ARIADNE_OLLAMA_URL` at a private host from a public deployment. |
-| `ANTHROPIC_API_KEY` | — | Required when `ARIADNE_CHAT_MODE=claude`. |
-| `ARIADNE_CHAT_MODEL` | `claude-opus-4-8` | Generation model (cost/quality knob) when mode is `claude`. |
-| `ARIADNE_OLLAMA_URL` | `http://localhost:11434` | Ollama endpoint when mode is `ollama`. |
-| `ARIADNE_OLLAMA_MODEL` | `qwen3:14b` | Local model when mode is `ollama`. |
-| `ARIADNE_CORS_ORIGINS` | `*` | Comma-separated allowed origins — **lock this to your docs domain in prod.** |
-| `ARIADNE_PROTOCOL_DIR` | — | Override the vendored corpus with a live checkout (dev only). |
-| `ARIADNE_WEB_HOST` / `ARIADNE_WEB_PORT` | `0.0.0.0` / `8080` | Bind address. |
+| `ASTP_WEB_ENABLE_CHAT` | `false` | **`POST /chat` is not mounted unless this is `true`.** A public deployment should normally leave it off and serve `/search` + the MCP tools only; the Discord heads run the answerer in-process on the host that owns the model and do not use this endpoint. `/healthz` reports `chat`. |
+| `ASTP_CHAT_MODE` | `extractive` | Only matters when chat is enabled. `extractive` (or unset) = keyless (no LLM). `claude` = synthesize with Claude — the **only** paid option, and only when asked for. `ollama` = synthesize with a local Ollama model (keyless, $0/call) — never point `ASTP_OLLAMA_URL` at a private host from a public deployment. |
+| `ANTHROPIC_API_KEY` | — | Required when `ASTP_CHAT_MODE=claude`. |
+| `ASTP_CHAT_MODEL` | `claude-sonnet-5-5` | Generation model (cost/quality knob) when mode is `claude`. |
+| `ASTP_OLLAMA_URL` | `http://localhost:11434` | Ollama endpoint when mode is `ollama`. |
+| `ASTP_OLLAMA_MODEL` | `qwen3:14b` | Local model when mode is `ollama`. |
+| `ASTP_CORS_ORIGINS` | `*` | Comma-separated allowed origins — **lock this to your docs domain in prod.** |
+| `ASTP_PROTOCOL_DIR` | — | Override the vendored corpus with a live checkout (dev only). |
+| `ASTP_WEB_HOST` / `ASTP_WEB_PORT` | `0.0.0.0` / `8080` | Bind address. |
 
 The public default — search + MCP only, no chat, nothing that can spend:
 
 ```bash
 docker run -p 8080:8080 \
-  -e ARIADNE_CORS_ORIGINS=https://docs.example.com \
+  -e ASTP_CORS_ORIGINS=https://docs.example.com \
   astp-docs-server
 ```
 
@@ -71,10 +71,10 @@ and rate-limit in front of it before exposing this publicly):
 
 ```bash
 docker run -p 8080:8080 \
-  -e ARIADNE_WEB_ENABLE_CHAT=true \
-  -e ARIADNE_CHAT_MODE=claude \
+  -e ASTP_WEB_ENABLE_CHAT=true \
+  -e ASTP_CHAT_MODE=claude \
   -e ANTHROPIC_API_KEY=sk-ant-... \
-  -e ARIADNE_CORS_ORIGINS=https://docs.example.com \
+  -e ASTP_CORS_ORIGINS=https://docs.example.com \
   astp-docs-server
 ```
 
