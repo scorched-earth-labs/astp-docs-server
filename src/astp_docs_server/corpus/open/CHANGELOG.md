@@ -4,10 +4,38 @@ All notable changes to ASTP (the AI State Tree Protocol). Version numbering foll
 
 ## [Unreleased]
 
-### Reference package (`astp` 2.2.3 — `PROTOCOL_VERSION` 6.0.2)
+## [7.0.0] — 2026-10-20
+
+**MAJOR.** G-1 governs Layer 3 writes. Ratified in Episode of Record `a2aa7ef2-8775-4ad7-964e-9678f712796b` (sealed 2026-10-20 under `spine_algorithm_version` 3, `episode_root_hash` `1776e2187ad370af8ccdbf3a495fdacb164422e7c9e6dee414b687f58236a2f9`), which ratifies `SPEC.md` 7.0.0 as a whole document by content digest `51d1584879142baaee123e732a76310d7f8ccb96f3790001755a79c7a23cb6ab`, together with `PROTOCOL-CONFORMANCE.md` 1.1.0 and `PATENTS.md` 1.1.0 ([`docs/RATIFICATION-7.0.0.md`](./docs/RATIFICATION-7.0.0.md)). None of the three files is edited after the seal, so for each the ratified digest and the published digest are one value, and for `SPEC.md` it is also the digest `PATENTS.md` §4.1 pledges against. It is MAJOR because an implementation that accepted Layer 3 writes against a frozen Episode was conformant to the letter of 6.0.2 and is not conformant to 7.0.0; such an implementation must re-check its conformance. No construction, preimage or vector of Layers 1 and 2 changes, and nothing sealed under any earlier version is affected.
+
+### Changed
+- **§6 G-1** extends to Layer 3. An implementation MUST refuse a Layer 3 creation write (`WorkflowDeclaration`, `ExecutionNode`, `SkillInvocation`) whose Episode is in a G-1 frozen state or has a non-null `sealed_at`, checked on each write, not only when the workflow is declared. Nodes already written stay (L3-I3). Closing a workflow (§21 §10) changes `status` on an existing node and creates none, and remains permitted.
+- **§21 §9 L3-I6** states the invariant: a refused write writes nothing; the refusal is distinguishable from other write failures (`L3_EPISODE_FROZEN` RECOMMENDED), carrying the `episode_id`, the `episode_status` at refusal and whether `sealed_at` was set; the seal does not protect against a violation, because Layer 3 is outside its preimage; and an implementation that ledgers refusals does so outside the §12.4 register.
+- **§21 §2**: hash isolation is not governance isolation. An intact seal says nothing about whether Layer 3 writes respected the boundary.
+- **§21 Appendix B** gains a MUST and a MUST NOT line, and a note on verifying compliance: no node's `declared_at`, `executed_at` or `invoked_at` is later than the time its Episode froze (the implementation's `EPISODE_CLOSE` ledger entry, or `sealed_at`).
+- §3.4: the Layer 3 table row states that its writes are still governed by the Episode lifecycle.
+
+### Added
+- [`CONFORMANCE-LAYER3.md`](./CONFORMANCE-LAYER3.md) 1.2.0: **L3-009** (a declaration is refused in each frozen state and on `sealed_at` alone; ACTIVE, CLOSING and CRYSTALLIZED are controls; a missing Episode fails as not found) and **L3-010** (a freeze mid-run: the next step and skill are refused, earlier `content_hash` values are unchanged, the close succeeds); the matrix gains an L3-I6 / G-1 row.
+- The 6.0.2 text is retained at [`docs/history/SPEC-v6.md`](./docs/history/SPEC-v6.md), byte for byte (SHA3-256 `fc0a205ad4b7a0a04e1b5f2583ebc02184d3e33885915aef62bed1ec1d38e0cb`).
+
+### Editorial (no conformance change; N1 and D1 ruled in Episode of Record `46490010-e8a7-4d79-8092-a1a82de3c93f`)
+- §6 opens with a pointer to the rules filed with the subject they govern: G-19–G-35 in §19, G-36 in §21, G-37–G-39 in §12.4.
+- **N1**, §4.9.3: the `CodicilNode` `content_hash` annotation reads "(SHA3-256 of content; describes the stored field, not a protocol construction)".
+- **D1**, §12.4.1: `CONTEXT_COMMIT` is the write of a context entry; a provision that writes no entry is not one.
+
+### Ratified (companion documents)
+- **[`PROTOCOL-CONFORMANCE.md`](./PROTOCOL-CONFORMANCE.md) 1.1.0**, MINOR, by content digest `a6137608972fac84a837032a8c8eeea37172db8d7996327bd0328739f3404389` (final bytes; ratified = published). Applies to 7.0.0: the Layer 3 profile (§3.7) carries G-1 (L3-I6), the §5 G-1 row reads "Core (G-1 also Layer 3, §21 §9)", and §7.3 pins the 7.0.0 digest. 1.0.1 remains the conformance definition for 6.0.2.
+- **[`PATENTS.md`](./PATENTS.md) 1.1.0**, MINOR, by content digest `9bd35783960166255f80931b3964b842b62880ede95d6806fb3e5d86addafeb6` (final bytes; ratified = published). §4.1 adds the 7.0.0 row and digest; every 6.0.2 statement is kept. §15 is untouched, so no counsel pass was needed.
+
+### Reference package (`astp` 3.0.0 — MAJOR: `PROTOCOL_VERSION` is 7.0.0)
+- `astp.PROTOCOL_VERSION` names 7.0.0 and `__version__` is 3.0.0: the package MAJOR follows the protocol MAJOR, as 2.0.0 followed 6.0.0. No code change. The package defines the Layer 3 types and hashes (`astp.core.workflow_execution`) but has no Layer 3 write path, so there is no write for it to refuse; the frozen states an implementation checks are `astp.core.schema.G1_FROZEN_STATES`, unchanged. The reference deployment (Ignis OS) has refused these writes since 2026-10-17, checked on each write.
+- `README.md` (#100): installation leads with `pip install astp`, and the pre-release caveats are gone. The README is the package's PyPI description, so 3.0.0 is the first release to carry it.
+
+### Reference package (`astp` 2.2.3, published without a tag — `PROTOCOL_VERSION` 6.0.2)
 - `README.md` links are absolute GitHub URLs. The README is the package's PyPI description, and PyPI resolved its 43 relative links (`./SPEC.md` and the rest) against `pypi.org/project/astp/`, where they were dead. `tests/unit/protocol/test_readme_links.py` keeps them absolute and checks each names a file that exists. No code change and no protocol change; `SPEC.md` is untouched, and this carries no tag (`GOVERNANCE.md` §Releases).
 
-### Reference package (`astp` 2.2.2 — `PROTOCOL_VERSION` 6.0.2)
+### Reference package (`astp` 2.2.2, published without a tag — `PROTOCOL_VERSION` 6.0.2)
 - Distribution metadata only; no code change and no protocol change. `SPEC.md` is untouched, so the digest `PATENTS.md` §4.1 pledges against is unchanged, and this carries no tag (`GOVERNANCE.md` §Releases).
 - `NOTICE` is added to `license-files`, so the wheel carries it alongside `LICENSE.txt`. `MANIFEST.in` governs the sdist only; a redistributor working from the wheel previously had no copy of the `NOTICE` contents Apache-2.0 §4(d) obliges them to carry.
 - Development status is `4 - Beta` rather than `3 - Alpha`.

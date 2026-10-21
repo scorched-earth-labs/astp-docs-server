@@ -1,8 +1,8 @@
 # Patent Policy and Patent Pledge
 
-**Version:** 1.0.0
-**Status:** Stable — ratified in Episode of Record `df3434bd-6936-441c-a896-254149f2bd48` ([`docs/RATIFICATION-PATENTS-1.0.0.md`](./docs/RATIFICATION-PATENTS-1.0.0.md))
-**Date:** 2026-10-01
+**Version:** 1.1.0
+**Status:** Stable — ratified in Episode of Record `a2aa7ef2-8775-4ad7-964e-9678f712796b` ([`docs/RATIFICATION-7.0.0.md`](./docs/RATIFICATION-7.0.0.md)), together with `SPEC.md` 7.0.0. 1.0.0 was ratified in Episode of Record `df3434bd-6936-441c-a896-254149f2bd48` ([`docs/RATIFICATION-PATENTS-1.0.0.md`](./docs/RATIFICATION-PATENTS-1.0.0.md))
+**Date:** 2026-10-20
 **Protocol:** ASTP — the AI State Tree Protocol
 **Maintainer:** Scorched Earth Labs, LLC
 **License:** Apache License, Version 2.0
@@ -58,6 +58,7 @@ SHA3-256 digest of its text:
 
 | Protocol version | SHA3-256 digest of `SPEC.md` |
 |---|---|
+| 7.0.0 | `51d1584879142baaee123e732a76310d7f8ccb96f3790001755a79c7a23cb6ab` |
 | 6.0.2 | `fc0a205ad4b7a0a04e1b5f2583ebc02184d3e33885915aef62bed1ec1d38e0cb` |
 
 and any later version expressly designated by Scorched Earth Labs as being
@@ -70,10 +71,17 @@ pledged. Any party may verify it:
 python3 -c "import hashlib,sys; print(hashlib.sha3_256(open(sys.argv[1],'rb').read()).hexdigest())" SPEC.md
 ```
 
+`SPEC.md` 7.0.0 is ratified as a whole document in Episode of Record
+`a2aa7ef2-8775-4ad7-964e-9678f712796b`
+([`docs/RATIFICATION-7.0.0.md`](./docs/RATIFICATION-7.0.0.md)), together with
+version 1.1.0 of this policy, which adds the 7.0.0 row above (§15). The 7.0.0
+digest is therefore the ratified digest, the published digest and the pledged
+digest, which are one value.
+
 `SPEC.md` 6.0.2 is ratified as a whole document in Episode of Record
 `46490010-e8a7-4d79-8092-a1a82de3c93f`
 ([`docs/RATIFICATION-SPEC-6.0.2.md`](./docs/RATIFICATION-SPEC-6.0.2.md)). The
-digest above is therefore the ratified digest, the published digest and the
+6.0.2 digest is therefore the ratified digest, the published digest and the
 pledged digest, which are one value. An exported proof of record is published
 under [`docs/proofs/`](./docs/proofs/) and verifies with the reference package
 alone.

@@ -1,14 +1,16 @@
 # ASTP — Layer 3 (Workflow & Execution DAG) Conformance Test Vectors
 
-**Version:** 1.1.0
+**Version:** 1.2.0
 **Status:** Stable
 **Authors:** Scorched Earth Labs
-**Date:** 2026-09-19
-**Applies To:** SPEC.md §21 (Layer 3 — Workflow & Execution DAG), 5.1.0 (SPEC §21; unchanged by 5.0.0 — see the note in §1)
+**Date:** 2026-10-20
+**Applies To:** SPEC.md §21 (Layer 3 — Workflow & Execution DAG), 7.0.0 (adds L3-I6 and G-1's Layer 3 extension; see the note in §1)
 
 ---
 
 ## 1. Overview
+
+> **SPEC 7.0.0 note.** 7.0.0 extends G-1 to Layer 3: a creation write whose Episode is frozen is refused, checked on each write (SPEC §21 §9, L3-I6). Vectors L3-009 and L3-010 test it. Every other vector is unchanged.
 
 > **SPEC 5.0.0 / 5.1.0 note.** Layer 3 is unchanged by 5.0.0: its byte form is governed by SPEC §21 Part III §8 and is deliberately outside the §5.1 single-encoding statement (§5.1 says so). What did change around it: the audit records Layer 3 events write are the version 2 audit record of SPEC §8; and, under the 5.1.0 adapter failure contract, a Layer 3 writer that cannot complete raises rather than returning a default.
 
@@ -26,7 +28,7 @@ Vectors are organized to match the reference deployment's adapter guide, `IMPLEM
 | ExecutionNode | Schema, hash preimage, terminal-on-write, error consistency | `EX-` |
 | SkillInvocation | Schema, hash preimage, `registry_id` deferral | `SK-` |
 | Sole-writer (CIA) | G-36 sole-writer principle + audit attribution | `CIA-` |
-| Layer invariants | Spine isolation, immutability, retry-by-new-node | `L3-` |
+| Layer invariants | Spine isolation, immutability, retry-by-new-node, frozen-Episode refusal | `L3-` |
 
 All hex values lowercase. All string fields UTF-8.
 
@@ -220,11 +222,25 @@ All hex values lowercase. All string fields UTF-8.
 - **Spec Reference:** §21 §7
 - **Description:** Where the `PRECEDES` edge is stored, it SHOULD carry the normative property `edge_type ∈ {SEQUENTIAL, CONDITIONAL, PARALLEL}` (the `PrecedesEdgeType` enum), recorded even when the default `SEQUENTIAL` applies, and `sequence_gap: Integer`. Additional implementation-specific edge properties are permitted but MUST NOT alter the semantics of the seven core edges.
 
+**L3-009** — Declaration refused against a frozen Episode (L3-I6, G-1)
+- **Class:** REQUIRED
+- **Spec Reference:** §21 §9 (L3-I6); §6 G-1
+- **Description:** A `WorkflowDeclaration` whose Episode is in a G-1 frozen state, or has a non-null `sealed_at`, MUST be refused, and the refusal MUST be distinguishable from any other write failure.
+- **Verification Protocol:** For each of `CLOSING_PENDING_SEAL`, `CLOSED`, `CRYSTALLIZATION_PENDING`, `SEALING`, `SEALED` and `ARCHIVED`, attempt a declaration and assert it is refused with the distinguishable condition, carrying the `episode_id` and the `episode_status`, and that no `WorkflowDeclaration` exists for the Episode afterwards. Repeat with an Episode whose status is `ACTIVE` but whose `sealed_at` is set; assert the same. Control: a declaration against `ACTIVE`, `CLOSING` and `CRYSTALLIZED` succeeds. A declaration against an Episode that does not exist fails as not found, not as a frozen-Episode refusal.
+- **Failure Condition:** Any declaration against a frozen Episode is written; the refusal is indistinguishable from a generic write failure; an open Episode refuses a declaration.
+
+**L3-010** — Writes refused after the Episode freezes mid-run (L3-I6, L3-I3)
+- **Class:** REQUIRED
+- **Spec Reference:** §21 §9 (L3-I6, L3-I3); §21 §10
+- **Description:** The check is made on each write. A workflow declared while its Episode was open gets no exemption: once the Episode freezes, further `ExecutionNode` and `SkillInvocation` writes MUST be refused, nodes written before the freeze MUST be unchanged, and closing the workflow MUST still succeed.
+- **Verification Protocol:** Declare a workflow against an `ACTIVE` Episode; record one step and one skill invocation; record their `content_hash` values. Move the Episode to a frozen state (once with `CLOSED`, once with `SEALED`). Attempt a further step and a further skill invocation against the earlier step; assert each is refused with the distinguishable condition. Assert exactly one `ExecutionNode` and one `SkillInvocation` exist, with their original `content_hash` values. Close the workflow with a terminal status; assert the status transition is written.
+- **Failure Condition:** A step or skill invocation is written after the freeze; an earlier node is altered or removed; `close_workflow` is refused.
+
 ---
 
 ## 7. Governance Rule Enforcement Matrix
 
-Layer 3 governance centers on the single numbered SPEC rule **G-36 (CIA Declaration)** — renumbered from its authoring numeral G-19 during the v3.2.1 integration (the original G-19 collided with the §19 Branch/Fork/Merge taxonomy). The remaining Layer 3 requirements are stated as **invariants** (L3-I1 … L3-I5) and **wire-tier conformance rules** (W-L3-1 … W-L3-4) rather than G-numbers.
+Layer 3 governance centers on the single numbered SPEC rule **G-36 (CIA Declaration)** — renumbered from its authoring numeral G-19 during the v3.2.1 integration (the original G-19 collided with the §19 Branch/Fork/Merge taxonomy). Since 7.0.0 G-1 also governs Layer 3 writes (L3-I6). The remaining Layer 3 requirements are stated as **invariants** (L3-I1 … L3-I6) and **wire-tier conformance rules** (W-L3-1 … W-L3-4) rather than G-numbers.
 
 | Rule / Invariant | Scope | Vector(s) |
 |------------------|-------|-----------|
@@ -234,6 +250,7 @@ Layer 3 governance centers on the single numbered SPEC rule **G-36 (CIA Declarat
 | L3-I3 | Terminal-on-write immutability | L3-004 |
 | L3-I4 | WorkflowDeclaration mutation surface | L3-005, WF-003 |
 | L3-I5 | Retry-by-new-node | L3-006 |
+| L3-I6 / G-1 | Frozen-Episode refusal, checked on each write | L3-009, L3-010 |
 | W-L3-1 | Hash determinism | WF-001, EX-001, SK-001 |
 | W-L3-2 | Hash field inclusion/exclusion | WF-001/002, EX-001/002, SK-001/002 |
 | W-L3-3 | Documented serialization | (declared in `ConformanceDeclaration`; see §8) |
@@ -249,7 +266,7 @@ Layer 3 governance centers on the single numbered SPEC rule **G-36 (CIA Declarat
 
 ### Level 1: Protocol Conformance (Wire + State tiers)
 
-Implementation passes all **REQUIRED** vectors in sections 2–6 and the governance matrix of section 7. This covers the SPEC §21 §12 **Wire tier** (node schemas §4–§6, edge names §7, hash preimage rules §8, immutability §9, state machine §10, audit events §11, CIA sole-writer §3) and **State tier** (status-transition semantics, retry-by-new-node, the two-`INTERRUPTED` distinction). No claim is made about storage layout, hash byte-form, or performance.
+Implementation passes all **REQUIRED** vectors in sections 2–6 and the governance matrix of section 7. This covers the SPEC §21 §12 **Wire tier** (node schemas §4–§6, edge names §7, hash preimage rules §8, immutability and the frozen-Episode refusal §9, state machine §10, audit events §11, CIA sole-writer §3) and **State tier** (status-transition semantics, retry-by-new-node, the two-`INTERRUPTED` distinction). No claim is made about storage layout, hash byte-form, or performance.
 
 ### Level 2: Full Conformance (+ Behavioral tier documentation)
 

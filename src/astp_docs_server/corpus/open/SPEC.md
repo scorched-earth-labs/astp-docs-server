@@ -1,10 +1,10 @@
 # ASTP — AI State Tree Protocol Specification
 
-**Version:** 6.0.2
-**Status:** Stable — ratified in Episode of Record `80e5a2dd-3d9f-45d0-abfb-6489c8caf1b8` (below)
+**Version:** 7.0.0
+**Status:** Stable — ratified in Episode of Record `a2aa7ef2-8775-4ad7-964e-9678f712796b` (below)
 **Authors:** Scorched Earth Labs
-**Date:** 2026-09-26
-**Supersedes:** [`SPEC-v5.md`](./docs/history/SPEC-v5.md) (5.2.0); earlier, [`SPEC-v4.md`](./docs/history/SPEC-v4.md) (4.5.0), [`SPEC-v3.md`](./docs/history/SPEC-v3.md) (3.5.1) and [`SPEC-v1.md`](./docs/history/SPEC-v1.md) (0.1.0-draft)
+**Date:** 2026-10-20
+**Supersedes:** [`SPEC-v6.md`](./docs/history/SPEC-v6.md) (6.0.2); earlier, [`SPEC-v5.md`](./docs/history/SPEC-v5.md) (5.2.0), [`SPEC-v4.md`](./docs/history/SPEC-v4.md) (4.5.0), [`SPEC-v3.md`](./docs/history/SPEC-v3.md) (3.5.1) and [`SPEC-v1.md`](./docs/history/SPEC-v1.md) (0.1.0-draft)
 **Change history:** [`CHANGELOG.md`](./CHANGELOG.md)
 **Versioning policy:** [`VERSIONING.md`](./VERSIONING.md)
 **Term definitions:** [`GLOSSARY.md`](./GLOSSARY.md)
@@ -17,7 +17,9 @@ The full normative protocol is defined in this document's body. The `Version` fi
 
 **What 6.0.0 is.** A sealed Episode could prove what its agents wrote, what structure it took and which human decisions concluded inside it; it could not prove what its agents were *given*. 6.0.0 adds a **context manifest** — a sixth field of the Episode root (§5.7, `spine_algorithm_version` 3) committing every external input provided to an agent during the Episode — attachments, retrieved knowledge, external content, tool output — as typed context entries (§4.8), each a stored node with its own hash construction, with inclusion proofs so that one entry can be proven without disclosing the others. It states that **the seal proves history, not retention**: the seal commits to hashes and pointers, never to content, which is what lets presence be bound into the root and content be lawfully erased from behind it (§4.9, G-43) without contradiction. Where the content is low-entropy personal data its commitment is non-reversible by construction (G-42), so that erasing the content also destroys the means of confirming a guess at it. The two halves are safe only together. Nothing sealed under `spine_algorithm_version` 0, 1 or 2 changes.
 
-**Episode of Record.** `VERSIONING.md` requires a ratifying Episode of Record for each MAJOR release. The Episode of Record for 6.0.0 is `80e5a2dd-3d9f-45d0-abfb-6489c8caf1b8` ("6.0.0 Episode of Record", sealed 2026-09-22 under `spine_algorithm_version` 2, `episode_root_hash` `45cd50c5d34c6d1ec49fa9a6fd7989036e2d91d624f66e9eb8e93c9904f27d3e`). It ratifies the amendment text [`docs/history/SPEC-6.0.0-DRAFT-context-commitment.md`](./docs/history/SPEC-6.0.0-DRAFT-context-commitment.md) (draft.2) at commit `4ec1de1` by content digest — SHA3-256 `2d96f27949715118a3c9b6a2a431ff6df009de37bf8c9d2a39907cd6d9c5647c` — together with the reference vectors [`vectors/6.0.0/context-commitment.json`](./vectors/6.0.0/context-commitment.json) (SHA3-256 `f493080713fc1de58ae11e5c4891e524ba98c70510a93f3eb045eeeb1ba4e3ae`); the ratification statement is Segment 18 of the Episode, completed by codicil `9bcc9240-4221-4ab6-a63c-3172e65815fe`, and the amendment was folded into this document after the seal ([`docs/RATIFICATION-6.0.0.md`](./docs/RATIFICATION-6.0.0.md)). An exported proof of record, verifiable with this package alone, is published under [`docs/proofs/`](./docs/proofs/). The Episode of Record for 5.0.0 is `ce3f569c-9cdc-4a3d-913a-b9d8573d9a28` ("5.0.0 Episode of Record", sealed 2026-09-18 under `spine_algorithm_version` 1, `episode_root_hash` `3649bff4b96a17c99bb108ec23f4e6f8e41a455d9d38c98d6f32111800afe48a`). It ratifies the text of this document at commit `44f764e` by content digest — SHA3-256 `c2e13d0ee60f7db95d185ec2f8079d38c9f087f7168a3b613aada6bc0a6b8a8d` of the `-draft`-suffixed file; the suffix was stripped and this paragraph written after the seal, and no normative sentence changed ([`docs/RATIFICATION-5.0.0.md`](./docs/RATIFICATION-5.0.0.md)). The Episode of Record for 4.0.0 is `458fb62b-faee-4e42-9f92-c63187c1b59a` ("Episode of Record — ASTP 4.0.0 ledgering obligations (G-39)", sealed 2026-08-22 under `spine_algorithm_version` 1, `ordering_version` 1). Its sealed root reproduces from its stored nodes. Exported proofs of record for both Episodes, verifiable with this package alone, are published under [`docs/proofs/`](./docs/proofs/).
+**What 7.0.0 is.** Layer 3 is outside every Spine hash, and 6.0.2 let that cryptographic isolation stand in for a governance one: G-1 refused Segment and Signal commits against a frozen Episode but was silent on Layer 3, so a workflow could be declared, and its steps recorded, against an Episode that had already closed. 7.0.0 extends G-1 to every Layer 3 creation write, checked on each write (G-1; §21 §9, L3-I6), and states in §21 §2 that hash isolation is not governance isolation. It is MAJOR because an implementation that accepted such writes was conformant to the letter of 6.0.2 and is not conformant to 7.0.0. No construction, preimage or vector of Layers 1 and 2 changes, and nothing sealed under any earlier version is affected. Nodes written under 6.0.2 against a frozen Episode remain where they are (L3-I3).
+
+**Episode of Record.** `VERSIONING.md` requires a ratifying Episode of Record for each MAJOR release. The Episode of Record for 7.0.0 is `a2aa7ef2-8775-4ad7-964e-9678f712796b` ("SPEC.md 7.0.0 Episode of Record"). It ratifies this document as a whole by content digest, together with `PROTOCOL-CONFORMANCE.md` 1.1.0 and `PATENTS.md` 1.1.0, and none of the three is edited after the seal, so the ratified digest, the digest of this file and the digest `PATENTS.md` §4.1 pledges against are one value ([`docs/RATIFICATION-7.0.0.md`](./docs/RATIFICATION-7.0.0.md)). The Episode of Record for 6.0.0 is `80e5a2dd-3d9f-45d0-abfb-6489c8caf1b8` ("6.0.0 Episode of Record", sealed 2026-09-22 under `spine_algorithm_version` 2, `episode_root_hash` `45cd50c5d34c6d1ec49fa9a6fd7989036e2d91d624f66e9eb8e93c9904f27d3e`). It ratifies the amendment text [`docs/history/SPEC-6.0.0-DRAFT-context-commitment.md`](./docs/history/SPEC-6.0.0-DRAFT-context-commitment.md) (draft.2) at commit `4ec1de1` by content digest — SHA3-256 `2d96f27949715118a3c9b6a2a431ff6df009de37bf8c9d2a39907cd6d9c5647c` — together with the reference vectors [`vectors/6.0.0/context-commitment.json`](./vectors/6.0.0/context-commitment.json) (SHA3-256 `f493080713fc1de58ae11e5c4891e524ba98c70510a93f3eb045eeeb1ba4e3ae`); the ratification statement is Segment 18 of the Episode, completed by codicil `9bcc9240-4221-4ab6-a63c-3172e65815fe`, and the amendment was folded into this document after the seal ([`docs/RATIFICATION-6.0.0.md`](./docs/RATIFICATION-6.0.0.md)). An exported proof of record, verifiable with this package alone, is published under [`docs/proofs/`](./docs/proofs/). The Episode of Record for 5.0.0 is `ce3f569c-9cdc-4a3d-913a-b9d8573d9a28` ("5.0.0 Episode of Record", sealed 2026-09-18 under `spine_algorithm_version` 1, `episode_root_hash` `3649bff4b96a17c99bb108ec23f4e6f8e41a455d9d38c98d6f32111800afe48a`). It ratifies the text of this document at commit `44f764e` by content digest — SHA3-256 `c2e13d0ee60f7db95d185ec2f8079d38c9f087f7168a3b613aada6bc0a6b8a8d` of the `-draft`-suffixed file; the suffix was stripped and this paragraph written after the seal, and no normative sentence changed ([`docs/RATIFICATION-5.0.0.md`](./docs/RATIFICATION-5.0.0.md)). The Episode of Record for 4.0.0 is `458fb62b-faee-4e42-9f92-c63187c1b59a` ("Episode of Record — ASTP 4.0.0 ledgering obligations (G-39)", sealed 2026-08-22 under `spine_algorithm_version` 1, `ordering_version` 1). Its sealed root reproduces from its stored nodes. Exported proofs of record for both Episodes, verifiable with this package alone, are published under [`docs/proofs/`](./docs/proofs/).
 
 **Conventions.** The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in BCP 14 [RFC 2119] [RFC 8174] when, and only when, they appear in all capitals, as shown here.
 
@@ -150,7 +152,7 @@ The protocol defines three **persistence layers** — distinct from the code-arc
 |-------|----------|-------|-------------------|
 | **Layer 1 — Merkle Spine** | EpisodeNode, IntentionNode, BeliefNode, SignalNode, and other cognitive primitives | Protocol kernel | Hash-chained, witness-signable, authoritative cognitive record |
 | **Layer 2 — Episode Content** | Segments, BranchPoints, HITLEventNodes; the Episode spine tree (§5.6) | Protocol kernel | Anchored to Layer 1 via parent references |
-| **Layer 3 — Workflow & Execution DAG** | WorkflowDeclaration, ExecutionNode, SkillInvocation | Cognitive Implementation Authority (per workspace, per node type — see §21 §3) | **Isolated**: Layer 3 nodes do NOT participate in Spine hash computation. Cross-layer references are by ID only. |
+| **Layer 3 — Workflow & Execution DAG** | WorkflowDeclaration, ExecutionNode, SkillInvocation | Cognitive Implementation Authority (per workspace, per node type — see §21 §3) | **Isolated**: Layer 3 nodes do NOT participate in Spine hash computation. Cross-layer references are by ID only. Their writes are still governed by the Episode lifecycle (G-1; §21 §2). |
 
 **Layer 3 is specified in §21 of this document.** The full Layer 3 surface — node schemas, hash preimage rules, immutability invariants, state machine, sole-writer principle (Cognitive Implementation Authority), and audit event types (`WORKFLOW_DECLARED`, `EXECUTION_RECORDED`, `SKILL_INVOKED`, `WORKFLOW_CLOSED`) — is normatively specified there. This section names Layer 3's existence and position in the persistence model; §21 is the authoritative reference for its semantics.
 
@@ -522,7 +524,7 @@ CodicilNode {
   episode_id:      UUID
   author:          string        (agent_id or user_id)
   content:         string        (stored on the node; an ErasureTombstone is one such content)
-  content_hash:    HASH          (SHA3-256 of content)
+  content_hash:    HASH          (SHA3-256 of content; describes the stored field, not a protocol construction)
   created_at:      datetime
   schema_version:  string
 }
@@ -825,6 +827,8 @@ annotation, never a re-seal (a re-seal would itself be a post-closure mutation).
 
 These invariants MUST be enforced by any conforming implementation.
 
+Rules are numbered in the order they were adopted and are filed with the subject they govern, so not every rule is in this section: G-19–G-35 are in §19, G-36 in §21, and G-37–G-39 in §12.4. Every other rule is below.
+
 ### G-1: Write Guard
 
 No modifications to sealed nodes, **and no new children appended to them.** A
@@ -835,6 +839,15 @@ or Signal commit against an Episode in `CLOSING_PENDING_SEAL`, `CLOSED`,
 (`CODICIL_APPEND`, §12.4.1) is the sole sanctioned post-closure append and uses
 its own path. A refused commit is a governance event; if the implementation
 ledgers refusals it does so outside the §12.4 register.
+
+The same states freeze Layer 3 (§21). An implementation MUST refuse a Layer 3
+creation write — a `WorkflowDeclaration`, `ExecutionNode` or `SkillInvocation` —
+whose Episode is in any of those states or has a non-null `sealed_at`. The check
+is made on each write, not once when a workflow is declared: a workflow declared
+while its Episode was open has its further steps and skill invocations refused
+once the Episode freezes. Nodes already written stay (L3-I3). Closing a workflow
+(§21 §10) changes the status of an existing node and creates none, so it remains
+permitted. The refusal and its form are specified in §21 §9 (L3-I6).
 
 A seal MAY be established at any time at or after close (G-40): the write guard
 takes effect at closure, not at the seal.
@@ -1260,7 +1273,7 @@ write an operation value absent from this table unless that value carries an
 implementation-specific namespace prefix, so protocol operations and extension
 operations remain distinguishable at read time without out-of-band knowledge.
 
-`CONTEXT_COMMIT` (6.0.0) is the write of a context entry (§4.8): providing content to an agent's context is a ledgered operation. `CODICIL_APPEND` covers the erasure tombstone (§4.9). `ATTACHMENT_COMMIT` remains the ledger entry for attaching; providing an attachment to an agent is a `CONTEXT_COMMIT`.
+`CONTEXT_COMMIT` (6.0.0) is the write of a context entry (§4.8): providing content to an agent's context is a ledgered operation when, and because, it writes an entry. A provision that writes no context entry is not a `CONTEXT_COMMIT` and is not ledgered under it. `CODICIL_APPEND` covers the erasure tombstone (§4.9). `ATTACHMENT_COMMIT` remains the ledger entry for attaching; providing an attachment to an agent is a `CONTEXT_COMMIT`.
 
 `CONSULTATION_COMMIT` covers the whole consultation write — the consultation
 node, its ordered exchange entries and the consulted agent's participation
@@ -2841,6 +2854,8 @@ This invariant has three consequences that conforming implementations MUST guara
 
 The protocol layer makes no claim about whether Layer 3 storage and Layer 1/2 storage share infrastructure. They MAY share a database, a blob store, an index. Adapter choices are unconstrained. What is constrained is the **hash preimage** — never crosses the layer boundary.
 
+Hash isolation is not governance isolation. Layer 3's exclusion from Spine hashing does not exempt Layer 3 writes from the Episode lifecycle: the write boundary of G-1 applies to them (§9, L3-I6). The seal's integrity and the integrity of the provenance record are distinct properties, and each needs its own enforcement. An intact seal says nothing about whether Layer 3 writes respected the boundary.
+
 #### §3 The Sole-Writer Principle — Cognitive Implementation Authority (CIA)
 
 A second invariant governs **who** may write Layer 3:
@@ -3082,6 +3097,10 @@ Both forms satisfy W-L3-1, W-L3-2, and W-L3-3. An implementation choosing Form A
 
 > **Invariant L3-I5 (Retry-by-New-Node).** A retried execution step MUST produce a new `ExecutionNode` with a new `node_id` and a new `sequence_index`. The prior `ExecutionNode` is preserved unchanged. Implementations MUST NOT provide a "retry" surface that mutates a prior node.
 
+> **Invariant L3-I6 (Frozen Episode).** A Layer 3 creation write — a `WorkflowDeclaration`, `ExecutionNode` or `SkillInvocation` — whose Episode is in a G-1 frozen state, or has a non-null `sealed_at`, MUST be refused. The Episode is the one the node's workflow is declared within (`DECLARED_WITHIN`, §7). The check is made on each write: a `WorkflowDeclaration` created while its Episode was open gives its later `ExecutionNode` and `SkillInvocation` writes no exemption. A refused write writes nothing, and nodes written before the Episode froze are unchanged (L3-I3). `close_workflow` creates no node and is not refused. The Episode seal does not protect against a violation of this invariant, because Layer 3 is outside its preimage (L3-I1); the guard is the only enforcement.
+>
+> A refusal MUST surface as a condition the caller can distinguish from any other write failure (RECOMMENDED identifier: `L3_EPISODE_FROZEN`), carrying the `episode_id`, the `episode_status` at refusal, and whether `sealed_at` was set, so that a runner can stop the workflow and close it rather than retry. A refusal is a governance event (G-1); if the implementation ledgers refusals it does so outside the §12.4 register.
+
 #### §10 Workflow Status State Machine
 
 `WorkflowDeclaration.status` follows this transition graph:
@@ -3182,6 +3201,7 @@ A conforming Layer 3 implementation MUST:
 - [ ] Compute `content_hash` from a documented deterministic serialization per §8, including only the fields marked immutable-and-hashable and excluding all fields marked excluded-from-hash.
 - [ ] Enforce the immutability invariants of §9 — reject all mutation attempts on ExecutionNode and SkillInvocation; permit only `status`, `status_updated_at`, `error_detail` mutations on WorkflowDeclaration.
 - [ ] Enforce the WorkflowDeclaration state machine of §10, including the atomic auto-transition `DECLARED → IN_PROGRESS` on first ExecutionNode write.
+- [ ] Refuse every Layer 3 creation write against a frozen Episode, checked on each write, with a distinguishable refusal (§9, L3-I6, G-1).
 - [ ] Emit `WORKFLOW_DECLARED`, `EXECUTION_RECORDED`, `SKILL_INVOKED`, `WORKFLOW_CLOSED` audit events per §11, with `cia_identifier` populated, into a documented append-only hash-chained audit log.
 - [ ] Designate, in its `ConformanceDeclaration`, exactly one Cognitive Implementation Authority per Layer 3 node type, identify the enforcement mechanism, and demonstrate enforcement at the wire tier (§3, §12).
 - [ ] Document its chosen hash byte serialization in sufficient detail that an independent verifier can reproduce any Layer 3 node's hash from its field values (§8, W-L3-3).
@@ -3196,6 +3216,9 @@ A conforming Layer 3 implementation MUST NOT:
 - [ ] Provide a "retry" surface that updates a prior `ExecutionNode` (§9, L3-I5).
 - [ ] Admit Layer 3 writes from any principal other than the designated CIA for the relevant node type (§3, L3-I2).
 - [ ] Populate `SkillInvocation.registry_id` until the future Skill Registry amendment defines its semantics (§13 item 2).
+- [ ] Write a `WorkflowDeclaration`, `ExecutionNode` or `SkillInvocation` whose Episode is in a G-1 frozen state or has a non-null `sealed_at`, whether or not the workflow was declared before the Episode froze (§9, L3-I6, G-1).
+
+Compliance with L3-I6 cannot be checked by verifying the Episode seal, which commits no Layer 3 data. It is checked against the Layer 3 record itself: no `WorkflowDeclaration` has a `declared_at`, and no `ExecutionNode` or `SkillInvocation` an `executed_at` or `invoked_at`, later than the time its Episode froze, as the implementation records that time (its `EPISODE_CLOSE` ledger entry, §12.4, where it ledgers one, or `sealed_at`).
 
 ### Relation to context entries (6.0.0)
 

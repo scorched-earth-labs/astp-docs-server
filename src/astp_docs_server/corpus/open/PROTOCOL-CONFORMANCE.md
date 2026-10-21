@@ -1,10 +1,10 @@
 # ASTP — Protocol Conformance
 
-**Version:** 1.0.1
-**Status:** Stable — 1.0.1 ratified in Episode of Record `46490010-e8a7-4d79-8092-a1a82de3c93f` ([`docs/RATIFICATION-SPEC-6.0.2.md`](./docs/RATIFICATION-SPEC-6.0.2.md)), an editorial revision of 1.0.0 (Episode of Record `19d4390f-ac46-4840-bc9a-f419c6626fb4`, [`docs/RATIFICATION-PROTOCOL-CONFORMANCE-1.0.0.md`](./docs/RATIFICATION-PROTOCOL-CONFORMANCE-1.0.0.md)) that changes nothing conformance requires
+**Version:** 1.1.0
+**Status:** Stable — 1.1.0 ratified in Episode of Record `a2aa7ef2-8775-4ad7-964e-9678f712796b` ([`docs/RATIFICATION-7.0.0.md`](./docs/RATIFICATION-7.0.0.md)), together with `SPEC.md` 7.0.0. 1.0.1 (Episode of Record `46490010-e8a7-4d79-8092-a1a82de3c93f`) remains the conformance definition for `SPEC.md` 6.0.2 (§7, §7.1)
 **Authors:** Scorched Earth Labs
-**Date:** 2026-10-01
-**Applies To:** [`SPEC.md`](./SPEC.md) 6.0.2
+**Date:** 2026-10-20
+**Applies To:** [`SPEC.md`](./SPEC.md) 7.0.0
 **Companions:** the per-surface conformance vector documents listed in §4.
 
 ---
@@ -164,9 +164,12 @@ Governance: **G-19 – G-35.**
 
 ### 3.7 Layer 3 — Workflow and Execution DAG — OPTIONAL
 
-`SPEC.md` §21. Governance: **G-36.** Layer 3 is hash-isolated from the Spine:
-an implementation with no Layer 3 is a valid implementation at Layers 1 and 2,
-and Layer 3's byte form is not governed by §5.1.
+`SPEC.md` §21. Governance: **G-36**, and **G-1** as it applies to Layer 3 writes
+(§21 §9, L3-I6). Layer 3 is hash-isolated from the Spine: an implementation with
+no Layer 3 is a valid implementation at Layers 1 and 2, and Layer 3's byte form
+is not governed by §5.1. Hash isolation is not governance isolation: an
+implementation that supports Layer 3 refuses a Layer 3 creation write against a
+frozen Episode.
 
 ### 3.8 Optional to support, required to commit
 
@@ -230,7 +233,7 @@ profile. Rules are normative where defined in `SPEC.md`; this table is an index.
 
 | Rules | Subject | Defined | Profile |
 |---|---|---|---|
-| G-1 – G-6 | Write guard, reparenting, sequence and clock monotonicity, node-type registration, namespace firewall | §6 | Core |
+| G-1 – G-6 | Write guard, reparenting, sequence and clock monotonicity, node-type registration, namespace firewall | §6 | Core (G-1 also Layer 3, §21 §9) |
 | G-7 – G-9 | Signal governance | §6 | Core |
 | G-10 | Structural delta content invariant | §6 | Core |
 | G-11 – G-16 | Witness threshold and validity, chain root, anchoring timing, key version, node type in derivation | §6 | Trust Infrastructure |
@@ -356,8 +359,16 @@ python3 -c "import hashlib,sys; print(hashlib.sha3_256(open(sys.argv[1],'rb').re
 
 | Protocol version | SHA3-256 digest of `SPEC.md` | Episode of Record |
 |---|---|---|
+| 7.0.0 | `51d1584879142baaee123e732a76310d7f8ccb96f3790001755a79c7a23cb6ab` | `a2aa7ef2-8775-4ad7-964e-9678f712796b` ([`docs/RATIFICATION-7.0.0.md`](./docs/RATIFICATION-7.0.0.md)) |
 | 6.0.2 | `fc0a205ad4b7a0a04e1b5f2583ebc02184d3e33885915aef62bed1ec1d38e0cb` | `46490010-e8a7-4d79-8092-a1a82de3c93f` ([`docs/RATIFICATION-SPEC-6.0.2.md`](./docs/RATIFICATION-SPEC-6.0.2.md)); the 6.0.0 amendment: `80e5a2dd-3d9f-45d0-abfb-6489c8caf1b8` ([`docs/RATIFICATION-6.0.0.md`](./docs/RATIFICATION-6.0.0.md)) |
 | 5.0.0 | see [`docs/RATIFICATION-5.0.0.md`](./docs/RATIFICATION-5.0.0.md) | `ce3f569c-9cdc-4a3d-913a-b9d8573d9a28` |
+
+> **The 7.0.0 digest is a ratified digest.** Episode of Record
+> `a2aa7ef2-8775-4ad7-964e-9678f712796b` ratified `SPEC.md` 7.0.0 as a whole document by the
+> digest above, together with this document at 1.1.0 and `PATENTS.md` 1.1.0, and
+> none of the three was edited after the seal: for 7.0.0 the ratified digest,
+> the digest of the published file and the digest `PATENTS.md` §4.1 pledges
+> against are the same.
 
 > **The 6.0.2 digest is a ratified digest.** Episode of Record
 > `46490010-e8a7-4d79-8092-a1a82de3c93f` ratified `SPEC.md` 6.0.2 as a whole document by the
