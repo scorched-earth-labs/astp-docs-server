@@ -1,6 +1,6 @@
 [project]
 name = "astp-docs-server"
-version = "0.1.0"
+version = "0.1.1"
 description = "Open documentation server for ASTP (AI State Tree Protocol) — MCP transport for coding agents + web-chat head, over the public protocol corpus"
 readme = "README.md"
 license = "Apache-2.0"

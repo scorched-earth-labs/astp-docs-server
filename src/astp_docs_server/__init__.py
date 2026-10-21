@@ -9,4 +9,4 @@ The package `__init__` stays import-light on purpose: it does NOT import the MCP
 transport, so the web head runs without the `mcp` dependency installed. Import the
 server explicitly where needed:  `from astp_docs_server.mcp_server import run`.
 """
-__version__ = "0.1.0"
+__version__ = "0.1.1"

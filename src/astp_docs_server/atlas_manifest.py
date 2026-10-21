@@ -10,6 +10,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from . import __version__
+
 
 def _read_cap(cap_id: str, tool_name: str, name: str, desc: str, schema: dict) -> dict:
     return {
@@ -27,7 +29,7 @@ def get_astp_docs_open_manifest() -> dict[str, Any]:
     return {
         "service_id": "astp-docs-open",
         "name": "ASTP Open Docs MCP Server",
-        "version": "0.1.0",
+        "version": __version__,
         "description": (
             "Serves the OPEN ASTP protocol corpus (SPEC, "
             "IMPLEMENTATION/CONFORMANCE companions, GLOSSARY, CHANGELOG) with "

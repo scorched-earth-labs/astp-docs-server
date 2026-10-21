@@ -24,13 +24,13 @@ produces non-conforming adapters).
 
 ## Normative documents (open corpus)
 
-- SPEC.md — the canonical protocol specification, 6.0.2 (§1–§22; governance G-1..G-43)
-- PROTOCOL-CONFORMANCE.md — what a Conforming Implementation is: the profiles, the governance rules each carries, and how conformance is claimed (draft, pending ratification)
+- SPEC.md — the canonical protocol specification, 7.0.0 (§1–§22; governance G-1..G-43)
+- PROTOCOL-CONFORMANCE.md — what a Conforming Implementation is: the profiles, the governance rules each carries, and how conformance is claimed (1.1.0, ratified with SPEC 7.0.0)
 - CONFORMANCE-REPRODUCIBILITY.md — seal constructions and reproducibility (RP-*), with vectors/5.0.0/seal-constructions.json
 - GLOSSARY.md — every term, reconciled with the SPEC
 - GOVERNANCE.md / VERSIONING.md — how the protocol changes; Episodes of Record
 - CONFORMANCE-CONTEXT.md — §4.8–§4.9, §5.7.3 context commitment and erasure (CM-*), with vectors/6.0.0/context-commitment.json; IMPLEMENTATION-CONTEXT.md is its implementation guide
-- docs/RATIFICATION-5.0.0.md / docs/RATIFICATION-6.0.0.md — the 5.0.0 and 6.0.0 Episode of Record statements
+- docs/RATIFICATION-*.md — the Episode of Record statements: SPEC 5.0.0, 6.0.0, 6.0.2 and 7.0.0 (7.0.0 also ratifies PROTOCOL-CONFORMANCE 1.1.0 and PATENTS 1.1.0), PROTOCOL-CONFORMANCE 1.0.0 and PATENTS 1.0.0
 - CONFORMANCE-BFM.md — §19 branch/fork/merge, asides, soliloquies
 - CONFORMANCE-CROSS-EPISODE-LINKING.md — §20 cross-episode linking and grouping
 - CONFORMANCE-LAYER3.md — §21 Workflow & Execution DAG

@@ -27,6 +27,8 @@ from pydantic import BaseModel, Field
 
 from astp_docs.core import Retriever
 from astp_docs.toolkit import anchored_search
+
+from .. import __version__
 from ..open_corpus import build_open_corpus_spec, load_license_terms, served_corpus_info
 from .answerer import Answerer, default_answerer
 
@@ -46,7 +48,7 @@ def create_app(retriever: Retriever | None = None, answerer: Answerer | None = N
     ``/chat`` is not mounted and no answerer is ever built."""
     if enable_chat is None:
         enable_chat = chat_enabled_from_env()
-    app = FastAPI(title="ASTP Docs Assistant", version="0.1.0")
+    app = FastAPI(title="ASTP Docs Assistant", version=__version__)
 
     # Public read-only docs assistant: permissive CORS by default so the widget
     # can be embedded on the docs site. Lock down via ASTP_CORS_ORIGINS
