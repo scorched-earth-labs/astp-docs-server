@@ -11,6 +11,28 @@ Both consume the shared [`astp-docs`](https://github.com/scorched-earth-labs/ast
 chunks, so the two heads can't drift. This repo serves **only** the open corpus;
 the proprietary corpus is a separate, private server.
 
+This release serves **SPEC 7.0.0**, vendored from astp commit `a1127ae`. Each
+release pins one snapshot of the protocol docs; the exact commit and file list
+ship in the package as `corpus/open/vendor_manifest.json`.
+
+## Install (for your coding agent)
+
+The MCP server runs locally over stdio; there is no hosted endpoint.
+
+```bash
+pip install 'astp-docs-server[mcp]'
+claude mcp add astp-docs -- astp-docs-open      # Claude Code
+```
+
+For any other MCP client, register a stdio server whose command is
+`astp-docs-open`. If you installed into a virtualenv, give the client the
+command's absolute path (`which astp-docs-open`), since clients don't
+activate virtualenvs. To run it without installing: `uvx --from
+'astp-docs-server[mcp]' astp-docs-open`.
+
+The server indexes the bundled corpus at startup and needs no API key or
+network access.
+
 ## Layout
 
 ```
@@ -62,7 +84,8 @@ The web head answers with Claude by default (`ANTHROPIC_API_KEY` or an
 The web head containerizes — see **[DEPLOY.md](https://github.com/scorched-earth-labs/astp-docs-server/blob/main/DEPLOY.md)**. Short version:
 ```bash
 python scripts/vendor_corpus.py /path/to/astp
-docker build --build-context core=../astp-docs-core -t astp-docs-server .
+docker build --build-context core=../astp-docs-core \
+             --build-context protocol=../astp -t astp-docs-server .
 docker run -p 8080:8080 astp-docs-server
 ```
 Stateless (index rebuilds from the vendored corpus at startup) → host-agnostic,
